@@ -60,7 +60,9 @@ public:
 	virtual ~TaskTree();
 
 	QVariant data( const QModelIndex &index, int role ) const;
-//	Qt::ItemFlags flags( const QModelIndex &index ) const;
+	bool setData( const QModelIndex& index, const QVariant& value, int role = Qt::EditRole );
+
+	Qt::ItemFlags flags( const QModelIndex &index ) const;
 	QVariant headerData( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
 	QModelIndex index( int row, int column, const QModelIndex &parent = QModelIndex() ) const;
 	QModelIndex parent( const QModelIndex &index ) const;
@@ -68,13 +70,13 @@ public:
 	int columnCount( const QModelIndex &parent = QModelIndex() ) const;
 
 
-	void addChild( const QModelIndex &index );
-	void addChild( const QModelIndex &index, const Task& _task );
-	void addChild( const QUuid& _parent, const Task& _task );
+	QModelIndex addChild( const QModelIndex &index );
+	QModelIndex addChild( const QModelIndex &index, const Task& _task );
+	QModelIndex addChild( const QUuid& _parent, const Task& _task );
 
-	void addSibling( const QModelIndex &index );
-	void addSibling( const QModelIndex &index, const Task& _task );
-	void addSibling( const QUuid& _parent, const Task& _task );
+	QModelIndex addSibling( const QModelIndex &index );
+	QModelIndex addSibling( const QModelIndex &index, const Task& _task );
+	QModelIndex addSibling( const QUuid& _parent, const Task& _task );
 
 	void delItem( const QModelIndex &index );
 

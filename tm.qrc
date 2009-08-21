@@ -1,6 +1,6 @@
 <RCC>
   <qresource prefix="images" >
     <file>icons/1.png</file>
-    <file>icons/12.png</file>
+    <file alias="MainIcon" >icons/12.png</file>
   </qresource>
 </RCC>

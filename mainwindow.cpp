@@ -42,8 +42,9 @@ void TM::slot_AddItem()
 		try
 		{
 			QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
-			m_Tasks.addChild(idx);
+			QModelIndex newidx = m_Tasks.addChild(idx);
 			ui.treeView->expand(idx);
+			ui.treeView->edit(newidx);
 			ui.treeView->resizeColumnToContents(0);
 		}
 		catch(std::exception& ex)
@@ -58,7 +59,8 @@ void TM::slot_AddSiblingItem()
 	try
 	{
 		QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
-		m_Tasks.addSibling(idx);
+		QModelIndex newidx = m_Tasks.addSibling(idx);
+		ui.treeView->edit(newidx);
 		ui.treeView->resizeColumnToContents(0);
 	}
 	catch(std::exception& ex)
