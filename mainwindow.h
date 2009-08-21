@@ -19,7 +19,8 @@ public slots:
 	void slot_AddItem();
 	void slot_AddSiblingItem();
 	void slot_DelItem();
-
+	void slot_FocusChanged(QWidget *old, QWidget *now);
+	void slot_TaskChanged(const QModelIndex& _new, const QModelIndex& _old);
 
 private:
 	Ui::TMClass	ui;
@@ -27,6 +28,8 @@ private:
 	QShortcut	*p_ShcAddSiblingTask;
 	QShortcut	*p_ShcAddChildTask;
 	QShortcut	*p_ShcDelTask;
+
+	QWidget		*p_CurFocus;
 };
 
 #endif // MAINWINDOW_H

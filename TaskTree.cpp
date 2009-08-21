@@ -320,6 +320,15 @@ void TaskTree::delItem( const QModelIndex &_index )
 	endRemoveRows();
 }
 
+TaskItem* TaskTree::getItem(QModelIndex _idx)
+{
+	if (!_idx.isValid())
+		return NULL;
+
+	TaskItem *item = (TaskItem*)(_idx.internalPointer());
+	return item;
+}
+
 Qt::ItemFlags TaskTree::flags( const QModelIndex &index ) const
 {
 	if (!index.isValid())

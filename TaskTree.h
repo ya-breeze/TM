@@ -80,6 +80,8 @@ public:
 
 	void delItem( const QModelIndex &index );
 
+	TaskItem* getItem(QModelIndex _idx);
+
 	void clear();
 protected:
 	TaskMap		m_Tasks;

@@ -21,10 +21,20 @@ class Task
 	QUuid		m_Id;
 	QUuid		m_Parent;
 	UuidVec		m_Depends;
+	QString		str_Notes;
 public:
-	Task(const QString& _name = "");
+	Task( const QString& _name = "" );
 
 	///////////////////// Get/Set ///////////////////
+	QString getNotes() const
+	{
+		return str_Notes;
+	}
+
+	void setNotes( QString str_Notes )
+	{
+		this->str_Notes = str_Notes;
+	}
 
 	UuidVec getDepends() const
 	{
