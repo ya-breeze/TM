@@ -29,33 +29,19 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Tasks</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QTreeView" name="treeView">
           <property name="animated">
            <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QListView" name="listView"/>
-        </item>
-        <item>
-         <widget class="QPushButton" name="btnAdd">
-          <property name="text">
-           <string>Add</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="btnAddChild">
-          <property name="text">
-           <string>Add child</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="btnDel">
-          <property name="text">
-           <string>Remove</string>
           </property>
          </widget>
         </item>
@@ -70,21 +56,26 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>190</width>
+          <width>385</width>
           <height>455</height>
          </rect>
         </property>
         <attribute name="label">
-         <string>Page 1</string>
+         <string>Notes</string>
         </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QTextEdit" name="Notes"/>
+         </item>
+        </layout>
        </widget>
        <widget class="QWidget" name="page_2">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>190</width>
-          <height>455</height>
+          <width>96</width>
+          <height>26</height>
          </rect>
         </property>
         <attribute name="label">
@@ -109,6 +100,8 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionFocusTasks"/>
+    <addaction name="actionFocusNotes"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuTasks">
@@ -127,29 +120,36 @@
    <property name="text">
     <string>Add</string>
    </property>
-   <property name="shortcut">
-    <string>Ins</string>
-   </property>
   </action>
   <action name="actionAddChild">
    <property name="text">
     <string>AddChild</string>
-   </property>
-   <property name="shortcut">
-    <string>Shift+Ins</string>
    </property>
   </action>
   <action name="actionDel">
    <property name="text">
     <string>Del</string>
    </property>
-   <property name="shortcut">
-    <string>Del</string>
-   </property>
   </action>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionFocusTasks">
+   <property name="text">
+    <string>FocusTasks</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="actionFocusNotes">
+   <property name="text">
+    <string>FocusNotes</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
    </property>
   </action>
  </widget>

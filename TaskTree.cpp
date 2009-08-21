@@ -22,10 +22,10 @@ TaskItem::TaskItem( const Task& _task, TaskItem *parent )
 
 TaskItem::~TaskItem()
 {
+	for(int i=0;i<(int)childItems.size();++i)
+		childItems[i]->setParent(parentItem);
 	if( parentItem )
 		parentItem->removeChild(this);
-	for(int i=0;i<(int)childItems.size();++i)
-		childItems[i]->setParent(NULL);
 }
 
 void TaskItem::appendChild(TaskItem *item)
@@ -125,7 +125,7 @@ TaskTree::~TaskTree()
 {
 }
 
-QVariant TaskTree::data( const QModelIndex &index, int /*role*/ ) const
+QVariant TaskTree::data( const QModelIndex &index, int role ) const
 {
 	if (!index.isValid())
 		return QVariant();
@@ -134,7 +134,10 @@ QVariant TaskTree::data( const QModelIndex &index, int /*role*/ ) const
 	if( !item )
 		return QVariant();
 
-	return item->data(index.column());
+	if( role==Qt::DisplayRole )
+		return item->data(index.column());
+
+	return QVariant();
 }
 
 QVariant TaskTree::headerData( int section, Qt::Orientation orientation, int role ) const
@@ -198,13 +201,10 @@ int TaskTree::rowCount( const QModelIndex &parent ) const
 	else
 		parentItem = (TaskItem*)parent.internalPointer();
 
-	DEBUG(parentItem);
 	if( !parentItem )
 		return 0;
 
-	DEBUG(parentItem->getName() << ":" << parentItem->childCount());
-//	return parentItem->childCount();
-	return 1;
+	return parentItem->childCount();
 }
 
 int TaskTree::columnCount( const QModelIndex& ) const
@@ -245,9 +245,71 @@ void TaskTree::addChild( const QUuid& _parent, const Task& _task )
 	TaskItem *parent = it->second.get();
 	QModelIndex idx = createIndex(parent->row(), 0, parent);
 
+	addChild(idx, _task);
+}
+
+
+void TaskTree::addSibling( const QModelIndex &_index )
+{
+	addSibling(_index, Task());
+}
+
+void TaskTree::addSibling( const QModelIndex &_index, const Task& _task )
+{
+	QModelIndex idx = _index;
+	TaskItem *parent = rootItem.get();
+	if( _index.isValid() )
+		parent = (TaskItem*)(_index.internalPointer());
+	parent = parent->parent();
+	if( !parent || parent==rootItem.get() )
+	{
+		idx = QModelIndex();
+		parent = rootItem.get();
+	}
+	else
+	{
+		idx = createIndex(parent->row(), 0, parent);
+	}
+
 	beginInsertRows(idx, parent->childCount(), parent->childCount());
 	PtrTaskItem item = PtrTaskItem( new TaskItem(_task, parent) );
 	parent->appendChild(item.get());
 	m_Tasks[item->getId()] = item;
+	endInsertRows();
+}
+
+void TaskTree::addSibling( const QUuid& _parent, const Task& _task )
+{
+	TaskMap::iterator it = m_Tasks.find(_parent);
+	if( it==m_Tasks.end() )
+		ERROR("Unknown task with id=" << _parent);
+
+	TaskItem *parent = it->second.get();
+	QModelIndex idx = createIndex(parent->row(), 0, parent);
+
+	addSibling(idx, _task);
+}
+
+void TaskTree::delItem( const QModelIndex &_index )
+{
+	if( !_index.isValid() )
+		return;
+	TaskItem *item = (TaskItem*)(_index.internalPointer());
+
+	QModelIndex idx = _index;
+	TaskItem *parent = item->parent();
+	if( !parent || parent==rootItem.get() )
+	{
+		idx = QModelIndex();
+		parent = rootItem.get();
+	}
+	else
+	{
+		idx = createIndex(parent->row(), 0, parent);
+	}
+
+	DEBUG("idx - " << idx.isValid() << ", row = " << item->row());
+	beginRemoveRows(idx, item->row(), item->row());
+	m_Tasks.erase(item->getId());
 	endInsertRows();
 }

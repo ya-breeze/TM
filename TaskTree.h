@@ -71,6 +71,13 @@ public:
 	void addChild( const QModelIndex &index );
 	void addChild( const QModelIndex &index, const Task& _task );
 	void addChild( const QUuid& _parent, const Task& _task );
+
+	void addSibling( const QModelIndex &index );
+	void addSibling( const QModelIndex &index, const Task& _task );
+	void addSibling( const QUuid& _parent, const Task& _task );
+
+	void delItem( const QModelIndex &index );
+
 	void clear();
 protected:
 	TaskMap		m_Tasks;
