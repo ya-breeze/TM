@@ -295,21 +295,18 @@ void TaskTree::delItem( const QModelIndex &_index )
 	if( !_index.isValid() )
 		return;
 	TaskItem *item = (TaskItem*)(_index.internalPointer());
-
-	QModelIndex idx = _index;
-	TaskItem *parent = item->parent();
-	if( !parent || parent==rootItem.get() )
+	while( item->childCount() )
 	{
-		idx = QModelIndex();
-		parent = rootItem.get();
-	}
-	else
-	{
-		idx = createIndex(parent->row(), 0, parent);
+		TaskItem *child = item->child( item->childCount()-1 );
+		delItem( createIndex(child->row(), 0, child) );
 	}
 
-	DEBUG("idx - " << idx.isValid() << ", row = " << item->row());
-	beginRemoveRows(idx, item->row(), item->row());
+	QModelIndex parent = createIndex(item->parent()->row(), 0, item->parent());
+	if( item->parent()==rootItem.get() )
+		parent = QModelIndex();
+	int row = item->row();
+	beginRemoveRows(parent, row, row);
+	item->parent()->removeChild(item);
 	m_Tasks.erase(item->getId());
-	endInsertRows();
+	endRemoveRows();
 }
