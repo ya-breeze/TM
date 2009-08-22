@@ -83,6 +83,7 @@ public:
 
 	TaskItem* getItem(QModelIndex _idx) const;
 	TaskItem* getItem( const QUuid& _id) const;
+	QModelIndex getItemIndex( const QUuid& _id) const;
 
 	void	clear();
 protected:

@@ -8,11 +8,12 @@
 #include "Activities.h"
 
 #include "utils.h"
-#include "Saver.h"
 
 Activities::Activities( const QDate& _date )
 	: m_Today(_date)
 {
+	Saver saver;
+	m_Days = saver.getActiveDays();
 }
 
 void Activities::addActivity(const Activity& _act, bool _setCurrent)

@@ -24,6 +24,9 @@ TM::TM(QWidget *parent)
 	connect( ui.btnNewActivity, SIGNAL(clicked()), this, SLOT(slot_AddActivity()) );
 
 	connect( ui.rbActivityTask, SIGNAL(toggled(bool)), this, SLOT(slot_ActivityType()) );
+
+	connect( ui.btnToTasks, SIGNAL(clicked()), this, SLOT(slot_BtnToTasks()) );
+
 	/// Focuses
 //	connect( ui.actionFocusTasks, SIGNAL(triggered(bool)), ui.treeView, SLOT(setFocus()) );
 //	connect( ui.actionFocusNotes, SIGNAL(triggered(bool)), ui.Notes, SLOT(setFocus()) );
@@ -266,4 +269,11 @@ void TM::slot_ActivityType()
 	{
 		ui.leActivityName->setEnabled(true);
 	}
+}
+
+void TM::slot_BtnToTasks()
+{
+	slot_SetFocusTasks();
+	Activity act = m_Activities.getCurrentActivity();
+	ui.treeView->selectionModel()->setCurrentIndex(m_Tasks.getItemIndex(act.getAssignedTask()), QItemSelectionModel::ClearAndSelect);
 }

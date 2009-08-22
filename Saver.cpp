@@ -9,6 +9,7 @@
 
 #include <stdlib.h>
 #include <QFile>
+#include <QDir>
 
 #include "utils.h"
 
@@ -245,4 +246,32 @@ void Saver::saveActivity(std::ofstream& _file, const Activity& _act)
 //		<< "Notes:" << escapeString(_task.getNotes()).toUtf8().data() << std::endl
 		<< "Parent:" << _act.getAssignedTask().toString() << std::endl
 		<< "END:VEVENT" << std::endl;
+}
+
+Saver::DateSet Saver::getActiveDays()
+{
+	DateSet res;
+	QString fname(FNAME_ACTS);
+
+	if( !createDirFromFile(FNAME_ACTS) )
+		ERROR("Can't create directory for file '" <<FNAME_ACTS<<"'");
+
+	fname = fname.left(fname.lastIndexOf("/"));
+
+	QDir dir(fname);
+	dir.setFilter( QDir::Files | QDir::Hidden | QDir::NoSymLinks );
+	QStringList filters;
+	filters << "Activities.*";
+	dir.setNameFilters( filters );
+
+	QFileInfoList list = dir.entryInfoList();
+	for( int i = 0; i < list.size(); ++i )
+	{
+		QFileInfo fileInfo = list.at(i);
+		QString date = fileInfo.fileName().mid(11);
+		DEBUG("Day with activities - " << date);
+		res.insert( QDate::fromString(date, Qt::ISODate) );
+	}
+
+	return res;
 }

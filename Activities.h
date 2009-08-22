@@ -10,7 +10,7 @@
 
 #include <map>
 #include "DayActivities.h"
-//#include "ChangableObject.h"
+#include "Saver.h"
 
 /// Хранилище хронометража одного дня. Весь день состоит из множества Activity
 class Activities// : public ChangableObject
@@ -18,6 +18,7 @@ class Activities// : public ChangableObject
 	typedef std::map<QDate, DayActivities> ActivitySet;
 
 	ActivitySet	m_Activities;
+	Saver::DateSet	m_Days;
 	QDate		m_Today;
 	Activity	m_CurActivity;
 

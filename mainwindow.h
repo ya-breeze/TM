@@ -35,6 +35,8 @@ public slots:
 	void slot_ActivityType();
 	/// Обновляет информацию о текущей активности
 	void slot_CurrentActivity();
+	/// Переходит от текущей активности к выполняемой задаче
+	void slot_BtnToTasks();
 
 private:
 	void closeEvent(QCloseEvent *event);
