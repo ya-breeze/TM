@@ -10,10 +10,15 @@
 #include "utils.h"
 
 Activities::Activities( const QDate& _date )
-	: m_Today(_date)
+	: m_Today(_date), has_CurActivity(false)
 {
 	Saver saver;
 	m_Days = saver.getActiveDays();
+}
+
+bool Activities::hasCurActivity() const
+{
+	return has_CurActivity;
 }
 
 void Activities::addActivity(const Activity& _act, bool _setCurrent)
@@ -25,6 +30,7 @@ void Activities::addActivity(const Activity& _act, bool _setCurrent)
 	{
 		m_CurActivity = _act;
 		m_Today = _act.getStartTime().date();
+		has_CurActivity = true;
 	}
 }
 
@@ -53,6 +59,7 @@ void Activities::setToday( const QDate& _date )
 	if( day.count() )
 	{
 		m_CurActivity = day.getActivity( day.count()-1 );
+		has_CurActivity = true;
 	}
 	DEBUG(m_CurActivity.getName());
 }

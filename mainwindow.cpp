@@ -218,7 +218,7 @@ void TM::slot_AddActivity()
 {
 	try
 	{
-		Activity act( QDateTime(m_Activities.getToday(), ui.teActivityStartTime->dateTime().time()) );
+		Activity act( ui.teActivityStartTime->dateTime() );
 
 		if( ui.rbActivityTask->isChecked() )
 		{
@@ -232,7 +232,10 @@ void TM::slot_AddActivity()
 		{
 			act.setName(ui.leActivityName->text());
 		}
-		m_Activities.addActivity(act);
+		bool setCurrent = true;
+		if( m_Activities.hasCurActivity() && m_Activities.getCurrentActivity().getStartTime()>act.getStartTime() )
+			setCurrent = false;
+		m_Activities.addActivity(act, setCurrent);
 
 		ui.tabMain->setCurrentIndex(1);
 		slot_CurrentActivity();
@@ -245,6 +248,9 @@ void TM::slot_AddActivity()
 
 void TM::slot_CurrentActivity()
 {
+	if( !m_Activities.hasCurActivity() )
+		return;
+
 	Activity act = m_Activities.getCurrentActivity();
 	ui.lblCurrentActivity->setText(act.getName());
 	ui.lblActivityStarted->setText( act.getStartTime().toString("yyyy.MM.dd hh:mm") );
@@ -252,6 +258,7 @@ void TM::slot_CurrentActivity()
 		ui.btnToTasks->setEnabled(false);
 	else
 	{
+		ui.btnToTasks->setEnabled(true);
 		TaskItem *item = m_Tasks.getItem(act.getAssignedTask());
 		if( !item )
 			ERROR("Wrong task in activity");

@@ -21,12 +21,14 @@ class Activities// : public ChangableObject
 	Saver::DateSet	m_Days;
 	QDate		m_Today;
 	Activity	m_CurActivity;
+	bool		has_CurActivity;
 
 public:
 	Activities( const QDate& _date = QDate::currentDate() );
 
 	void		addActivity(const Activity& _act, bool _setCurrent = true);
 	const Activity& getCurrentActivity() const;
+	bool		hasCurActivity() const;
 
 	size_t		countDays() const;
 	const QDate&	getToday() const;

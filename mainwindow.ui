@@ -124,8 +124,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>317</width>
-          <height>335</height>
+          <width>112</width>
+          <height>112</height>
          </rect>
         </property>
         <attribute name="label">
@@ -160,7 +160,7 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QTimeEdit" name="teActivityStartTime"/>
+            <widget class="QDateTimeEdit" name="teActivityStartTime"/>
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="label_4">
@@ -250,6 +250,7 @@
     </item>
    </layout>
   </widget>
+  <widget class="QStatusBar" name="statusbar"/>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
@@ -268,18 +269,8 @@
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
-   <widget class="QMenu" name="menuTasks">
-    <property name="title">
-     <string>Tasks</string>
-    </property>
-    <addaction name="actionAdd"/>
-    <addaction name="actionAddChild"/>
-    <addaction name="actionDel"/>
-   </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuTasks"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <action name="actionAdd">
    <property name="text">
     <string>Add</string>
@@ -314,6 +305,19 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>treeView</tabstop>
+  <tabstop>tabMain</tabstop>
+  <tabstop>rbActivityTask</tabstop>
+  <tabstop>radioButton</tabstop>
+  <tabstop>leActivityName</tabstop>
+  <tabstop>btnNewActivity</tabstop>
+  <tabstop>cvLastActivities</tabstop>
+  <tabstop>teActivityStartTime</tabstop>
+  <tabstop>Notes</tabstop>
+  <tabstop>btnToTasks</tabstop>
+  <tabstop>lvActivities</tabstop>
+ </tabstops>
  <resources>
   <include location="tm.qrc"/>
  </resources>
