@@ -2,12 +2,15 @@ TEMPLATE = app
 TARGET = TM
 QT += core \
     gui
-HEADERS += Saver.h \
-    exceptions.h \
+HEADERS += utils.h \
+    Activity.h \
+    Saver.h \
     Task.h \
     TaskTree.h \
     mainwindow.h
-SOURCES += Saver.cpp \
+SOURCES += utils.cpp \
+    Activity.cpp \
+    Saver.cpp \
     Task.cpp \
     TaskTree.cpp \
     main.cpp \
