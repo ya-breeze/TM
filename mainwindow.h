@@ -26,10 +26,13 @@ public slots:
 	void slot_TaskChanged(const QModelIndex& _new, const QModelIndex& _old);
 	void slot_Save();
 	void slot_Restore();
+	void slot_SetFocusTasks();
 	void slot_SetFocusNotes();
 	void slot_SetFocusAddActivity();
+	void slot_SetFocusActivities();
 	void slot_AddActivity();
-
+	/// Слот вызываемый при изменении типа добавляемой активности - чтобы делать enabled/disabled имя
+	void slot_ActivityType();
 
 private:
 	void closeEvent(QCloseEvent *event);
@@ -43,6 +46,7 @@ private:
 	QShortcut	*p_ShcDelTask;
 	QShortcut	*p_ShcFocusTasks;
 	QShortcut	*p_ShcFocusNotes;
+	QShortcut	*p_ShcFocusActivities;
 	QShortcut	*p_ShcFocusAddActivity;
 };
 

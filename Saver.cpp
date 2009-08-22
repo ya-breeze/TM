@@ -170,7 +170,65 @@ void Saver::save(const DayActivities& _tree)
 
 void Saver::restore(DayActivities& _tree)
 {
+	QString fname(FNAME_ACTS);
+	fname += ".";
+	fname += _tree.getToday().toString(Qt::ISODate);
 
+	std::ifstream file(fname.toStdString().c_str());
+	if( !file )
+		ERROR("Unable to open file '" << fname << "'");
+
+	size_t line = 0;
+	bool hasStarted = false;
+	Activity act;
+
+	while( !file.eof() )
+	{
+		std::string s;
+		std::getline(file, s);
+		++line;
+		if( s.empty() )
+			continue;
+
+		if( s=="BEGIN:VEVENT" )
+		{
+			if( hasStarted )
+				ERROR("Begin new event while other is not ended on line " << line);
+			hasStarted = true;
+			act = Activity();
+		}
+		else if( s=="END:VEVENT" )
+		{
+			if( !hasStarted )
+				ERROR("End event while nothing begins on line " << line);
+			hasStarted = false;
+			_tree.addActivity( act );
+		}
+		else
+		{
+			QStringList lst = QString::fromUtf8( s.c_str() ).split( ":" );
+			if( lst.size() == 1 )
+			{
+				DEBUG("Line without specifier on line " << line);
+				continue;
+			}
+
+			if( lst[0] == "ID" )
+			{
+				act = Activity( QDateTime::fromTime_t(lst[1].toUInt()));
+			}
+			else if( lst[0].compare( "NAME", Qt::CaseInsensitive ) == 0 )
+			{
+				act.setName( lst[1] );
+			}
+			else if( lst[0].compare( "Parent", Qt::CaseInsensitive ) == 0 )
+			{
+				act.setAssignedTask( lst[1] );
+			}
+		}
+	}
+
+	_tree.setChanged(false);
 }
 
 void Saver::saveActivity(std::ofstream& _file, const Activity& _act)

@@ -23,14 +23,16 @@ TM::TM(QWidget *parent)
 
 	connect( ui.btnNewActivity, SIGNAL(clicked()), this, SLOT(slot_AddActivity()) );
 
+	connect( ui.rbActivityTask, SIGNAL(toggled(bool)), this, SLOT(slot_ActivityType()) );
 	/// Focuses
 //	connect( ui.actionFocusTasks, SIGNAL(triggered(bool)), ui.treeView, SLOT(setFocus()) );
 //	connect( ui.actionFocusNotes, SIGNAL(triggered(bool)), ui.Notes, SLOT(setFocus()) );
 
 	/// Shortcuts
-	p_ShcFocusTasks		= new QShortcut(QKeySequence("Ctrl+T"), ui.treeView, SLOT(setFocus()));
+	p_ShcFocusTasks		= new QShortcut(QKeySequence("Ctrl+T"), this, SLOT(slot_SetFocusTasks()));
 	p_ShcFocusNotes		= new QShortcut(QKeySequence("Ctrl+N"), this, SLOT(slot_SetFocusNotes()));
 	p_ShcFocusAddActivity	= new QShortcut(QKeySequence("Ctrl+A"), this, SLOT(slot_SetFocusAddActivity()));
+	p_ShcFocusActivities	= new QShortcut(QKeySequence("Ctrl+L"), this, SLOT(slot_SetFocusActivities()));
 
 
 	p_ShcAddChildTask	= new QShortcut(QKeySequence("Ins"), this, SLOT(slot_AddItem()));
@@ -129,6 +131,8 @@ void TM::slot_Save()
 		Saver saver;
 		saver.save(m_Tasks);
 		saver.save(m_DayActivities);
+		m_Tasks.setChanged(false);
+		m_DayActivities.setChanged(false);
 	}
 	catch(std::exception& ex)
 	{
@@ -143,6 +147,7 @@ void TM::slot_Restore()
 		m_Tasks.clear();
 		Saver saver;
 		saver.restore(m_Tasks);
+		saver.restore(m_DayActivities);
 		ui.treeView->reset();
 		ui.treeView->expandAll();
 		ui.treeView->resizeColumnToContents(0);
@@ -151,6 +156,18 @@ void TM::slot_Restore()
 	{
 		QMessageBox::critical(this, tr("Can't restore"), ex.what());
 	}
+}
+
+void TM::slot_SetFocusTasks()
+{
+	ui.tabMain->setCurrentIndex(0);
+	ui.treeView->setFocus();
+}
+
+void TM::slot_SetFocusActivities()
+{
+	ui.tabMain->setCurrentIndex(1);
+//	ui.treeView->setFocus();
 }
 
 void TM::slot_SetFocusNotes()
@@ -162,8 +179,10 @@ void TM::slot_SetFocusNotes()
 void TM::slot_SetFocusAddActivity()
 {
 	ui.toolBox->setCurrentIndex(1);
-	ui.rbActivityTask->setFocus();
 	ui.teActivityStartTime->setDateTime( QDateTime::currentDateTime() );
+	ui.rbActivityTask->setChecked(true);
+	slot_ActivityType();
+	ui.rbActivityTask->setFocus();
 }
 
 void TM::closeEvent(QCloseEvent *event)
@@ -190,16 +209,40 @@ void TM::closeEvent(QCloseEvent *event)
 
 void TM::slot_AddActivity()
 {
-	Activity act( QDateTime(m_DayActivities.getToday(), ui.teActivityStartTime->dateTime().time()) );
+	try
+	{
+		Activity act( QDateTime(m_DayActivities.getToday(), ui.teActivityStartTime->dateTime().time()) );
 
+		if( ui.rbActivityTask->isChecked() )
+		{
+			QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
+			TaskItem *item = m_Tasks.getItem(idx);
+			if( !item )
+				ERROR("No one task is specified");
+			act.setAssignedTask( item->getId());
+		}
+		else
+		{
+			act.setName(ui.leActivityName->text());
+		}
+		m_DayActivities.addActivity(act);
+
+		ui.tabMain->setCurrentIndex(1);
+	}
+	catch(std::exception& _ex)
+	{
+		QMessageBox::critical(this, tr("Can't add activity"), _ex.what());
+	}
+}
+
+void TM::slot_ActivityType()
+{
 	if( ui.rbActivityTask->isChecked() )
 	{
-		QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
-		act.setAssignedTask( m_Tasks.getItem(idx)->getId());
+		ui.leActivityName->setEnabled(false);
 	}
 	else
 	{
-		act.setName(ui.leActivityName->text());
+		ui.leActivityName->setEnabled(true);
 	}
-	m_DayActivities.addActivity(act);
 }

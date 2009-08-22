@@ -10,7 +10,7 @@
 #include "utils.h"
 
 DayActivities::DayActivities( const QDate& _date )
-	: m_Today(_date)
+	: ChangableObject(), m_Today(_date)
 {
 }
 
