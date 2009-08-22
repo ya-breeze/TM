@@ -130,9 +130,10 @@ void TM::slot_Save()
 
 		Saver saver;
 		saver.save(m_Tasks);
-		saver.save(m_Activities);
+//		saver.save(m_Activities);
 		m_Tasks.setChanged(false);
-		m_Activities.setChanged(false);
+		if( m_Activities.hasChanged() )
+			m_Activities.save();
 	}
 	catch(std::exception& ex)
 	{
@@ -147,7 +148,8 @@ void TM::slot_Restore()
 		m_Tasks.clear();
 		Saver saver;
 		saver.restore(m_Tasks);
-		saver.restore(m_Activities);
+//		saver.restore(m_Activities);
+		m_Activities.setToday();
 		ui.treeView->reset();
 		ui.treeView->expandAll();
 		ui.treeView->resizeColumnToContents(0);
@@ -245,6 +247,13 @@ void TM::slot_CurrentActivity()
 	ui.lblActivityStarted->setText( act.getStartTime().toString("yyyy.MM.dd hh:mm") );
 	if( act.getAssignedTask().isNull() )
 		ui.btnToTasks->setEnabled(false);
+	else
+	{
+		TaskItem *item = m_Tasks.getItem(act.getAssignedTask());
+		if( !item )
+			ERROR("Wrong task in activity");
+		ui.lblCurrentActivity->setText(item->getName());
+	}
 }
 
 void TM::slot_ActivityType()

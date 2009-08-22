@@ -82,6 +82,7 @@ public:
 	void delItem( const QModelIndex &index );
 
 	TaskItem* getItem(QModelIndex _idx) const;
+	TaskItem* getItem( const QUuid& _id) const;
 
 	void	clear();
 protected:

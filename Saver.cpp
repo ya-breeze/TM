@@ -8,12 +8,13 @@
 #include "Saver.h"
 
 #include <stdlib.h>
+#include <QFile>
 
 #include "utils.h"
 
 
 #define FNAME_TASKS	"/home/breeze/.TM/Tasks"
-#define FNAME_ACTS	"/home/breeze/.TM/Activities"
+#define FNAME_ACTS	"/home/breeze/.TM/Activities."
 
 QString Saver::escapeString(const QString& _str)
 {
@@ -151,24 +152,37 @@ void Saver::restore(TaskTree& _tree)
 	_tree.setChanged(false);
 }
 
-void Saver::save(const Activities& _tree)
+void Saver::save(const QDate& _date, const DayActivities& _tree)
 {
-	if( !createDirFromFile(FNAME_ACTS) )
-		ERROR("Can't create directory for file '" <<FNAME_ACTS<<"'");
-	std::ofstream file(FNAME_ACTS, std::ios::trunc);
+	QString fname(FNAME_ACTS);
+	fname += _date.toString(Qt::ISODate);
+
+	if( !createDirFromFile(fname) )
+		ERROR("Can't create directory for file '" <<fname<<"'");
+	std::ofstream file(fname.toUtf8().data(), std::ios::trunc);
 	if( !file )
-		ERROR("Unable to open file '" << FNAME_ACTS << "'");
+		ERROR("Unable to open file '" << fname << "'");
 
 	size_t sz = _tree.count();
 	for(size_t i=0;i<sz;++i)
 		saveActivity(file, _tree.getActivity(i));
 }
 
-void Saver::restore(Activities& _tree)
+bool Saver::canRestore(const QDate& _date)
 {
-	std::ifstream file(FNAME_ACTS);
+	QString fname(FNAME_ACTS);
+	fname += _date.toString(Qt::ISODate);
+	return QFile::exists(fname);
+}
+
+void Saver::restore(const QDate& _date, DayActivities& _tree)
+{
+	QString fname(FNAME_ACTS);
+	fname += _date.toString(Qt::ISODate);
+
+	std::ifstream file(fname.toUtf8().data());
 	if( !file )
-		ERROR("Unable to open file '" << FNAME_ACTS << "'");
+		ERROR("Unable to open file '" << fname << "'");
 
 	size_t line = 0;
 	bool hasStarted = false;
@@ -194,7 +208,7 @@ void Saver::restore(Activities& _tree)
 			if( !hasStarted )
 				ERROR("End event while nothing begins on line " << line);
 			hasStarted = false;
-			_tree.addActivity(act, false);
+			_tree.addActivity(act);
 		}
 		else
 		{

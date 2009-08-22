@@ -343,6 +343,16 @@ TaskItem* TaskTree::getItem(QModelIndex _idx) const
 	return item;
 }
 
+TaskItem* TaskTree::getItem( const QUuid& _id ) const
+{
+	DEBUG("Searching for task with id=" << _id);
+	TaskMap::const_iterator it=m_Tasks.find(_id);
+	if( it!=m_Tasks.end() )
+		return it->second.get();
+
+	return NULL;
+}
+
 Qt::ItemFlags TaskTree::flags( const QModelIndex &index ) const
 {
 	if (!index.isValid())

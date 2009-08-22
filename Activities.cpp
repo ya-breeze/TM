@@ -8,22 +8,23 @@
 #include "Activities.h"
 
 #include "utils.h"
+#include "Saver.h"
 
 Activities::Activities( const QDate& _date )
-	: ChangableObject(), m_Today(_date)
+	: m_Today(_date)
 {
 }
 
 void Activities::addActivity(const Activity& _act, bool _setCurrent)
 {
-	m_Activities.insert(_act);
+	DayActivities &act = getDay(_act.getStartTime().date());
+	act.addActivity(_act);
+
 	if( _setCurrent )
 	{
 		m_CurActivity = _act;
-		setToday(_act.getStartTime().date());
+		m_Today = _act.getStartTime().date();
 	}
-	else
-		updateDayRanges();
 }
 
 const Activity& Activities::getCurrentActivity() const
@@ -31,52 +32,9 @@ const Activity& Activities::getCurrentActivity() const
 	return m_CurActivity;
 }
 
-size_t Activities::count() const
+size_t Activities::countDays() const
 {
-	return m_DaySize;
-}
-
-const Activity& Activities::getActivity(size_t _idx) const
-{
-	Q_ASSERT(_idx<count());
-
-	ActivitySet::const_iterator it=it_Begin;
-	for(size_t i=0;i<count();++i,++it)
-		if( i==_idx)
-			return *it;
-
-	ERROR("Wrong index in getActivity");
-}
-
-void Activities::delActivity(size_t _idx)
-{
-	Q_ASSERT(_idx<count());
-
-	ActivitySet::const_iterator it=it_Begin;
-	for(size_t i=0;i<count();++i,++it)
-		if( i==_idx)
-		{
-			m_Activities.erase(it);
-			updateDayRanges();
-			return;
-		}
-
-	ERROR("Wrong index in getActivity");
-}
-
-void Activities::setActivity(size_t _idx, const Activity& _act)
-{
-	delActivity(_idx);
-	addActivity(_act);
-}
-
-void Activities::setActivity(const Activity& _act)
-{
-	ActivitySet::iterator it=m_Activities.find(_act);
-	if( it!=m_Activities.end() )
-		m_Activities.erase(it);
-
-	m_Activities.insert(_act);
+	return m_Activities.size();
 }
 
 const QDate& Activities::getToday() const
@@ -86,29 +44,50 @@ const QDate& Activities::getToday() const
 
 void Activities::setToday( const QDate& _date )
 {
-	if( _date.isNull() && !m_Activities.empty() )
-	{
-		// Самая последняя запись
-		ActivitySet::reverse_iterator it=m_Activities.rbegin();
-		m_Today = it->getStartTime().date();
-		m_CurActivity = *it;
-	}
-	else
-		m_Today = _date;
+	m_Today = _date;
+	if( _date.isNull() )
+		m_Today = QDate::currentDate();
 
-	updateDayRanges();
+	DayActivities &day = getDay(m_Today);
+	if( day.count() )
+	{
+		m_CurActivity = day.getActivity( day.count()-1 );
+	}
+	DEBUG(m_CurActivity.getName());
 }
 
-void Activities::updateDayRanges()
+DayActivities& Activities::getDay(const QDate& _date)
 {
-	QDateTime tm(m_Today);
-	Activity act(tm), act2(tm.addDays(1));
-	it_Begin = m_Activities.find(act);
-	it_End = m_Activities.find(act2);
+	ActivitySet::iterator it=m_Activities.find(_date);
+	if( it!=m_Activities.end() )
+		return it->second;
 
-	m_DaySize = 0;
-	for(ActivitySet::const_iterator it=it_Begin;it!=it_End;++it)
-		++m_DaySize;
+	Saver saver;
+	DayActivities &act = m_Activities[_date];
+	if( saver.canRestore(_date) )
+		saver.restore(_date, act);
 
-	setChanged();
+	return act;
+}
+
+bool Activities::hasChanged() const
+{
+	for(ActivitySet::const_iterator it=m_Activities.begin();it!=m_Activities.end(); ++it)
+		if( it->second.hasChanged() )
+			return true;
+
+	return false;
+}
+
+void Activities::save()
+{
+	Saver saver;
+	for(ActivitySet::iterator it=m_Activities.begin();it!=m_Activities.end(); ++it)
+	{
+		if( it->second.hasChanged() )
+		{
+			saver.save(it->first, it->second);
+			it->second.setChanged(false);
+		}
+	}
 }

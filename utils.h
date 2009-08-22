@@ -39,5 +39,7 @@ inline std::ostream& operator<<(std::ostream& _os, const QString& _s)
 
 /// Создаёт указанный каталог по имени файла, включая вышележащие каталоги. Возвращает true если удалось
 bool createDirFromFile( const char* );
+/// Создаёт указанный каталог по имени файла, включая вышележащие каталоги. Возвращает true если удалось
+bool createDirFromFile( const QString& );
 
 #endif /* UTILS_H_ */
