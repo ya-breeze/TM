@@ -32,6 +32,8 @@ void Activities::addActivity(const Activity& _act, bool _setCurrent)
 		m_Today = _act.getStartTime().date();
 		has_CurActivity = true;
 	}
+
+	emit ActAdded(_act, _setCurrent);
 }
 
 const Activity& Activities::getCurrentActivity() const
@@ -49,6 +51,11 @@ const QDate& Activities::getToday() const
 	return m_Today;
 }
 
+DayActivities& Activities::getTodayActs()
+{
+	return getDay(m_Today);
+}
+
 void Activities::setToday( const QDate& _date )
 {
 	m_Today = _date;
@@ -62,10 +69,12 @@ void Activities::setToday( const QDate& _date )
 		has_CurActivity = true;
 	}
 	DEBUG(m_CurActivity.getName());
+	emit todayChanged(m_Today);
 }
 
 DayActivities& Activities::getDay(const QDate& _date)
 {
+	m_Days.insert(_date);
 	ActivitySet::iterator it=m_Activities.find(_date);
 	if( it!=m_Activities.end() )
 		return it->second;
@@ -98,4 +107,9 @@ void Activities::save()
 			it->second.setChanged(false);
 		}
 	}
+}
+
+const Saver::DateSet& Activities::getDays() const
+{
+	return m_Days;
 }

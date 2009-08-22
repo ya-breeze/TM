@@ -6,11 +6,14 @@
 #include "utils.h"
 #include "Saver.h"
 
+#include "LastActs.h"
+
 TM::TM(QWidget *parent)
     : QMainWindow(parent)
 {
 	ui.setupUi(this);
 	ui.treeView->setModel(&m_Tasks);
+	ui.lvLastActivities->setModel( new LastActs(&m_Tasks, &m_Activities, this) );
 
 	/// Slots
 	connect( ui.actionAdd, SIGNAL(triggered(bool)), this, SLOT(slot_AddItem()) );
@@ -26,6 +29,7 @@ TM::TM(QWidget *parent)
 	connect( ui.rbActivityTask, SIGNAL(toggled(bool)), this, SLOT(slot_ActivityType()) );
 
 	connect( ui.btnToTasks, SIGNAL(clicked()), this, SLOT(slot_BtnToTasks()) );
+	connect( ui.btnUpdateTime, SIGNAL(clicked()), this, SLOT(slot_BtnUpdateTime()) );
 
 	/// Focuses
 //	connect( ui.actionFocusTasks, SIGNAL(triggered(bool)), ui.treeView, SLOT(setFocus()) );
@@ -41,6 +45,9 @@ TM::TM(QWidget *parent)
 	p_ShcAddChildTask	= new QShortcut(QKeySequence("Ins"), this, SLOT(slot_AddItem()));
 	p_ShcAddSiblingTask	= new QShortcut(QKeySequence("Shift+Ins"), this, SLOT(slot_AddSiblingItem()));
 	p_ShcDelTask		= new QShortcut(QKeySequence("Del"), this, SLOT(slot_DelItem()));
+
+	slot_Restore();
+	slot_BtnUpdateTime();
 }
 
 TM::~TM()
@@ -283,4 +290,9 @@ void TM::slot_BtnToTasks()
 	slot_SetFocusTasks();
 	Activity act = m_Activities.getCurrentActivity();
 	ui.treeView->selectionModel()->setCurrentIndex(m_Tasks.getItemIndex(act.getAssignedTask()), QItemSelectionModel::ClearAndSelect);
+}
+
+void TM::slot_BtnUpdateTime()
+{
+	ui.teActivityStartTime->setDateTime( QDateTime::currentDateTime() );
 }

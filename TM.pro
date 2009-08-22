@@ -2,7 +2,9 @@ TEMPLATE = app
 TARGET = TM
 QT += core \
     gui
-HEADERS += DayActivities.h \
+HEADERS += LastActs.h \
+    ActTree.h \
+    DayActivities.h \
     Activities.h \
     ChangableObject.h \
     utils.h \
@@ -11,7 +13,9 @@ HEADERS += DayActivities.h \
     Task.h \
     TaskTree.h \
     mainwindow.h
-SOURCES += DayActivities.cpp \
+SOURCES += LastActs.cpp \
+    ActTree.cpp \
+    DayActivities.cpp \
     Activities.cpp \
     utils.cpp \
     Activity.cpp \

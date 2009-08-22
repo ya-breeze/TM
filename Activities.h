@@ -9,12 +9,15 @@
 #define ACTIVITIES_H_
 
 #include <map>
+#include <QObject>
 #include "DayActivities.h"
 #include "Saver.h"
 
 /// Хранилище хронометража одного дня. Весь день состоит из множества Activity
-class Activities// : public ChangableObject
+class Activities : public QObject
 {
+	Q_OBJECT
+
 	typedef std::map<QDate, DayActivities> ActivitySet;
 
 	ActivitySet	m_Activities;
@@ -32,14 +35,24 @@ public:
 
 	size_t		countDays() const;
 	const QDate&	getToday() const;
+	DayActivities&	getTodayActs();
 	/// Устанавливает текущий день, а самую последнюю задачу из указанного дня считает текущей
 	/// Если _date.isNull(), то в качестве сегодняшнего дня выставляется сегодняшний день
 	void		setToday( const QDate& _date = QDate() );
 	DayActivities&	getDay(const QDate& _date);
 
+	const Saver::DateSet&
+			getDays() const;
+
 	bool		hasChanged() const;
 
 	void		save();
+
+signals:
+	void 		ActAdded(const Activity& _act, bool _setCurrent);
+	void 		todayChanged(const QDate& _today);
+
+
 protected:
 };
 

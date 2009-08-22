@@ -37,6 +37,8 @@ public slots:
 	void slot_CurrentActivity();
 	/// Переходит от текущей активности к выполняемой задаче
 	void slot_BtnToTasks();
+	/// Обновляет время на текущее в окне добавления активности
+	void slot_BtnUpdateTime();
 
 private:
 	void closeEvent(QCloseEvent *event);
