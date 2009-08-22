@@ -12,7 +12,7 @@
 #include "utils.h"
 
 
-#define FNAME	"/home/breeze/.TM"
+#define FNAME_TASKS	"/home/breeze/.TM/Tasks"
 
 QString Saver::escapeString(const QString& _str)
 {
@@ -65,17 +65,19 @@ void Saver::recurseSave(std::ofstream& _file, const TaskTree& _tree, const QMode
 
 void Saver::save(const TaskTree& _tree)
 {
-	std::ofstream file(FNAME, std::ios::trunc);
+	if( !createDirFromFile(FNAME_TASKS) )
+		ERROR("Can't create directory for file '" <<FNAME_TASKS<<"'")
+	std::ofstream file(FNAME_TASKS, std::ios::trunc);
 	if( !file )
-		ERROR("Unable to open file '" << FNAME << "'");
+		ERROR("Unable to open file '" << FNAME_TASKS << "'");
 	recurseSave(file, _tree, QModelIndex());
 }
 
 void Saver::restore(TaskTree& _tree)
 {
-	std::ifstream file(FNAME);
+	std::ifstream file(FNAME_TASKS);
 	if( !file )
-		ERROR("Unable to open file '" << FNAME << "'");
+		ERROR("Unable to open file '" << FNAME_TASKS << "'");
 
 	size_t line = 0;
 	bool hasStarted = false;
