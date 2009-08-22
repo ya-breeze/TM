@@ -12,7 +12,7 @@
 #include <QModelIndex>
 
 #include "TaskTree.h"
-#include "DayActivities.h"
+#include "Activities.h"
 
 class Saver
 {
@@ -20,8 +20,8 @@ public:
 	void save(const TaskTree& _tree);
 	void restore(TaskTree& _tree);
 
-	void save(const DayActivities& _tree);
-	void restore(DayActivities& _tree);
+	void save(const Activities& _tree);
+	void restore(Activities& _tree);
 protected:
 	void recurseSave(std::ofstream& _file, const TaskTree& _tree, const QModelIndex& _idx);
 	void saveTask(std::ofstream& _file, const Task& _task);

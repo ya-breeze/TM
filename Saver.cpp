@@ -151,7 +151,7 @@ void Saver::restore(TaskTree& _tree)
 	_tree.setChanged(false);
 }
 
-void Saver::save(const DayActivities& _tree)
+void Saver::save(const Activities& _tree)
 {
 	QString fname(FNAME_ACTS);
 	fname += ".";
@@ -168,7 +168,7 @@ void Saver::save(const DayActivities& _tree)
 		saveActivity(file, _tree.getActivity(i));
 }
 
-void Saver::restore(DayActivities& _tree)
+void Saver::restore(Activities& _tree)
 {
 	QString fname(FNAME_ACTS);
 	fname += ".";

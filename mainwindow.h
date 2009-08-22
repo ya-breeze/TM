@@ -8,7 +8,7 @@
 #include <QCloseEvent>
 
 #include "TaskTree.h"
-#include "DayActivities.h"
+#include "Activities.h"
 
 class TM : public QMainWindow
 {
@@ -39,7 +39,7 @@ private:
 
 	Ui::TMClass	ui;
 	TaskTree	m_Tasks;
-	DayActivities	m_DayActivities;
+	Activities	m_Activities;
 
 	QShortcut	*p_ShcAddSiblingTask;
 	QShortcut	*p_ShcAddChildTask;

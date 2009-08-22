@@ -1,27 +1,27 @@
 /*
- * DayActivities.h
+ * Activities.h
  *
  *  Created on: 22.08.2009
  *      Author: breeze
  */
 
-#ifndef DAYACTIVITIES_H_
-#define DAYACTIVITIES_H_
+#ifndef ACTIVITIES_H_
+#define ACTIVITIES_H_
 
 #include <set>
 #include "Activity.h"
 #include "ChangableObject.h"
 
 /// Хранилище хронометража одного дня. Весь день состоит из множества Activity
-class DayActivities : public ChangableObject
+class Activities : public ChangableObject
 {
-	typedef std::set<Activity> Activities;
-	Activities	m_Activities;
+	typedef std::set<Activity> ActivitySet;
+	ActivitySet	m_Activities;
 	bool		has_Changed;
 	QDate		m_Today;
 
 public:
-	DayActivities( const QDate& _date = QDate::currentDate() );
+	Activities( const QDate& _date = QDate::currentDate() );
 
 	void		addActivity(const Activity& _act);
 
@@ -33,4 +33,4 @@ public:
 	const QDate&	getToday() const;
 };
 
-#endif /* DAYACTIVITIES_H_ */
+#endif /* ACTIVITIES_H_ */
