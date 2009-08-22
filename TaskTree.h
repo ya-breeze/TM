@@ -18,6 +18,7 @@
 #include <map>
 
 #include "Task.h"
+#include "ChangableObject.h"
 
 
 /// \brief Класс, хранящий данные о одной задаче
@@ -50,7 +51,7 @@ private:
 typedef std::tr1::shared_ptr<TaskItem>	PtrTaskItem;
 
 
-class TaskTree : public QAbstractItemModel
+class TaskTree : public QAbstractItemModel, public ChangableObject
 {
 	Q_OBJECT
 
@@ -83,13 +84,9 @@ public:
 	TaskItem* getItem(QModelIndex _idx) const;
 
 	void	clear();
-
-	void	setChanged(bool _value = true);
-	bool	hasChanged() const;
 protected:
 	TaskMap		m_Tasks;
 	PtrTaskItem	rootItem;
-	bool		has_Changed;
 };
 
 #endif /* TASKTREE_H_ */

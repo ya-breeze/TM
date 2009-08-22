@@ -2,13 +2,16 @@ TEMPLATE = app
 TARGET = TM
 QT += core \
     gui
-HEADERS += utils.h \
+HEADERS += ChangableObject.h \
+    DayActivities.h \
+    utils.h \
     Activity.h \
     Saver.h \
     Task.h \
     TaskTree.h \
     mainwindow.h
-SOURCES += utils.cpp \
+SOURCES += DayActivities.cpp \
+    utils.cpp \
     Activity.cpp \
     Saver.cpp \
     Task.cpp \

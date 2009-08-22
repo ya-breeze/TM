@@ -121,7 +121,7 @@ TaskItem *TaskItem::parent()
 
 
 TaskTree::TaskTree( QObject *parent )
-	: QAbstractItemModel(parent), has_Changed(false)
+	: QAbstractItemModel(parent), ChangableObject()
 {
 	rootItem = PtrTaskItem( new TaskItem(NULL) );
 	rootItem->setId("{00000000-0000-0000-0000-000000000000}");
@@ -370,14 +370,4 @@ bool TaskTree::setData( const QModelIndex& _index, const QVariant& _value, int _
 	setChanged();
 
 	return true;
-}
-
-void TaskTree::setChanged(bool _value)
-{
-	has_Changed = _value;
-}
-
-bool TaskTree::hasChanged() const
-{
-	return has_Changed;
 }

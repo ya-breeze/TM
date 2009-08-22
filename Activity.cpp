@@ -9,8 +9,8 @@
 
 #include <QObject>
 
-Activity::Activity()
-	: m_StartTime(QDateTime::currentDateTime()), str_Name(QObject::tr("Unknown")), m_Interrupts(0)
+Activity::Activity(const QDateTime& _dt)
+	: m_StartTime(_dt), str_Name(QObject::tr("Unknown")), m_Interrupts(0)
 {
 }
 

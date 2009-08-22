@@ -13,6 +13,7 @@
 
 
 #define FNAME_TASKS	"/home/breeze/.TM/Tasks"
+#define FNAME_ACTS	"/home/breeze/.TM/Activities"
 
 QString Saver::escapeString(const QString& _str)
 {
@@ -39,7 +40,7 @@ QString Saver::escapeString(const QString& _str)
 
 void Saver::saveTask(std::ofstream& _file, const Task& _task)
 {
-	DEBUG(_task.getName() << ":'" << escapeString(_task.getNotes()) << "'");
+//	DEBUG(_task.getName() << ":'" << escapeString(_task.getNotes()) << "'");
 	_file << "BEGIN:VTODO" << std::endl
 		<< "ID:" << _task.getId().toString().toStdString() << std::endl
 		<< "Name:" << _task.getName().toUtf8().data() << std::endl
@@ -148,4 +149,36 @@ void Saver::restore(TaskTree& _tree)
 	}
 
 	_tree.setChanged(false);
+}
+
+void Saver::save(const DayActivities& _tree)
+{
+	QString fname(FNAME_ACTS);
+	fname += ".";
+	fname += _tree.getToday().toString(Qt::ISODate);
+
+	if( !createDirFromFile(fname.toStdString().c_str()) )
+		ERROR("Can't create directory for file '" <<FNAME_TASKS<<"'")
+	std::ofstream file(fname.toStdString().c_str(), std::ios::trunc);
+	if( !file )
+		ERROR("Unable to open file '" << fname << "'");
+
+	size_t sz = _tree.count();
+	for(size_t i=0;i<sz;++i)
+		saveActivity(file, _tree.getActivity(i));
+}
+
+void Saver::restore(DayActivities& _tree)
+{
+
+}
+
+void Saver::saveActivity(std::ofstream& _file, const Activity& _act)
+{
+	_file << "BEGIN:VEVENT" << std::endl
+		<< "ID:" << _act.getStartTime().toTime_t() << std::endl
+		<< "Name:" << _act.getName().toUtf8().data() << std::endl
+//		<< "Notes:" << escapeString(_task.getNotes()).toUtf8().data() << std::endl
+		<< "Parent:" << _act.getAssignedTask().toString() << std::endl
+		<< "END:VEVENT" << std::endl;
 }

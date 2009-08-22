@@ -4,9 +4,11 @@
 #include <QtGui/QMainWindow>
 #include "ui_mainwindow.h"
 
-#include "TaskTree.h"
 #include <QShortcut>
 #include <QCloseEvent>
+
+#include "TaskTree.h"
+#include "DayActivities.h"
 
 class TM : public QMainWindow
 {
@@ -26,6 +28,7 @@ public slots:
 	void slot_Restore();
 	void slot_SetFocusNotes();
 	void slot_SetFocusAddActivity();
+	void slot_AddActivity();
 
 
 private:
@@ -33,14 +36,14 @@ private:
 
 	Ui::TMClass	ui;
 	TaskTree	m_Tasks;
+	DayActivities	m_DayActivities;
+
 	QShortcut	*p_ShcAddSiblingTask;
 	QShortcut	*p_ShcAddChildTask;
 	QShortcut	*p_ShcDelTask;
 	QShortcut	*p_ShcFocusTasks;
 	QShortcut	*p_ShcFocusNotes;
 	QShortcut	*p_ShcFocusAddActivity;
-
-	QWidget		*p_CurFocus;
 };
 
 #endif // MAINWINDOW_H

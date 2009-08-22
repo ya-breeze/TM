@@ -25,7 +25,7 @@ class Activity
 	size_t		m_Interrupts;
 
 public:
-	Activity();
+	Activity(const QDateTime& _dt = QDateTime::currentDateTime());
 
 	bool operator<(const Activity& _a) const;
 
@@ -45,7 +45,7 @@ public:
 		return m_StartTime;
 	}
 
-	QString getStr_Name() const
+	QString getName() const
 	{
 		return str_Name;
 	}
@@ -65,7 +65,7 @@ public:
 		this->m_StartTime = m_StartTime;
 	}
 
-	void setStr_Name( QString str_Name )
+	void setName( QString str_Name )
 	{
 		this->str_Name = str_Name;
 	}

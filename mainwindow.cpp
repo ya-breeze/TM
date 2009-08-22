@@ -7,7 +7,7 @@
 #include "Saver.h"
 
 TM::TM(QWidget *parent)
-    : QMainWindow(parent), p_CurFocus(NULL)
+    : QMainWindow(parent)
 {
 	ui.setupUi(this);
 	ui.treeView->setModel(&m_Tasks);
@@ -20,6 +20,8 @@ TM::TM(QWidget *parent)
 			this, SLOT(slot_TaskChanged(const QModelIndex&, const QModelIndex&)) );
 	connect( ui.actionSave, SIGNAL(triggered(bool)), this, SLOT(slot_Save()) );
 	connect( ui.actionRestore, SIGNAL(triggered(bool)), this, SLOT(slot_Restore()) );
+
+	connect( ui.btnNewActivity, SIGNAL(clicked()), this, SLOT(slot_AddActivity()) );
 
 	/// Focuses
 //	connect( ui.actionFocusTasks, SIGNAL(triggered(bool)), ui.treeView, SLOT(setFocus()) );
@@ -126,6 +128,7 @@ void TM::slot_Save()
 
 		Saver saver;
 		saver.save(m_Tasks);
+		saver.save(m_DayActivities);
 	}
 	catch(std::exception& ex)
 	{
@@ -160,6 +163,7 @@ void TM::slot_SetFocusAddActivity()
 {
 	ui.toolBox->setCurrentIndex(1);
 	ui.rbActivityTask->setFocus();
+	ui.teActivityStartTime->setDateTime( QDateTime::currentDateTime() );
 }
 
 void TM::closeEvent(QCloseEvent *event)
@@ -167,7 +171,7 @@ void TM::closeEvent(QCloseEvent *event)
 	QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
 	slot_TaskChanged(idx, idx);
 
-	if( m_Tasks.hasChanged() )
+	if( m_Tasks.hasChanged() || m_DayActivities.hasChanged() )
 	{
 		int btn = QMessageBox::question(this, tr("Unsaved data"), tr("Save them?"), QMessageBox::Yes, QMessageBox::No, QMessageBox::Cancel );
 		if( btn==QMessageBox::Cancel )
@@ -182,4 +186,20 @@ void TM::closeEvent(QCloseEvent *event)
 	}
 	else
 		QMainWindow::closeEvent(event);
+}
+
+void TM::slot_AddActivity()
+{
+	Activity act( QDateTime(m_DayActivities.getToday(), ui.teActivityStartTime->dateTime().time()) );
+
+	if( ui.rbActivityTask->isChecked() )
+	{
+		QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
+		act.setAssignedTask( m_Tasks.getItem(idx)->getId());
+	}
+	else
+	{
+		act.setName(ui.leActivityName->text());
+	}
+	m_DayActivities.addActivity(act);
 }
