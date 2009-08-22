@@ -22,7 +22,7 @@
       </property>
       <widget class="QTabWidget" name="tabMain">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tab">
         <attribute name="title">
@@ -110,7 +110,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QColumnView" name="columnView"/>
+          <widget class="QListView" name="lvActivities"/>
          </item>
         </layout>
        </widget>
@@ -124,8 +124,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>112</width>
-          <height>112</height>
+          <width>317</width>
+          <height>335</height>
          </rect>
         </property>
         <attribute name="label">

@@ -151,6 +151,8 @@ void TM::slot_Restore()
 		ui.treeView->reset();
 		ui.treeView->expandAll();
 		ui.treeView->resizeColumnToContents(0);
+
+		slot_CurrentActivity();
 	}
 	catch(std::exception& ex)
 	{
@@ -228,11 +230,21 @@ void TM::slot_AddActivity()
 		m_Activities.addActivity(act);
 
 		ui.tabMain->setCurrentIndex(1);
+		slot_CurrentActivity();
 	}
 	catch(std::exception& _ex)
 	{
 		QMessageBox::critical(this, tr("Can't add activity"), _ex.what());
 	}
+}
+
+void TM::slot_CurrentActivity()
+{
+	Activity act = m_Activities.getCurrentActivity();
+	ui.lblCurrentActivity->setText(act.getName());
+	ui.lblActivityStarted->setText( act.getStartTime().toString("yyyy.MM.dd hh:mm") );
+	if( act.getAssignedTask().isNull() )
+		ui.btnToTasks->setEnabled(false);
 }
 
 void TM::slot_ActivityType()

@@ -153,15 +153,11 @@ void Saver::restore(TaskTree& _tree)
 
 void Saver::save(const Activities& _tree)
 {
-	QString fname(FNAME_ACTS);
-	fname += ".";
-	fname += _tree.getToday().toString(Qt::ISODate);
-
-	if( !createDirFromFile(fname.toStdString().c_str()) )
-		ERROR("Can't create directory for file '" <<FNAME_TASKS<<"'")
-	std::ofstream file(fname.toStdString().c_str(), std::ios::trunc);
+	if( !createDirFromFile(FNAME_ACTS) )
+		ERROR("Can't create directory for file '" <<FNAME_ACTS<<"'");
+	std::ofstream file(FNAME_ACTS, std::ios::trunc);
 	if( !file )
-		ERROR("Unable to open file '" << fname << "'");
+		ERROR("Unable to open file '" << FNAME_ACTS << "'");
 
 	size_t sz = _tree.count();
 	for(size_t i=0;i<sz;++i)
@@ -170,13 +166,9 @@ void Saver::save(const Activities& _tree)
 
 void Saver::restore(Activities& _tree)
 {
-	QString fname(FNAME_ACTS);
-	fname += ".";
-	fname += _tree.getToday().toString(Qt::ISODate);
-
-	std::ifstream file(fname.toStdString().c_str());
+	std::ifstream file(FNAME_ACTS);
 	if( !file )
-		ERROR("Unable to open file '" << fname << "'");
+		ERROR("Unable to open file '" << FNAME_ACTS << "'");
 
 	size_t line = 0;
 	bool hasStarted = false;
@@ -202,7 +194,7 @@ void Saver::restore(Activities& _tree)
 			if( !hasStarted )
 				ERROR("End event while nothing begins on line " << line);
 			hasStarted = false;
-			_tree.addActivity( act );
+			_tree.addActivity(act, false);
 		}
 		else
 		{

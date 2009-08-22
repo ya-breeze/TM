@@ -33,6 +33,8 @@ public slots:
 	void slot_AddActivity();
 	/// Слот вызываемый при изменении типа добавляемой активности - чтобы делать enabled/disabled имя
 	void slot_ActivityType();
+	/// Обновляет информацию о текущей активности
+	void slot_CurrentActivity();
 
 private:
 	void closeEvent(QCloseEvent *event);
