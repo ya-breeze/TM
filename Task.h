@@ -46,7 +46,7 @@ public:
 		return m_Id;
 	}
 
-	QUuid getParent() const
+	QUuid getParentId() const
 	{
 		return m_Parent;
 	}
@@ -61,7 +61,7 @@ public:
 		this->m_Id = m_Id;
 	}
 
-	void setParent( QUuid m_Parent )
+	void setParentId( QUuid m_Parent )
 	{
 		this->m_Parent = m_Parent;
 	}

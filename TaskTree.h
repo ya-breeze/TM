@@ -41,7 +41,7 @@ public:
 	QVariant	data(int column) const;
 	int		row() const;
 	TaskItem*	parent();
-	void		setParent(TaskItem*);
+	void		setItemParent(TaskItem*);
 
 private:
 	TaskItemVec		childItems;
@@ -80,12 +80,16 @@ public:
 
 	void delItem( const QModelIndex &index );
 
-	TaskItem* getItem(QModelIndex _idx);
+	TaskItem* getItem(QModelIndex _idx) const;
 
-	void clear();
+	void	clear();
+
+	void	setChanged(bool _value = true);
+	bool	hasChanged() const;
 protected:
 	TaskMap		m_Tasks;
-	PtrTaskItem rootItem;
+	PtrTaskItem	rootItem;
+	bool		has_Changed;
 };
 
 #endif /* TASKTREE_H_ */

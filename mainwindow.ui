@@ -6,61 +6,58 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>640</width>
+    <height>480</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <layout class="QVBoxLayout" name="verticalLayout_5">
     <item>
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QFrame" name="frame">
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
+      <widget class="QTabWidget" name="tabWidget">
+       <property name="currentIndex">
+        <number>0</number>
        </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Tasks</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QTreeView" name="treeView">
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-          <property name="animated">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QWidget" name="tab">
+        <attribute name="title">
+         <string>Tasks</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QTreeView" name="treeView">
+           <property name="selectionBehavior">
+            <enum>QAbstractItemView::SelectRows</enum>
+           </property>
+           <property name="animated">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab_2">
+        <attribute name="title">
+         <string>Day activities</string>
+        </attribute>
+       </widget>
       </widget>
       <widget class="QToolBox" name="toolBox">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="page">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>385</width>
-          <height>455</height>
+          <width>112</width>
+          <height>112</height>
          </rect>
         </property>
         <attribute name="label">
@@ -77,13 +74,108 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>96</width>
-          <height>26</height>
+          <width>317</width>
+          <height>335</height>
          </rect>
         </property>
         <attribute name="label">
-         <string>Page 2</string>
+         <string>Add activity</string>
         </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>Type</string>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="leftMargin">
+             <number>5</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>5</number>
+            </property>
+            <item>
+             <widget class="QRadioButton" name="rbActivityTask">
+              <property name="text">
+               <string>Task activity</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="radioButton">
+              <property name="text">
+               <string>Separate activity</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="gridLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Start time</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QTimeEdit" name="teActivityStartTime"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Name</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="leActivityName"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnNewActivity">
+           <property name="text">
+            <string>New activity</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="Line" name="line">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Last activities</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QColumnView" name="cvLastActivities"/>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </widget>
       </widget>
      </widget>
@@ -95,7 +187,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>640</width>
      <height>31</height>
     </rect>
    </property>
@@ -103,8 +195,9 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionFocusTasks"/>
-    <addaction name="actionFocusNotes"/>
+    <addaction name="actionRestore"/>
+    <addaction name="actionSave"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuTasks">
@@ -139,20 +232,17 @@
     <string>Exit</string>
    </property>
   </action>
-  <action name="actionFocusTasks">
+  <action name="actionRestore">
    <property name="text">
-    <string>FocusTasks</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+T</string>
+    <string>Restore</string>
    </property>
   </action>
-  <action name="actionFocusNotes">
+  <action name="actionSave">
    <property name="text">
-    <string>FocusNotes</string>
+    <string>Save</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+N</string>
+    <string>Ctrl+S</string>
    </property>
   </action>
  </widget>

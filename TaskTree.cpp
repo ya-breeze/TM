@@ -11,19 +11,19 @@
 
 TaskItem::TaskItem( TaskItem *parent )
 {
-	setParent(parent);
+	setItemParent(parent);
 }
 
 TaskItem::TaskItem( const Task& _task, TaskItem *parent )
 	: Task(_task)
 {
-	setParent(parent);
+	setItemParent(parent);
 }
 
 TaskItem::~TaskItem()
 {
 	for(int i=0;i<(int)childItems.size();++i)
-		childItems[i]->setParent(parentItem);
+		childItems[i]->setItemParent(parentItem);
 	if( parentItem )
 		parentItem->removeChild(this);
 }
@@ -36,14 +36,15 @@ void TaskItem::appendChild(TaskItem *item)
 void TaskItem::removeChild(TaskItem *item)
 {
 	int index = childIndex(item);
-	removeChild(index);
+	if( index!=-1)
+		removeChild(index);
 }
 
 void TaskItem::removeChild(int _index)
 {
 	if( _index>=0 && _index<(int)childItems.size() )
 	{
-		childItems[_index]->setParent(NULL);
+		childItems[_index]->setItemParent(NULL);
 		TaskItemVec::iterator it=childItems.begin();
 		for( int i=0;i<_index;++i )
 			++it;
@@ -100,9 +101,13 @@ int TaskItem::row() const
 	return 0;
 }
 
-void TaskItem::setParent(TaskItem *_item)
+void TaskItem::setItemParent(TaskItem *_item)
 {
 	parentItem = _item;
+	if( _item )
+		setParentId(_item->getId());
+	else
+		setParentId(QUuid());
 }
 
 TaskItem *TaskItem::parent()
@@ -116,9 +121,10 @@ TaskItem *TaskItem::parent()
 
 
 TaskTree::TaskTree( QObject *parent )
-	: QAbstractItemModel(parent)
+	: QAbstractItemModel(parent), has_Changed(false)
 {
 	rootItem = PtrTaskItem( new TaskItem(NULL) );
+	rootItem->setId("{00000000-0000-0000-0000-000000000000}");
 }
 
 TaskTree::~TaskTree()
@@ -220,6 +226,8 @@ int TaskTree::columnCount( const QModelIndex& ) const
 void TaskTree::clear()
 {
 	m_Tasks.clear();
+
+	setChanged();
 	reset();
 }
 
@@ -240,16 +248,19 @@ QModelIndex TaskTree::addChild( const QModelIndex &_index, const Task& _task )
 	m_Tasks[item->getId()] = item;
 	endInsertRows();
 
+	setChanged();
 	return createIndex(item->row(), 0, item.get());
 }
 
 QModelIndex TaskTree::addChild( const QUuid& _parent, const Task& _task )
 {
 	TaskMap::iterator it = m_Tasks.find(_parent);
-	if( it==m_Tasks.end() )
+	if( it==m_Tasks.end() && !_parent.isNull() )
 		ERROR("Unknown task with id=" << _parent);
 
-	TaskItem *parent = it->second.get();
+	TaskItem *parent = rootItem.get();
+	if( !_parent.isNull() )
+		parent = it->second.get();
 	QModelIndex idx = createIndex(parent->row(), 0, parent);
 
 	return addChild(idx, _task);
@@ -284,6 +295,7 @@ QModelIndex TaskTree::addSibling( const QModelIndex &_index, const Task& _task )
 	m_Tasks[item->getId()] = item;
 	endInsertRows();
 
+	setChanged();
 	return createIndex(item->row(), 0, item.get());
 }
 
@@ -318,9 +330,11 @@ void TaskTree::delItem( const QModelIndex &_index )
 	item->parent()->removeChild(item);
 	m_Tasks.erase(item->getId());
 	endRemoveRows();
+
+	setChanged();
 }
 
-TaskItem* TaskTree::getItem(QModelIndex _idx)
+TaskItem* TaskTree::getItem(QModelIndex _idx) const
 {
 	if (!_idx.isValid())
 		return NULL;
@@ -353,5 +367,17 @@ bool TaskTree::setData( const QModelIndex& _index, const QVariant& _value, int _
 	QModelIndex index2 = createIndex( item->row(), _index.column(), item );
 	emit dataChanged(index1, index2);
 
+	setChanged();
+
 	return true;
+}
+
+void TaskTree::setChanged(bool _value)
+{
+	has_Changed = _value;
+}
+
+bool TaskTree::hasChanged() const
+{
+	return has_Changed;
 }
