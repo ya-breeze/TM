@@ -31,6 +31,12 @@
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
           <widget class="QTreeView" name="treeView">
+           <property name="dragEnabled">
+            <bool>true</bool>
+           </property>
+           <property name="dragDropMode">
+            <enum>QAbstractItemView::DragDrop</enum>
+           </property>
            <property name="selectionBehavior">
             <enum>QAbstractItemView::SelectRows</enum>
            </property>
@@ -124,8 +130,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>317</width>
-          <height>335</height>
+          <width>112</width>
+          <height>112</height>
          </rect>
         </property>
         <attribute name="label">

@@ -370,7 +370,8 @@ Qt::ItemFlags TaskTree::flags( const QModelIndex &index ) const
 	if (!index.isValid())
 		return 0;
 
-	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable
+		| Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 }
 
 bool TaskTree::setData( const QModelIndex& _index, const QVariant& _value, int _role )

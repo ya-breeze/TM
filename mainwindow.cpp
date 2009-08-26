@@ -92,6 +92,10 @@ void TM::slot_AddSiblingItem()
 
 void TM::slot_DelItem()
 {
+	int btn = QMessageBox::question(this, tr("Task delete"), tr("Do you really want to delete task?"), QMessageBox::Yes, QMessageBox::No );
+	if( btn==QMessageBox::No )
+		return;
+	
 	try
 	{
 		QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
