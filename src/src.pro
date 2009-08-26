@@ -1,8 +1,13 @@
 TEMPLATE = app
 TARGET = tm
 QT += core \
-    gui
-HEADERS += smart.h \
+    gui \
+    network
+INCLUDEPATH += qtsingleapp
+HEADERS += qtsingleapp/qtlocalpeer.h \
+    qtsingleapp/qtlockedfile.h \
+    qtsingleapp/qtsingleapplication.h \
+    smart.h \
     LastActs.h \
     ActTree.h \
     DayActivities.h \
@@ -14,7 +19,11 @@ HEADERS += smart.h \
     Task.h \
     TaskTree.h \
     mainwindow.h
-SOURCES += LastActs.cpp \
+SOURCES += qtsingleapp/qtlocalpeer.cpp \
+    qtsingleapp/qtlockedfile.cpp \
+    qtsingleapp/qtlockedfile_unix.cpp \
+    qtsingleapp/qtsingleapplication.cpp \
+    LastActs.cpp \
     ActTree.cpp \
     DayActivities.cpp \
     Activities.cpp \
