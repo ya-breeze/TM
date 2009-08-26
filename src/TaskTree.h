@@ -14,9 +14,9 @@
 #include <QSortFilterProxyModel>
 #include <QList>
 
-#include <tr1/memory>
 #include <map>
 
+#include "smart.h"
 #include "Task.h"
 #include "ChangableObject.h"
 
@@ -48,7 +48,7 @@ private:
 	TaskItemVec		childItems;
 	TaskItem		*parentItem;
 };
-typedef std::tr1::shared_ptr<TaskItem>	PtrTaskItem;
+typedef shared_ptr<TaskItem>	PtrTaskItem;
 
 
 class TaskTree : public QAbstractItemModel, public ChangableObject

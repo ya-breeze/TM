@@ -2,7 +2,8 @@ TEMPLATE = app
 TARGET = tm
 QT += core \
     gui
-HEADERS += LastActs.h \
+HEADERS += smart.h \
+    LastActs.h \
     ActTree.h \
     DayActivities.h \
     Activities.h \
