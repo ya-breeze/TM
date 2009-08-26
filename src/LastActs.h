@@ -23,7 +23,9 @@ public:
 	LastActs( TaskTree* _tasks, Activities *_acts, QObject *parent = NULL );
 	int rowCount ( const QModelIndex &_parent ) const;
 	int columnCount ( const QModelIndex &_parent ) const;
-	QVariant data ( const QModelIndex &_index, int _role ) const;
+	QVariant data( const QModelIndex &_index, int _role ) const;
+	const Activity& getAct( const QModelIndex &_index ) const;
+
 protected slots:
 	void 	actAdded(const Activity& _act, bool _setCurrent);
 	void 	todayChanged(const QDate& _today);

@@ -130,8 +130,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>112</width>
-          <height>112</height>
+          <width>317</width>
+          <height>335</height>
          </rect>
         </property>
         <attribute name="label">
@@ -166,7 +166,11 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QDateTimeEdit" name="teActivityStartTime"/>
+            <widget class="QDateTimeEdit" name="teActivityStartTime">
+             <property name="displayFormat">
+              <string>yyyy.MM.dd H:mm</string>
+             </property>
+            </widget>
            </item>
            <item row="0" column="2">
             <widget class="QToolButton" name="btnUpdateTime"/>
@@ -212,7 +216,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="radioButton">
+             <widget class="QRadioButton" name="rbActivityOther">
               <property name="text">
                <string>Separate activity</string>
               </property>
@@ -278,7 +282,16 @@
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
+   <widget class="QMenu" name="menuTasks">
+    <property name="title">
+     <string>Tasks</string>
+    </property>
+    <addaction name="actionAdd"/>
+    <addaction name="actionAddChild"/>
+    <addaction name="actionDel"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuTasks"/>
   </widget>
   <action name="actionAdd">
    <property name="text">
@@ -318,7 +331,7 @@
   <tabstop>treeView</tabstop>
   <tabstop>tabMain</tabstop>
   <tabstop>rbActivityTask</tabstop>
-  <tabstop>radioButton</tabstop>
+  <tabstop>rbActivityOther</tabstop>
   <tabstop>leActivityName</tabstop>
   <tabstop>btnNewActivity</tabstop>
   <tabstop>teActivityStartTime</tabstop>
@@ -329,5 +342,22 @@
  <resources>
   <include location="tm.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>activated()</signal>
+   <receiver>TMClass</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>490</x>
+     <y>373</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>319</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

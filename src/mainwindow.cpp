@@ -6,14 +6,12 @@
 #include "utils.h"
 #include "Saver.h"
 
-#include "LastActs.h"
-
 TM::TM(QWidget *parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent), p_LastActs(new LastActs(&m_Tasks, &m_Activities, this))
 {
 	ui.setupUi(this);
 	ui.treeView->setModel(&m_Tasks);
-	ui.lvLastActivities->setModel( new LastActs(&m_Tasks, &m_Activities, this) );
+	ui.lvLastActivities->setModel( p_LastActs );
 
 	/// Slots
 	connect( ui.actionAdd, SIGNAL(triggered(bool)), this, SLOT(slot_AddItem()) );
@@ -30,6 +28,9 @@ TM::TM(QWidget *parent)
 
 	connect( ui.btnToTasks, SIGNAL(clicked()), this, SLOT(slot_BtnToTasks()) );
 	connect( ui.btnUpdateTime, SIGNAL(clicked()), this, SLOT(slot_BtnUpdateTime()) );
+
+	connect( ui.lvLastActivities->selectionModel(), SIGNAL(currentChanged ( const QModelIndex &, const QModelIndex &)),
+			this, SLOT(slot_SelectedLastAct(const QModelIndex&)) );
 
 	/// Focuses
 //	connect( ui.actionFocusTasks, SIGNAL(triggered(bool)), ui.treeView, SLOT(setFocus()) );
@@ -90,12 +91,31 @@ void TM::slot_AddSiblingItem()
 	}
 }
 
+/// Изменяет добавляемую активность данными из прошлой активности
+void TM::slot_SelectedLastAct(const QModelIndex &_current)
+{
+	const Activity &act = p_LastActs->getAct(_current);
+	if( act.getAssignedTask().isNull() )
+	{
+		ui.rbActivityOther->setChecked(true);
+		ui.leActivityName->setEnabled(true);
+	}
+	else
+	{
+		ui.rbActivityTask->setChecked(true);
+		ui.leActivityName->setEnabled(false);
+	}
+	ui.leActivityName->setText(act.getName());
+
+	ui.btnNewActivity->setFocus();
+}
+
 void TM::slot_DelItem()
 {
 	int btn = QMessageBox::question(this, tr("Task delete"), tr("Do you really want to delete task?"), QMessageBox::Yes, QMessageBox::No );
 	if( btn==QMessageBox::No )
 		return;
-	
+
 	try
 	{
 		QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
@@ -237,7 +257,8 @@ void TM::slot_AddActivity()
 			TaskItem *item = m_Tasks.getItem(idx);
 			if( !item )
 				ERROR("No one task is specified");
-			act.setAssignedTask( item->getId());
+			act.setAssignedTask(item->getId());
+			act.setName( item->getName() );
 		}
 		else
 		{

@@ -9,6 +9,7 @@
 
 #include "TaskTree.h"
 #include "Activities.h"
+#include "LastActs.h"
 
 class TM : public QMainWindow
 {
@@ -39,6 +40,8 @@ public slots:
 	void slot_BtnToTasks();
 	/// Обновляет время на текущее в окне добавления активности
 	void slot_BtnUpdateTime();
+	/// Изменяет добавляемую активность данными из прошлой активности
+	void slot_SelectedLastAct(const QModelIndex &_current);
 
 private:
 	void closeEvent(QCloseEvent *event);
@@ -46,6 +49,7 @@ private:
 	Ui::TMClass	ui;
 	TaskTree	m_Tasks;
 	Activities	m_Activities;
+	LastActs	*p_LastActs;
 
 	QShortcut	*p_ShcAddSiblingTask;
 	QShortcut	*p_ShcAddChildTask;

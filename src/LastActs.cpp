@@ -31,14 +31,21 @@ int LastActs::columnCount( const QModelIndex &/*_parent*/ ) const
 	return 2;
 }
 
+const Activity& LastActs::getAct( const QModelIndex &_index ) const
+{
+	DayActivities &acts = p_Activities->getTodayActs();
+	size_t index = acts.count() - _index.row() - 1;
+	const Activity &act = acts.getActivity(index);
+
+	return act;
+}
+
 QVariant LastActs::data( const QModelIndex &_index, int _role ) const
 {
 	if( _role!=Qt::DisplayRole )
 		return QVariant();
 
-	DayActivities &acts = p_Activities->getTodayActs();
-	size_t index = acts.count() - _index.row() - 1;
-	const Activity &act = acts.getActivity(index);
+	const Activity &act = getAct(_index);
 	switch( _index.column() )
 	{
 		case 0 :
