@@ -14,8 +14,17 @@
 #include "utils.h"
 
 
-#define FNAME_TASKS	"/home/breeze/.TM/Tasks"
-#define FNAME_ACTS	"/home/breeze/.TM/Activities."
+#define FNAME_TASKS	"/.TM/Tasks"
+#define FNAME_ACTS	"/.TM/Activities."
+
+QString	Saver::getHome() const
+{
+	char *home = ::getenv("HOME");
+	if( home==NULL)
+		return "/tmp";
+
+	return home;
+}
 
 QString Saver::escapeString(const QString& _str)
 {
@@ -68,19 +77,21 @@ void Saver::recurseSave(std::ofstream& _file, const TaskTree& _tree, const QMode
 
 void Saver::save(const TaskTree& _tree)
 {
-	if( !createDirFromFile(FNAME_TASKS) )
-		ERROR("Can't create directory for file '" <<FNAME_TASKS<<"'")
-	std::ofstream file(FNAME_TASKS, std::ios::trunc);
+	QString fname = getHome() + FNAME_TASKS;
+	if( !createDirFromFile(fname) )
+		ERROR("Can't create directory for file '" <<fname<<"'")
+	std::ofstream file(fname.toUtf8().data(), std::ios::trunc);
 	if( !file )
-		ERROR("Unable to open file '" << FNAME_TASKS << "'");
+		ERROR("Unable to open file '" << fname << "'");
 	recurseSave(file, _tree, QModelIndex());
 }
 
 void Saver::restore(TaskTree& _tree)
 {
-	std::ifstream file(FNAME_TASKS);
+	QString fname = getHome() + FNAME_TASKS;
+	std::ifstream file(fname.toUtf8().data());
 	if( !file )
-		ERROR("Unable to open file '" << FNAME_TASKS << "'");
+		ERROR("Unable to open file '" << fname << "'");
 
 	size_t line = 0;
 	bool hasStarted = false;
@@ -155,7 +166,7 @@ void Saver::restore(TaskTree& _tree)
 
 void Saver::save(const QDate& _date, const DayActivities& _tree)
 {
-	QString fname(FNAME_ACTS);
+	QString fname = getHome() + FNAME_ACTS;
 	fname += _date.toString(Qt::ISODate);
 
 	if( !createDirFromFile(fname) )
@@ -171,14 +182,14 @@ void Saver::save(const QDate& _date, const DayActivities& _tree)
 
 bool Saver::canRestore(const QDate& _date)
 {
-	QString fname(FNAME_ACTS);
+	QString fname = getHome() + FNAME_ACTS;
 	fname += _date.toString(Qt::ISODate);
 	return QFile::exists(fname);
 }
 
 void Saver::restore(const QDate& _date, DayActivities& _tree)
 {
-	QString fname(FNAME_ACTS);
+	QString fname = getHome() + FNAME_ACTS;
 	fname += _date.toString(Qt::ISODate);
 
 	std::ifstream file(fname.toUtf8().data());
@@ -251,10 +262,10 @@ void Saver::saveActivity(std::ofstream& _file, const Activity& _act)
 Saver::DateSet Saver::getActiveDays()
 {
 	DateSet res;
-	QString fname(FNAME_ACTS);
+	QString fname = getHome() + FNAME_ACTS;
 
-	if( !createDirFromFile(FNAME_ACTS) )
-		ERROR("Can't create directory for file '" <<FNAME_ACTS<<"'");
+	if( !createDirFromFile(fname) )
+		ERROR("Can't create directory for file '" <<fname<<"'");
 
 	fname = fname.left(fname.lastIndexOf("/"));
 

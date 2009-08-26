@@ -27,6 +27,7 @@ public:
 	void	restore(const QDate& _date, DayActivities& _tree);
 	bool	canRestore(const QDate& _date);
 	DateSet	getActiveDays();
+	QString	getHome() const;
 protected:
 	void	recurseSave(std::ofstream& _file, const TaskTree& _tree, const QModelIndex& _idx);
 	void	saveTask(std::ofstream& _file, const Task& _task);
