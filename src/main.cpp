@@ -1,11 +1,11 @@
-#include "mainwindow.h"
-
 #include <QtGui>
 #include <QApplication>
 #include <QTranslator>
 #include <QLibraryInfo>
 #include <QtSingleApplication>
 
+#include "mainwindow.h"
+#include "TabletWindow.h"
 
 int main( int argc, char *argv[] )
 {
@@ -31,8 +31,13 @@ int main( int argc, char *argv[] )
 		myappTranslator.load( "fly-system-monitor_" + QLocale::system().name() );
 	app.installTranslator( &myappTranslator );
 
+#ifdef TABLET
+	TabletWindow w;
+	w.show();
+#else
 	TM w;
 	w.show();
+#endif
 
 	return app.exec();
 }
