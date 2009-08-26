@@ -9,7 +9,7 @@
 #define TABLETWINDOW_H_
 
 #include <QtGui/QMainWindow>
-#include "ui_mainwindow.h"
+#include "ui_tabletmain.h"
 
 class TabletWindow : public QMainWindow
 {
@@ -17,6 +17,14 @@ class TabletWindow : public QMainWindow
 
 public:
 	TabletWindow( QWidget *parent = 0 );
+
+public slots:
+	void slot_SetFocusTasks();
+	void slot_SetFocusChrono();
+	void slot_SetFocusAddActivity();
+
+protected:
+	Ui::TabletMain	ui;
 };
 
 #endif /* TABLETWINDOW_H_ */

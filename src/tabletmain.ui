@@ -109,50 +109,50 @@
  <resources/>
  <connections>
   <connection>
-   <sender>btnTasks</sender>
-   <signal>clicked()</signal>
-   <receiver>stackedWidget</receiver>
-   <slot>setCurrentIndex(0)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>55</x>
-     <y>129</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>369</x>
-     <y>242</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btnChrono</sender>
-   <signal>clicked()</signal>
-   <receiver>stackedWidget</receiver>
-   <slot>setCurrentIndex(1)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>55</x>
-     <y>242</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>369</x>
-     <y>242</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>btnAddActivity</sender>
    <signal>clicked()</signal>
-   <receiver>stackedWidget</receiver>
-   <slot>setCurrentIndex(2)</slot>
+   <receiver>TabletMain</receiver>
+   <slot>slot_SetFocusAddActivity()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>55</x>
      <y>355</y>
     </hint>
     <hint type="destinationlabel">
-     <x>369</x>
+     <x>319</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnChrono</sender>
+   <signal>clicked()</signal>
+   <receiver>TabletMain</receiver>
+   <slot>slot_SetFocusChrono()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>55</x>
      <y>242</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>319</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnTasks</sender>
+   <signal>clicked()</signal>
+   <receiver>TabletMain</receiver>
+   <slot>slot_SetFocusTasks()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>55</x>
+     <y>129</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>319</x>
+     <y>239</y>
     </hint>
    </hints>
   </connection>

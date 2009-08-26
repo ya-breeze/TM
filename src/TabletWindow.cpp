@@ -8,6 +8,22 @@
 #include "TabletWindow.h"
 
 TabletWindow::TabletWindow(QWidget *parent)
-: QMainWindow(parent)
+	: QMainWindow(parent)
 {
+	ui.setupUi(this);
+}
+
+void TabletWindow::slot_SetFocusTasks()
+{
+	ui.stackedWidget->setCurrentIndex(0);
+}
+
+void TabletWindow::slot_SetFocusChrono()
+{
+	ui.stackedWidget->setCurrentIndex(1);
+}
+
+void TabletWindow::slot_SetFocusAddActivity()
+{
+	ui.stackedWidget->setCurrentIndex(2);
 }
