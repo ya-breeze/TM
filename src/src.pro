@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = TM
+TARGET = tm
 QT += core \
     gui
 HEADERS += LastActs.h \
