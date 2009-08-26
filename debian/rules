@@ -14,7 +14,7 @@ builddir:
 	mkdir -p builddir
 
 builddir/Makefile: builddir
-	cd builddir && qmake-qt4 PREFIX=/usr ../$(APPNAME).pro
+	cd builddir && qmake-qt4 PREFIX=/usr ../src/$(APPNAME).pro
 
 build: build-stamp
 
@@ -22,7 +22,8 @@ build-stamp: builddir/Makefile
 	dh_testdir
 
 	# Add here commands to compile the package.
-	cd builddir && $(MAKE)
+	#cd builddir && $(MAKE)
+	$(MAKE) -C builddir
 	#docbook-to-man debian/$(APPNAME).sgml > $(APPNAME).1
 
 	touch $@

@@ -7,6 +7,7 @@
 using boost::shared_ptr;
 #else
 #include <tr1/memory>
-#endif
 using std::tr1::shared_ptr;
+#endif
+
 #endif
