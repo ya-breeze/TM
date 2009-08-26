@@ -4,12 +4,19 @@
 #include <QApplication>
 #include <QTranslator>
 #include <QLibraryInfo>
+#include <QtSingleApplication>
 
 
 int main( int argc, char *argv[] )
 {
-	QApplication app( argc, argv );
-	app.setWindowIcon( QIcon( ":/images/MainIcon" ) );
+	QtSingleApplication app( argc, argv );
+	app.setWindowIcon( QIcon(":/images/MainIcon") );
+	if( app.isRunning() )
+	{
+		QMessageBox::critical(NULL, app.tr("Unable run tm"), app.tr("Another one instance of tm is running"));
+		return 0;
+	}
+
 	QCoreApplication::setOrganizationName( "Breeze" );
 	QCoreApplication::setOrganizationDomain( "ya-breeze.ya.ru" );
 	QCoreApplication::setApplicationName( "TM" );
