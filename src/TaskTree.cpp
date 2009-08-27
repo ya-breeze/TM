@@ -62,7 +62,10 @@ TaskItem* TaskItem::child(int row, bool _hideDone)
 	if( row<0 || row>=(int)childItems.size() )
 		return NULL;
 
-	return childItems[row];
+	if( !_hideDone )
+		return childItems[row];
+
+	return NULL;
 }
 
 int TaskItem::childCount(bool _hideDone) const
@@ -75,10 +78,16 @@ int TaskItem::childCount(bool _hideDone) const
 
 int TaskItem::childIndex( TaskItem *_item, bool _hideDone )
 {
+	int res = 0;
 	for(int i=0;i<(int)childItems.size();++i)
 	{
 		if( childItems[i]==_item )
-			return i;
+			return res;
+
+		if( !_hideDone )
+			++res;
+		else if( childItems[i]->getFinished().isNull() )
+			++res;
 	}
 
 	return -1;
