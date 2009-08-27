@@ -57,6 +57,9 @@ void Saver::saveTask(std::ofstream& _file, const Task& _task)
 		<< "Name:" << _task.getName().toUtf8().data() << std::endl
 		<< "Notes:" << escapeString(_task.getNotes()).toUtf8().data() << std::endl
 		<< "Parent:" << _task.getParentId().toString() << std::endl
+		<< "DateCreated:" << _task.getCreated().toString(Qt::ISODate) << std::endl
+		<< "DateStarted:" << _task.getStarted().toString(Qt::ISODate) << std::endl
+		<< "DateFinished:" << _task.getFinished().toString(Qt::ISODate) << std::endl
 		<< "END:VTODO" << std::endl;
 }
 
@@ -156,6 +159,21 @@ void Saver::restore(TaskTree& _tree)
 				{
 					task.setNotes( lst[1] );
 					someLines = true;
+				}
+				else if( lst[0].compare( "DateCreated", Qt::CaseInsensitive ) == 0 )
+				{
+					task.setCreated( QDateTime::fromString(lst[1], Qt::ISODate) );
+					someLines = false;
+				}
+				else if( lst[0].compare( "DateStarted", Qt::CaseInsensitive ) == 0 )
+				{
+					task.setStarted( QDateTime::fromString(lst[1], Qt::ISODate) );
+					someLines = false;
+				}
+				else if( lst[0].compare( "DateFinished", Qt::CaseInsensitive ) == 0 )
+				{
+					task.setFinished( QDateTime::fromString(lst[1], Qt::ISODate) );
+					someLines = false;
 				}
 			}
 		}

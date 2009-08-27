@@ -144,7 +144,28 @@ QVariant TaskTree::data( const QModelIndex &index, int role ) const
 	{
 		switch( index.column() )
 		{
-			case 0 : return item->getName();
+			case 0 :
+			{
+				QString res = item->getName();
+//				if( !item->getFinished().isNull() )
+//					res += " <Done>";
+//				else if( !item->getStarted().isNull() )
+//					res += " <Working>";
+
+				return res;
+			}
+			break;
+			case 1 :
+			{
+				QString res;// = item->getName();
+				if( !item->getFinished().isNull() )
+					res += " <Done>";
+				else if( !item->getStarted().isNull() )
+					res += " <Working>";
+
+				return res;
+			}
+			break;
 		}
 	}
 
@@ -393,4 +414,16 @@ bool TaskTree::setData( const QModelIndex& _index, const QVariant& _value, int _
 	setChanged();
 
 	return true;
+}
+
+void TaskTree::setDataChanged( const QModelIndex& _index )
+{
+	TaskItem *item = getItem(_index);
+
+	QModelIndex index1 = createIndex( item->row(), 0, item );
+	QModelIndex index2 = createIndex( item->row(), columnCount(QModelIndex()), item );
+
+	emit dataChanged(index1, index2);
+
+	setChanged();
 }

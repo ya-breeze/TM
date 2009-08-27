@@ -11,6 +11,7 @@
 
 
 Task::Task(const QString& _name)
+	: m_Created( QDateTime::currentDateTime() )
 {
 	str_Name = _name;
 	if( str_Name.isEmpty() )

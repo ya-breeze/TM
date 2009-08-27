@@ -46,6 +46,7 @@ TM::TM(QWidget *parent)
 	p_ShcAddChildTask	= new QShortcut(QKeySequence("Ins"), this, SLOT(slot_AddItem()));
 	p_ShcAddSiblingTask	= new QShortcut(QKeySequence("Shift+Ins"), this, SLOT(slot_AddSiblingItem()));
 	p_ShcDelTask		= new QShortcut(QKeySequence("Del"), this, SLOT(slot_DelItem()));
+	p_ShcSetFinished	= new QShortcut(QKeySequence("Space"), this, SLOT(slot_SetFinished()));
 
 	slot_Restore();
 	slot_BtnUpdateTime();
@@ -53,6 +54,32 @@ TM::TM(QWidget *parent)
 
 TM::~TM()
 {
+}
+
+void TM::slot_SetFinished()
+{
+	if( ui.treeView->hasFocus() )
+	{
+		try
+		{
+			QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
+			TaskItem *item = m_Tasks.getItem(idx);
+			if( item->getFinished().isNull() )
+				item->setFinished(QDateTime::currentDateTime());
+			else
+				item->setFinished(QDateTime());
+
+			m_Tasks.setDataChanged(idx);
+
+//				res += " <Done>";
+//			else if( !item->getStarted().isNull() )
+//				res += " <Working>";
+		}
+		catch(std::exception& ex)
+		{
+			QMessageBox::critical(this, tr("title"), ex.what());
+		}
+	}
 }
 
 void TM::slot_AddItem()
@@ -104,6 +131,9 @@ void TM::slot_SelectedLastAct(const QModelIndex &_current)
 	{
 		ui.rbActivityTask->setChecked(true);
 		ui.leActivityName->setEnabled(false);
+
+		QModelIndex newidx = m_Tasks.getItemIndex(act.getAssignedTask());
+		ui.treeView->selectionModel()->setCurrentIndex(newidx, QItemSelectionModel::ClearAndSelect);
 	}
 	ui.leActivityName->setText(act.getName());
 

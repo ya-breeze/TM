@@ -42,6 +42,8 @@ public slots:
 	void slot_BtnUpdateTime();
 	/// Изменяет добавляемую активность данными из прошлой активности
 	void slot_SelectedLastAct(const QModelIndex &_current);
+	/// Изменяет статус законченности задачи
+	void slot_SetFinished();
 
 private:
 	void closeEvent(QCloseEvent *event);
@@ -54,6 +56,8 @@ private:
 	QShortcut	*p_ShcAddSiblingTask;
 	QShortcut	*p_ShcAddChildTask;
 	QShortcut	*p_ShcDelTask;
+	QShortcut	*p_ShcSetFinished;
+
 	QShortcut	*p_ShcFocusTasks;
 	QShortcut	*p_ShcFocusNotes;
 	QShortcut	*p_ShcFocusActivities;

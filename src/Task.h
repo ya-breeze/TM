@@ -8,9 +8,11 @@
 #ifndef TASK_H_
 #define TASK_H_
 
+#include <vector>
+
 #include <QString>
 #include <QUuid>
-#include <vector>
+#include <QDateTime>
 
 class Task
 {
@@ -22,10 +24,43 @@ class Task
 	QUuid		m_Parent;
 	UuidVec		m_Depends;
 	QString		str_Notes;
+	QDateTime	m_Created;
+	QDateTime	m_Started;
+	QDateTime	m_Finished;
 public:
 	Task( const QString& _name = "" );
 
 	///////////////////// Get/Set ///////////////////
+	QDateTime getCreated() const
+	{
+		return m_Created;
+	}
+
+	QDateTime getFinished() const
+	{
+		return m_Finished;
+	}
+
+	QDateTime getStarted() const
+	{
+		return m_Started;
+	}
+
+	void setCreated( const QDateTime& m_Created )
+	{
+		this->m_Created = m_Created;
+	}
+
+	void setFinished( const QDateTime& m_Finished )
+	{
+		this->m_Finished = m_Finished;
+	}
+
+	void setStarted( const QDateTime& m_Started )
+	{
+		this->m_Started = m_Started;
+	}
+
 	QString getNotes() const
 	{
 		return str_Notes;

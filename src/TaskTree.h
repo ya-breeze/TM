@@ -86,6 +86,10 @@ public:
 	QModelIndex getItemIndex( const QUuid& _id) const;
 
 	void	clear();
+
+	/// Посылает сигнал о изменении данных в указанном индексе
+	void	setDataChanged( const QModelIndex& _index );
+
 protected:
 	TaskMap		m_Tasks;
 	PtrTaskItem	rootItem;
