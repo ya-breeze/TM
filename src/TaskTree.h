@@ -35,12 +35,12 @@ public:
 	void removeChild(TaskItem *child);
 	void removeChild(int);
 
-	TaskItem*	child(int row);
-	int		childCount() const;
-	int		childIndex( TaskItem* );
+	TaskItem*	child(int row, bool _hideDone);
+	int		childCount(bool _hideDone) const;
+	int		childIndex( TaskItem*, bool _hideDone );
 
 	QVariant	data(int column) const;
-	int		row() const;
+	int		row(bool _hideDone) const;
 	TaskItem*	parent();
 	void		setItemParent(TaskItem*);
 
@@ -89,10 +89,11 @@ public:
 
 	/// Посылает сигнал о изменении данных в указанном индексе
 	void	setDataChanged( const QModelIndex& _index );
-
+	void	setDataChanged( TaskItem *_item );
 protected:
 	TaskMap		m_Tasks;
 	PtrTaskItem	rootItem;
+	bool		need_HideDone;
 };
 
 #endif /* TASKTREE_H_ */
