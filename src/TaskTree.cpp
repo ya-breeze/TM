@@ -65,6 +65,15 @@ TaskItem* TaskItem::child(int row, bool _hideDone)
 	if( !_hideDone )
 		return childItems[row];
 
+	int res = -1;
+	for(int i=0;i<(int)childItems.size();++i)
+	{
+		if( childItems[i]->getFinished().isNull() )
+			++res;
+		if( row==res )
+			return childItems[i];
+	}
+
 	return NULL;
 }
 
@@ -73,7 +82,14 @@ int TaskItem::childCount(bool _hideDone) const
 	if( !_hideDone )
 		return childItems.size();
 
-	return 0;
+	int res = 0;
+	for(int i=0;i<(int)childItems.size();++i)
+	{
+		if( childItems[i]->getFinished().isNull() )
+			++res;
+	}
+
+	return res;
 }
 
 int TaskItem::childIndex( TaskItem *_item, bool _hideDone )
@@ -246,9 +262,12 @@ int TaskTree::rowCount( const QModelIndex &parent ) const
 		parentItem = (TaskItem*)parent.internalPointer();
 
 	if( !parentItem )
+	{
 		return 0;
+	}
 
-	return parentItem->childCount(need_HideDone);
+	int sz = parentItem->childCount(need_HideDone);
+	return sz;
 }
 
 int TaskTree::columnCount( const QModelIndex& ) const
@@ -441,5 +460,20 @@ void TaskTree::setDataChanged( TaskItem *_item )
 void TaskTree::setDataChanged( const QModelIndex& _index )
 {
 	TaskItem *item = getItem(_index);
-	setDataChanged(item);
+	if( item )
+		setDataChanged(item);
+}
+
+void TaskTree::setHideDone(int _value)
+{
+	if( _value!=need_HideDone )
+	{
+		need_HideDone = _value;
+		reset();
+	}
+}
+
+bool TaskTree::getHideDone() const
+{
+	return need_HideDone;
 }

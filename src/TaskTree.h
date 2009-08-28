@@ -90,6 +90,12 @@ public:
 	/// Посылает сигнал о изменении данных в указанном индексе
 	void	setDataChanged( const QModelIndex& _index );
 	void	setDataChanged( TaskItem *_item );
+
+	bool	getHideDone() const;
+
+public slots:
+	/// 0 - show, 1 - hide
+	void	setHideDone(int _value);
 protected:
 	TaskMap		m_Tasks;
 	PtrTaskItem	rootItem;

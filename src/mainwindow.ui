@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
-    <height>480</height>
+    <width>727</width>
+    <height>482</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,6 +42,13 @@
            </property>
            <property name="animated">
             <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="cbHideDone">
+           <property name="text">
+            <string>Hide done</string>
            </property>
           </widget>
          </item>
@@ -123,15 +130,15 @@
       </widget>
       <widget class="QToolBox" name="toolBox">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="page">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>317</width>
-          <height>335</height>
+          <width>376</width>
+          <height>337</height>
          </rect>
         </property>
         <attribute name="label">
@@ -141,6 +148,96 @@
          <item>
           <widget class="QTextEdit" name="Notes"/>
          </item>
+         <item>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_12">
+             <property name="text">
+              <string>Create time</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="lblCreateTime">
+             <property name="text">
+              <string>&lt;no available&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="cbStartedTime">
+             <property name="text">
+              <string>Start time</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QDateTimeEdit" name="teStartTime">
+             <property name="displayFormat">
+              <string>yyyy.MM.dd H:mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>Finish time</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLabel" name="lblFinishTime">
+             <property name="text">
+              <string>&lt;not yet finished&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>Planned time</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="lePlannedTime"/>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>Real time brutto</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLabel" name="lblRealTimeBrutto">
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>&lt;no available&gt;</string>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_10">
+             <property name="text">
+              <string>Real time netto</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QLabel" name="lblRealTimeNetto">
+             <property name="text">
+              <string>&lt;no available&gt;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
         </layout>
        </widget>
        <widget class="QWidget" name="page_2">
@@ -148,8 +245,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>317</width>
-          <height>335</height>
+          <width>305</width>
+          <height>334</height>
          </rect>
         </property>
         <attribute name="label">
@@ -269,7 +366,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>640</width>
+     <width>727</width>
      <height>31</height>
     </rect>
    </property>
@@ -350,12 +447,28 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>490</x>
-     <y>373</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>319</x>
      <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbStartedTime</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>TMClass</receiver>
+   <slot>slot_SetStartTime()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>417</x>
+     <y>274</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>363</x>
+     <y>240</y>
     </hint>
    </hints>
   </connection>

@@ -31,6 +31,7 @@ TM::TM(QWidget *parent)
 
 	connect( ui.lvLastActivities->selectionModel(), SIGNAL(currentChanged ( const QModelIndex &, const QModelIndex &)),
 			this, SLOT(slot_SelectedLastAct(const QModelIndex&)) );
+	connect( ui.cbHideDone, SIGNAL(stateChanged(int)), &m_Tasks, SLOT(setHideDone(int)) );
 
 	/// Focuses
 //	connect( ui.actionFocusTasks, SIGNAL(triggered(bool)), ui.treeView, SLOT(setFocus()) );
@@ -47,6 +48,9 @@ TM::TM(QWidget *parent)
 	p_ShcAddSiblingTask	= new QShortcut(QKeySequence("Shift+Ins"), this, SLOT(slot_AddSiblingItem()));
 	p_ShcDelTask		= new QShortcut(QKeySequence("Del"), this, SLOT(slot_DelItem()));
 	p_ShcSetFinished	= new QShortcut(QKeySequence("Space"), this, SLOT(slot_SetFinished()));
+
+	ui.cbHideDone->setChecked(true);
+	ui.teStartTime->setEnabled(false);
 
 	slot_Restore();
 	slot_BtnUpdateTime();
@@ -70,6 +74,11 @@ void TM::slot_SetFinished()
 				item->setFinished(QDateTime());
 
 			m_Tasks.setDataChanged(idx);
+			// Если эту задачу больше показывать не нужно, значит и родитель поменялся
+			idx = m_Tasks.parent(idx);
+			m_Tasks.setDataChanged(idx);
+
+			updateTaskProperties(*item);
 
 //				res += " <Done>";
 //			else if( !item->getStarted().isNull() )
@@ -167,6 +176,44 @@ void TM::slot_FocusChanged(QWidget *_old, QWidget */*_now*/)
 	}
 }
 
+void TM::updateTaskProperties( const Task& _task )
+{
+	ui.Notes->setText( _task.getNotes() );
+	ui.lblCreateTime->setText( _task.getCreated().toString("yyyy.MM.dd H:mm") );
+	ui.cbStartedTime->setChecked( !_task.getStarted().isNull() );
+	ui.lePlannedTime->setText(_task.getPlannedTime());
+	ui.lblRealTimeBrutto->setForegroundRole(QPalette::NoRole);
+
+	bool needHightLight = false;
+
+	if( _task.getStarted().isNull() )
+		ui.teStartTime->setDateTime( QDateTime::currentDateTime() );
+	else
+		ui.teStartTime->setDateTime(_task.getStarted());
+	if( _task.getFinished().isNull() )
+	{
+		needHightLight = true;
+		ui.lblFinishTime->setText(tr("<not finished yet>"));
+		double hours = (double)_task.getStarted().secsTo(QDateTime::currentDateTime())/3600;
+		ui.lblRealTimeBrutto->setText(tr("now is ") + QString::number(hours, 'f', 2) + tr(" hours"));
+	}
+	else
+	{
+		ui.lblFinishTime->setText(_task.getFinished().toString("yyyy.MM.dd H:mm") );
+		double hours = (double)_task.getStarted().secsTo(_task.getFinished())/3600;
+
+		if( _task.getStarted().isNull() )
+		{
+			needHightLight = true;
+			hours = (double)_task.getCreated().secsTo(_task.getFinished())/3600;
+		}
+		ui.lblRealTimeBrutto->setText(QString::number(hours, 'f', 2) + tr(" hours"));
+	}
+
+	if( needHightLight )
+		ui.lblRealTimeBrutto->setForegroundRole(QPalette::Highlight);
+}
+
 void TM::slot_TaskChanged(const QModelIndex& _new, const QModelIndex& _old)
 {
 	if( _old.isValid() )
@@ -178,11 +225,19 @@ void TM::slot_TaskChanged(const QModelIndex& _new, const QModelIndex& _old)
 			item->setNotes(s);
 			m_Tasks.setChanged();
 		}
+		if( ui.cbStartedTime->isChecked() )
+			item->setStarted(ui.teStartTime->dateTime());
+		item->setPlannedTime(ui.lePlannedTime->text());
 	}
 	if( _new.isValid() )
-		ui.Notes->setText( m_Tasks.getItem(_new)->getNotes() );
+	{
+		TaskItem *item = m_Tasks.getItem(_new);
+		updateTaskProperties(*item);
+	}
 	else
+	{
 		ui.Notes->setText("");
+	}
 }
 
 void TM::slot_Save()
@@ -350,4 +405,21 @@ void TM::slot_BtnToTasks()
 void TM::slot_BtnUpdateTime()
 {
 	ui.teActivityStartTime->setDateTime( QDateTime::currentDateTime() );
+}
+
+void TM::slot_SetStartTime()
+{
+	QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
+	if( !idx.isValid() )
+		return;
+
+	m_Tasks.setDataChanged(idx);
+	if( ui.cbStartedTime->isChecked() )
+	{
+		ui.teStartTime->setEnabled(true);
+	}
+	else
+	{
+		ui.teStartTime->setEnabled(false);
+	}
 }

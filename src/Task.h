@@ -27,10 +27,23 @@ class Task
 	QDateTime	m_Created;
 	QDateTime	m_Started;
 	QDateTime	m_Finished;
+	/// Планируемое время выполнения
+	QString		m_PlannedTime;
+
 public:
 	Task( const QString& _name = "" );
 
 	///////////////////// Get/Set ///////////////////
+	QString getPlannedTime() const
+	{
+		return m_PlannedTime;
+	}
+
+	void setPlannedTime( const QString& m_PlannedTime )
+	{
+		this->m_PlannedTime = m_PlannedTime;
+	}
+
 	QDateTime getCreated() const
 	{
 		return m_Created;

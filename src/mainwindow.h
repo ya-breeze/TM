@@ -44,8 +44,11 @@ public slots:
 	void slot_SelectedLastAct(const QModelIndex &_current);
 	/// Изменяет статус законченности задачи
 	void slot_SetFinished();
+	/// При изменении чекбокса на начало задачи
+	void slot_SetStartTime();
 
 private:
+	void updateTaskProperties( const Task& _task );
 	void closeEvent(QCloseEvent *event);
 
 	Ui::TMClass	ui;

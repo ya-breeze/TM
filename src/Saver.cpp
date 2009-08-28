@@ -60,6 +60,7 @@ void Saver::saveTask(std::ofstream& _file, const Task& _task)
 		<< "DateCreated:" << _task.getCreated().toString(Qt::ISODate) << std::endl
 		<< "DateStarted:" << _task.getStarted().toString(Qt::ISODate) << std::endl
 		<< "DateFinished:" << _task.getFinished().toString(Qt::ISODate) << std::endl
+		<< "PlannedTime:" << _task.getPlannedTime().toUtf8().data() << std::endl
 		<< "END:VTODO" << std::endl;
 }
 
@@ -78,7 +79,7 @@ void Saver::recurseSave(std::ofstream& _file, const TaskTree& _tree, const QMode
 	}
 }
 
-void Saver::save(const TaskTree& _tree)
+void Saver::save(TaskTree& _tree)
 {
 	QString fname = getHome() + FNAME_TASKS;
 	if( !createDirFromFile(fname) )
@@ -86,7 +87,11 @@ void Saver::save(const TaskTree& _tree)
 	std::ofstream file(fname.toUtf8().data(), std::ios::trunc);
 	if( !file )
 		ERROR("Unable to open file '" << fname << "'");
+
+	bool hideDone = _tree.getHideDone();
+	_tree.setHideDone(false);
 	recurseSave(file, _tree, QModelIndex());
+	_tree.setHideDone(hideDone);
 }
 
 void Saver::restore(TaskTree& _tree)
@@ -139,40 +144,48 @@ void Saver::restore(TaskTree& _tree)
 					DEBUG("Line without specifier on line " << line);
 					continue;
 				}
+				QString id = lst[0];
+				lst.removeFirst();
+				QString value = lst.join(":");
 
-				if( lst[0] == "ID" )
+				if( id == "ID" )
 				{
-					task.setId( lst[1] );
+					task.setId( value );
 					someLines = false;
 				}
-				else if( lst[0].compare( "NAME", Qt::CaseInsensitive ) == 0 )
+				else if( id.compare( "NAME", Qt::CaseInsensitive ) == 0 )
 				{
-					task.setName( lst[1] );
+					task.setName( value );
 					someLines = false;
 				}
-				else if( lst[0].compare( "Parent", Qt::CaseInsensitive ) == 0 )
+				else if( id.compare( "Parent", Qt::CaseInsensitive ) == 0 )
 				{
-					task.setParentId( lst[1] );
+					task.setParentId( value );
 					someLines = false;
 				}
-				else if( lst[0].compare( "Notes", Qt::CaseInsensitive ) == 0 )
+				else if( id.compare( "Notes", Qt::CaseInsensitive ) == 0 )
 				{
-					task.setNotes( lst[1] );
+					task.setNotes( value );
 					someLines = true;
 				}
-				else if( lst[0].compare( "DateCreated", Qt::CaseInsensitive ) == 0 )
+				else if( id.compare( "DateCreated", Qt::CaseInsensitive ) == 0 )
 				{
-					task.setCreated( QDateTime::fromString(lst[1], Qt::ISODate) );
+					task.setCreated( QDateTime::fromString(value, Qt::ISODate) );
 					someLines = false;
 				}
-				else if( lst[0].compare( "DateStarted", Qt::CaseInsensitive ) == 0 )
+				else if( id.compare( "DateStarted", Qt::CaseInsensitive ) == 0 )
 				{
-					task.setStarted( QDateTime::fromString(lst[1], Qt::ISODate) );
+					task.setStarted( QDateTime::fromString(value, Qt::ISODate) );
 					someLines = false;
 				}
-				else if( lst[0].compare( "DateFinished", Qt::CaseInsensitive ) == 0 )
+				else if( id.compare( "DateFinished", Qt::CaseInsensitive ) == 0 )
 				{
-					task.setFinished( QDateTime::fromString(lst[1], Qt::ISODate) );
+					task.setFinished( QDateTime::fromString(value, Qt::ISODate) );
+					someLines = false;
+				}
+				else if( id.compare( "PlannedTime", Qt::CaseInsensitive ) == 0 )
+				{
+					task.setPlannedTime( value );
 					someLines = false;
 				}
 			}
@@ -298,7 +311,7 @@ Saver::DateSet Saver::getActiveDays()
 	{
 		QFileInfo fileInfo = list.at(i);
 		QString date = fileInfo.fileName().mid(11);
-		DEBUG("Day with activities - " << date);
+//		DEBUG("Day with activities - " << date);
 		res.insert( QDate::fromString(date, Qt::ISODate) );
 	}
 

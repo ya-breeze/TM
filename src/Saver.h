@@ -20,7 +20,7 @@ class Saver
 public:
 	typedef std::set<QDate> DateSet;
 
-	void	save(const TaskTree& _tree);
+	void	save(TaskTree& _tree);
 	void	restore(TaskTree& _tree);
 
 	void	save(const QDate& _date, const DayActivities& _tree);

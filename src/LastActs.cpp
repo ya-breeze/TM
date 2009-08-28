@@ -21,7 +21,7 @@ int LastActs::rowCount( const QModelIndex &_parent ) const
 	DayActivities &acts = p_Activities->getTodayActs();
 //	DEBUG("Today activities - " << acts.count());
 	if( !_parent.isValid() )
-		return (acts.count()>5 ? 5 : acts.count());
+		return (acts.count()>10 ? 10 : acts.count());
 
 	return 0;
 }
