@@ -17,7 +17,7 @@ class HideDone : public QSortFilterProxyModel
 	bool need_HideDone;
 public:
 	HideDone( QObject *parent = NULL ) :
-		QSortFilterProxyModel( parent ), need_HideDone(false)
+		QSortFilterProxyModel( parent ), need_HideDone(true)
 	{
 	}
 

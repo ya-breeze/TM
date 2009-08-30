@@ -88,10 +88,7 @@ void Saver::save(TaskTree& _tree)
 	if( !file )
 		ERROR("Unable to open file '" << fname << "'");
 
-	bool hideDone = _tree.getHideDone();
-	_tree.setHideDone(false);
 	recurseSave(file, _tree, QModelIndex());
-	_tree.setHideDone(hideDone);
 }
 
 void Saver::restore(TaskTree& _tree)

@@ -35,7 +35,7 @@ void TaskItem::appendChild(TaskItem *item)
 
 void TaskItem::removeChild(TaskItem *item)
 {
-	int index = childIndex(item, false);
+	int index = childIndex(item);
 	if( index!=-1)
 		removeChild(index);
 }
@@ -57,53 +57,25 @@ void TaskItem::removeChild(int _index)
 	}
 }
 
-TaskItem* TaskItem::child(int row, bool _hideDone)
+TaskItem* TaskItem::child(int row)
 {
 	if( row<0 || row>=(int)childItems.size() )
 		return NULL;
 
-	if( !_hideDone )
-		return childItems[row];
-
-	int res = -1;
-	for(int i=0;i<(int)childItems.size();++i)
-	{
-		if( childItems[i]->getFinished().isNull() )
-			++res;
-		if( row==res )
-			return childItems[i];
-	}
-
-	return NULL;
+	return childItems[row];
 }
 
-int TaskItem::childCount(bool _hideDone) const
+int TaskItem::childCount() const
 {
-	if( !_hideDone )
-		return childItems.size();
-
-	int res = 0;
-	for(int i=0;i<(int)childItems.size();++i)
-	{
-		if( childItems[i]->getFinished().isNull() )
-			++res;
-	}
-
-	return res;
+	return childItems.size();
 }
 
-int TaskItem::childIndex( TaskItem *_item, bool _hideDone )
+int TaskItem::childIndex( TaskItem *_item )
 {
-	int res = 0;
 	for(int i=0;i<(int)childItems.size();++i)
 	{
 		if( childItems[i]==_item )
-			return res;
-
-		if( !_hideDone )
-			++res;
-		else if( childItems[i]->getFinished().isNull() )
-			++res;
+			return i;
 	}
 
 	return -1;
@@ -119,11 +91,11 @@ QVariant TaskItem::data(int _column) const
 	return QVariant();
 }
 
-int TaskItem::row(bool _hideDone) const
+int TaskItem::row() const
 {
 	if( parentItem )
 	{
-		return parentItem->childIndex(const_cast<TaskItem*>(this), _hideDone);
+		return parentItem->childIndex(const_cast<TaskItem*>(this));
 	}
 
 	return 0;
@@ -149,7 +121,7 @@ TaskItem *TaskItem::parent()
 
 
 TaskTree::TaskTree( QObject *parent )
-	: QAbstractItemModel(parent), ChangableObject(), need_HideDone(false)
+	: QAbstractItemModel(parent), ChangableObject()
 {
 	rootItem = PtrTaskItem( new TaskItem(NULL) );
 	rootItem->setId("{00000000-0000-0000-0000-000000000000}");
@@ -221,7 +193,7 @@ QModelIndex TaskTree::index( int row, int column, const QModelIndex &parent ) co
 	if( !parentItem )
 		return QModelIndex();
 
-	TaskItem *childItem = parentItem->child(row, need_HideDone);
+	TaskItem *childItem = parentItem->child(row);
 	if (childItem)
 		return createIndex(row, column, childItem);
 	else
@@ -245,7 +217,7 @@ QModelIndex TaskTree::parent( const QModelIndex &index ) const
 		return QModelIndex();
 	}
 
-	return createIndex(parentItem->row(need_HideDone), 0, parentItem);
+	return createIndex(parentItem->row(), 0, parentItem);
 }
 
 int TaskTree::rowCount( const QModelIndex &parent ) const
@@ -262,7 +234,7 @@ int TaskTree::rowCount( const QModelIndex &parent ) const
 		return 0;
 	}
 
-	int sz = parentItem->childCount(need_HideDone);
+	int sz = parentItem->childCount();
 	return sz;
 }
 
@@ -290,7 +262,7 @@ QModelIndex TaskTree::addChild( const QModelIndex &_index, const Task& _task )
 	if( _index.isValid() )
 		parent = (TaskItem*)(_index.internalPointer());
 
-	int count = parent->childCount(need_HideDone);
+	int count = parent->childCount();
 	beginInsertRows(_index, count, count);
 	PtrTaskItem item = PtrTaskItem( new TaskItem(_task, parent) );
 	parent->appendChild(item.get());
@@ -298,7 +270,7 @@ QModelIndex TaskTree::addChild( const QModelIndex &_index, const Task& _task )
 	endInsertRows();
 
 	setChanged();
-	return createIndex(item->row(need_HideDone), 0, item.get());
+	return createIndex(item->row(), 0, item.get());
 }
 
 QModelIndex TaskTree::addChild( const QUuid& _parent, const Task& _task )
@@ -312,7 +284,7 @@ QModelIndex TaskTree::addChild( const QUuid& _parent, const Task& _task )
 	if( !_parent.isNull() )
 	{
 		parent = it->second.get();
-		idx = createIndex(parent->row(need_HideDone), 0, parent);
+		idx = createIndex(parent->row(), 0, parent);
 	}
 
 	return addChild(idx, _task);
@@ -338,10 +310,10 @@ QModelIndex TaskTree::addSibling( const QModelIndex &_index, const Task& _task )
 	}
 	else
 	{
-		idx = createIndex(parent->row(need_HideDone), 0, parent);
+		idx = createIndex(parent->row(), 0, parent);
 	}
 
-	int count = parent->childCount(need_HideDone);
+	int count = parent->childCount();
 	beginInsertRows(idx, count, count);
 	PtrTaskItem item = PtrTaskItem( new TaskItem(_task, parent) );
 	parent->appendChild(item.get());
@@ -349,7 +321,7 @@ QModelIndex TaskTree::addSibling( const QModelIndex &_index, const Task& _task )
 	endInsertRows();
 
 	setChanged();
-	return createIndex(item->row(need_HideDone), 0, item.get());
+	return createIndex(item->row(), 0, item.get());
 }
 
 QModelIndex TaskTree::addSibling( const QUuid& _parent, const Task& _task )
@@ -359,7 +331,7 @@ QModelIndex TaskTree::addSibling( const QUuid& _parent, const Task& _task )
 		ERROR("Unknown task with id=" << _parent);
 
 	TaskItem *parent = it->second.get();
-	QModelIndex idx = createIndex(parent->row(need_HideDone), 0, parent);
+	QModelIndex idx = createIndex(parent->row(), 0, parent);
 
 	return addSibling(idx, _task);
 }
@@ -371,16 +343,16 @@ void TaskTree::delItem( const QModelIndex &_index )
 	TaskItem *item = (TaskItem*)(_index.internalPointer());
 	Q_ASSERT(item);
 
-	while( item->childCount(need_HideDone) )
+	while( item->childCount() )
 	{
-		TaskItem *child = item->child( item->childCount(need_HideDone)-1, need_HideDone );
-		delItem( createIndex(child->row(need_HideDone), 0, child) );
+		TaskItem *child = item->child( item->childCount()-1 );
+		delItem( createIndex(child->row(), 0, child) );
 	}
 
-	QModelIndex parent = createIndex(item->parent()->row(need_HideDone), 0, item->parent());
+	QModelIndex parent = createIndex(item->parent()->row(), 0, item->parent());
 	if( item->parent()==rootItem.get() )
 		parent = QModelIndex();
-	int row = item->row(need_HideDone);
+	int row = item->row();
 	beginRemoveRows(parent, row, row);
 	item->parent()->removeChild(item);
 	m_Tasks.erase(item->getId());
@@ -404,7 +376,7 @@ QModelIndex TaskTree::getItemIndex( const QUuid& _id) const
 	TaskMap::const_iterator it=m_Tasks.find(_id);
 	if( it!=m_Tasks.end() )
 	{
-		return createIndex( it->second->row(need_HideDone), 0, it->second.get() );
+		return createIndex( it->second->row(), 0, it->second.get() );
 	}
 
 	return QModelIndex();
@@ -449,7 +421,7 @@ bool TaskTree::setData( const QModelIndex& _index, const QVariant& _value, int _
 
 void TaskTree::setDataChanged( TaskItem *_item )
 {
-	int row = _item->row(need_HideDone);
+	int row = _item->row();
 	QModelIndex index1 = createIndex( row, 0, _item );
 	QModelIndex index2 = createIndex( row, columnCount(QModelIndex()), _item );
 
@@ -463,20 +435,6 @@ void TaskTree::setDataChanged( const QModelIndex& _index )
 	TaskItem *item = getItem(_index);
 	if( item )
 		setDataChanged(item);
-}
-
-void TaskTree::setHideDone(int _value)
-{
-//	if( _value!=need_HideDone )
-//	{
-//		need_HideDone = _value;
-//		reset();
-//	}
-}
-
-bool TaskTree::getHideDone() const
-{
-	return need_HideDone;
 }
 
 void TaskTree::moveUp( const QModelIndex& _index )

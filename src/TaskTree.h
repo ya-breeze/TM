@@ -36,12 +36,12 @@ public:
 	void removeChild(int);
 	void swapChilds(int _one, int _second);
 
-	TaskItem*	child(int row, bool _hideDone);
-	int		childCount(bool _hideDone) const;
-	int		childIndex( TaskItem*, bool _hideDone );
+	TaskItem*	child(int row);
+	int		childCount() const;
+	int		childIndex( TaskItem* );
 
 	QVariant	data(int column) const;
-	int		row(bool _hideDone) const;
+	int		row() const;
 	TaskItem*	parent();
 	void		setItemParent(TaskItem*);
 
@@ -92,20 +92,15 @@ public:
 	void	setDataChanged( const QModelIndex& _index );
 	void	setDataChanged( TaskItem *_item );
 
-	bool	getHideDone() const;
-
 	void	moveUp( const QModelIndex& _index );
 	void	moveDown( const QModelIndex& _index );
 	void	moveLeft( const QModelIndex& _index );
 	void	moveRight( const QModelIndex& _index );
 
 public slots:
-	/// 0 - show, 1 - hide
-	void	setHideDone(int _value);
 protected:
 	TaskMap		m_Tasks;
 	PtrTaskItem	rootItem;
-	bool		need_HideDone;
 };
 
 #endif /* TASKTREE_H_ */
