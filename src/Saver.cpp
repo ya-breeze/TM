@@ -274,6 +274,10 @@ void Saver::restore(const QDate& _date, DayActivities& _tree)
 			{
 				act.setAssignedTask( lst[1] );
 			}
+			else if( lst[0].compare( "Interrupts", Qt::CaseInsensitive ) == 0 )
+			{
+				act.setInterrupts( lst[1].toUInt() );
+			}
 		}
 	}
 
@@ -287,6 +291,7 @@ void Saver::saveActivity(std::ofstream& _file, const Activity& _act)
 		<< "Name:" << _act.getName().toUtf8().data() << std::endl
 //		<< "Notes:" << escapeString(_task.getNotes()).toUtf8().data() << std::endl
 		<< "Parent:" << _act.getAssignedTask().toString() << std::endl
+		<< "Interrupts:" << _act.getInterrupts() << std::endl
 		<< "END:VEVENT" << std::endl;
 }
 

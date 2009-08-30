@@ -70,7 +70,7 @@
           </widget>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout">
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
             <widget class="QLabel" name="lblCurrentActivity">
              <property name="text">
@@ -80,28 +80,59 @@
            </item>
            <item>
             <widget class="QToolButton" name="btnToTasks">
-             <property name="text">
-              <string>...</string>
+             <property name="toolTip">
+              <string>Jump to task in task list</string>
              </property>
             </widget>
            </item>
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_3">
-           <item>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
             <widget class="QLabel" name="label_2">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="text">
               <string>Started</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="1">
             <widget class="QLabel" name="lblActivityStarted">
              <property name="text">
               <string>----.--.-- --:--</string>
              </property>
             </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_9">
+             <property name="text">
+              <string>Interrupts</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QLabel" name="lblInterrupts">
+               <property name="text">
+                <string>0</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QToolButton" name="btnAddInterrupt">
+               <property name="toolTip">
+                <string>Add interrupt</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </item>
@@ -130,14 +161,14 @@
       </widget>
       <widget class="QToolBox" name="toolBox">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="page">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>376</width>
+          <width>368</width>
           <height>337</height>
          </rect>
         </property>
@@ -245,8 +276,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>305</width>
-          <height>334</height>
+          <width>368</width>
+          <height>337</height>
          </rect>
         </property>
         <attribute name="label">
@@ -270,7 +301,11 @@
             </widget>
            </item>
            <item row="0" column="2">
-            <widget class="QToolButton" name="btnUpdateTime"/>
+            <widget class="QToolButton" name="btnUpdateTime">
+             <property name="toolTip">
+              <string>Change time to current</string>
+             </property>
+            </widget>
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="label_4">
@@ -386,6 +421,11 @@
     <addaction name="actionAdd"/>
     <addaction name="actionAddChild"/>
     <addaction name="actionDel"/>
+    <addaction name="separator"/>
+    <addaction name="actionMoveUp"/>
+    <addaction name="actionMoveDown"/>
+    <addaction name="actionModeLeft"/>
+    <addaction name="actionModeRight"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTasks"/>
@@ -421,6 +461,26 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionMoveUp">
+   <property name="text">
+    <string>moveUp</string>
+   </property>
+  </action>
+  <action name="actionMoveDown">
+   <property name="text">
+    <string>MoveDown</string>
+   </property>
+  </action>
+  <action name="actionModeLeft">
+   <property name="text">
+    <string>ModeLeft</string>
+   </property>
+  </action>
+  <action name="actionModeRight">
+   <property name="text">
+    <string>ModeRight</string>
    </property>
   </action>
  </widget>
@@ -465,6 +525,86 @@
     <hint type="sourcelabel">
      <x>417</x>
      <y>274</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>363</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnAddInterrupt</sender>
+   <signal>clicked()</signal>
+   <receiver>TMClass</receiver>
+   <slot>slot_AddInterrupt()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>69</x>
+     <y>151</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>363</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMoveUp</sender>
+   <signal>activated()</signal>
+   <receiver>TMClass</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>363</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMoveDown</sender>
+   <signal>activated()</signal>
+   <receiver>TMClass</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>363</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionModeLeft</sender>
+   <signal>activated()</signal>
+   <receiver>TMClass</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>363</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionModeRight</sender>
+   <signal>activated()</signal>
+   <receiver>TMClass</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>363</x>

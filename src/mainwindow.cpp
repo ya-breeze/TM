@@ -381,6 +381,7 @@ void TM::slot_CurrentActivity()
 			ERROR("Wrong task in activity");
 		ui.lblCurrentActivity->setText(item->getName());
 	}
+	ui.lblInterrupts->setText( QString::number(act.getInterrupts()) );
 }
 
 void TM::slot_ActivityType()
@@ -422,4 +423,52 @@ void TM::slot_SetStartTime()
 	{
 		ui.teStartTime->setEnabled(false);
 	}
+}
+
+void TM::slot_AddInterrupt()
+{
+	if( !m_Activities.hasCurActivity() )
+		return;
+
+	Activity act = m_Activities.getCurrentActivity();
+	act.addInterrupt();
+	ui.lblInterrupts->setText( QString::number(act.getInterrupts()) );
+
+	m_Activities.updateActivity(act);
+}
+
+void TM::slot_MoveUp()
+{
+	QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
+	if( !idx.isValid() )
+		return;
+
+	m_Tasks.moveUp(idx);
+}
+
+void TM::slot_MoveDown()
+{
+	QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
+	if( !idx.isValid() )
+		return;
+
+	m_Tasks.moveDown(idx);
+}
+
+void TM::slot_MoveLeft()
+{
+	QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
+	if( !idx.isValid() )
+		return;
+
+	m_Tasks.moveLeft(idx);
+}
+
+void TM::slot_MoveRight()
+{
+	QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
+	if( !idx.isValid() )
+		return;
+
+	m_Tasks.moveRight(idx);
 }

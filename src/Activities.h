@@ -30,8 +30,11 @@ public:
 	Activities( const QDate& _date = QDate::currentDate() );
 
 	void		addActivity(const Activity& _act, bool _setCurrent = true);
+
 	const Activity& getCurrentActivity() const;
 	bool		hasCurActivity() const;
+	/// Обновляет активность, например для изменения количества прерываний
+	void		updateActivity(const Activity& _act);
 
 	size_t		countDays() const;
 	const QDate&	getToday() const;

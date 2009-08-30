@@ -113,3 +113,10 @@ const Saver::DateSet& Activities::getDays() const
 {
 	return m_Days;
 }
+
+void Activities::updateActivity(const Activity& _act)
+{
+	getTodayActs().setActivity(_act);
+	if( _act.getStartTime()==m_CurActivity.getStartTime() )
+		m_CurActivity = _act;
+}

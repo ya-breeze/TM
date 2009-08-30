@@ -63,8 +63,12 @@ void DayActivities::setActivity(const Activity& _act)
 {
 	ActivitySet::iterator it=m_Activities.find(_act);
 	if( it!=m_Activities.end() )
+	{
+DEBUG("Delete old version of Activity");
 		m_Activities.erase(it);
+	}
 
+DEBUG("Adding version of Activity - " << _act.getInterrupts());
 	m_Activities.insert(_act);
 	setChanged();
 }

@@ -34,6 +34,7 @@ public:
 	void appendChild(TaskItem *child);
 	void removeChild(TaskItem *child);
 	void removeChild(int);
+	void swapChilds(int _one, int _second);
 
 	TaskItem*	child(int row, bool _hideDone);
 	int		childCount(bool _hideDone) const;
@@ -92,6 +93,11 @@ public:
 	void	setDataChanged( TaskItem *_item );
 
 	bool	getHideDone() const;
+
+	void	moveUp( const QModelIndex& _index );
+	void	moveDown( const QModelIndex& _index );
+	void	moveLeft( const QModelIndex& _index );
+	void	moveRight( const QModelIndex& _index );
 
 public slots:
 	/// 0 - show, 1 - hide

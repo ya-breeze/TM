@@ -60,6 +60,11 @@ public:
 		this->m_Interrupts = m_Interrupts;
 	}
 
+	void addInterrupt()
+	{
+		++(this->m_Interrupts);
+	}
+
 	void setStartTime( QDateTime m_StartTime )
 	{
 		this->m_StartTime = m_StartTime;

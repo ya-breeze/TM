@@ -477,3 +477,65 @@ bool TaskTree::getHideDone() const
 {
 	return need_HideDone;
 }
+
+void TaskTree::moveUp( const QModelIndex& _index )
+{
+	if( !_index.isValid() )
+		return;
+
+	// Если не первый, то можем просто сдвинуть вверх
+	if( _index.row() )
+	{
+		TaskItem *item = (TaskItem*)(_index.internalPointer());
+		TaskItem *parent = item->parent();
+		parent->swapChilds(_index.row(), _index.row()-1, need_HideDone);
+
+		int row = item->row(need_HideDone);
+		QModelIndex index1 = createIndex( row, 0, _item );
+		QModelIndex index2 = createIndex( row, columnCount(QModelIndex()), _item );
+
+		emit dataChanged(index1, index2);
+
+		setChanged();	}
+	else
+	{
+
+	}
+}
+
+void TaskTree::moveDown( const QModelIndex& _index )
+{
+	if( !_index.isValid() )
+		return;
+
+}
+
+void TaskTree::moveLeft( const QModelIndex& _index )
+{
+	if( !_index.isValid() )
+		return;
+
+}
+
+void TaskTree::moveRight( const QModelIndex& _index )
+{
+	if( !_index.isValid() )
+		return;
+
+}
+
+int TaskItem::toRealIndex(int _index)
+{
+
+}
+
+/// Меняет местами детей по их индексам
+void TaskItem::swapChilds(int _one, int _second, bool _hideDone)
+{
+	if( !_hideDone )
+		std::swap( childItems[_one], childItems[_second]);
+	else
+	{
+
+	}
+}

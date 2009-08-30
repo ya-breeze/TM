@@ -46,6 +46,14 @@ public slots:
 	void slot_SetFinished();
 	/// При изменении чекбокса на начало задачи
 	void slot_SetStartTime();
+	/// Добавляет к текущей активности ещё одно прерывание
+	void slot_AddInterrupt();
+
+	void slot_MoveUp();
+	void slot_MoveDown();
+	void slot_MoveLeft();
+	void slot_MoveRight();
+
 
 private:
 	void updateTaskProperties( const Task& _task );
