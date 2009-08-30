@@ -6,12 +6,11 @@
 
 #include <QShortcut>
 #include <QCloseEvent>
-#include <QSortFilterProxyModel>
-
 
 #include "TaskTree.h"
 #include "Activities.h"
 #include "LastActs.h"
+#include "HideDone.h"
 
 class TM : public QMainWindow
 {
@@ -50,6 +49,8 @@ public slots:
 	void slot_SetStartTime();
 	/// Добавляет к текущей активности ещё одно прерывание
 	void slot_AddInterrupt();
+	/// Прячет/показывает выполненные задачи
+	void slot_HideDone();
 
 	void slot_MoveUp();
 	void slot_MoveDown();
@@ -76,7 +77,7 @@ private:
 	QShortcut	*p_ShcFocusActivities;
 	QShortcut	*p_ShcFocusAddActivity;
 
-	QSortFilterProxyModel	*p_ProxyHideDone;
+	HideDone	*p_ProxyHideDone;
 };
 
 #endif // MAINWINDOW_H

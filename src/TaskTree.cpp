@@ -369,6 +369,8 @@ void TaskTree::delItem( const QModelIndex &_index )
 	if( !_index.isValid() )
 		return;
 	TaskItem *item = (TaskItem*)(_index.internalPointer());
+	Q_ASSERT(item);
+
 	while( item->childCount(need_HideDone) )
 	{
 		TaskItem *child = item->child( item->childCount(need_HideDone)-1, need_HideDone );

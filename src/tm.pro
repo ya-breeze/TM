@@ -1,11 +1,12 @@
-#DEFINES += TABLET
+# DEFINES += TABLET
 TEMPLATE = app
 TARGET = tm
 QT += core \
     gui \
     network
 INCLUDEPATH += qtsingleapp
-HEADERS += TabletWindow.h \
+HEADERS += HideDone.h \
+    TabletWindow.h \
     qtsingleapp/qtlocalpeer.h \
     qtsingleapp/qtlockedfile.h \
     qtsingleapp/qtsingleapplication.h \
