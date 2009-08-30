@@ -6,6 +6,8 @@
 
 #include <QShortcut>
 #include <QCloseEvent>
+#include <QSortFilterProxyModel>
+
 
 #include "TaskTree.h"
 #include "Activities.h"
@@ -73,6 +75,8 @@ private:
 	QShortcut	*p_ShcFocusNotes;
 	QShortcut	*p_ShcFocusActivities;
 	QShortcut	*p_ShcFocusAddActivity;
+
+	QSortFilterProxyModel	*p_ProxyHideDone;
 };
 
 #endif // MAINWINDOW_H

@@ -175,21 +175,17 @@ QVariant TaskTree::data( const QModelIndex &index, int role ) const
 			case 0 :
 			{
 				QString res = item->getName();
-//				if( !item->getFinished().isNull() )
-//					res += " <Done>";
-//				else if( !item->getStarted().isNull() )
-//					res += " <Working>";
 
 				return res;
 			}
 			break;
 			case 1 :
 			{
-				QString res;// = item->getName();
+				QString res;
 				if( !item->getFinished().isNull() )
-					res += " <Done>";
+					res += "<Done>";
 				else if( !item->getStarted().isNull() )
-					res += " <Working>";
+					res += "<Working>";
 
 				return res;
 			}
@@ -312,9 +308,12 @@ QModelIndex TaskTree::addChild( const QUuid& _parent, const Task& _task )
 		ERROR("Unknown task with id=" << _parent);
 
 	TaskItem *parent = rootItem.get();
+	QModelIndex idx;
 	if( !_parent.isNull() )
+	{
 		parent = it->second.get();
-	QModelIndex idx = createIndex(parent->row(need_HideDone), 0, parent);
+		idx = createIndex(parent->row(need_HideDone), 0, parent);
+	}
 
 	return addChild(idx, _task);
 }
@@ -466,11 +465,11 @@ void TaskTree::setDataChanged( const QModelIndex& _index )
 
 void TaskTree::setHideDone(int _value)
 {
-	if( _value!=need_HideDone )
-	{
-		need_HideDone = _value;
-		reset();
-	}
+//	if( _value!=need_HideDone )
+//	{
+//		need_HideDone = _value;
+//		reset();
+//	}
 }
 
 bool TaskTree::getHideDone() const
@@ -486,17 +485,10 @@ void TaskTree::moveUp( const QModelIndex& _index )
 	// Если не первый, то можем просто сдвинуть вверх
 	if( _index.row() )
 	{
-		TaskItem *item = (TaskItem*)(_index.internalPointer());
-		TaskItem *parent = item->parent();
-		parent->swapChilds(_index.row(), _index.row()-1, need_HideDone);
-
-		int row = item->row(need_HideDone);
-		QModelIndex index1 = createIndex( row, 0, _item );
-		QModelIndex index2 = createIndex( row, columnCount(QModelIndex()), _item );
-
-		emit dataChanged(index1, index2);
-
-		setChanged();	}
+//		TaskItem *item = (TaskItem*)(_index.internalPointer());
+//		TaskItem *parent = item->parent();
+//		parent->swapChilds(_index.row(), _index.row()-1);
+	}
 	else
 	{
 
@@ -524,18 +516,8 @@ void TaskTree::moveRight( const QModelIndex& _index )
 
 }
 
-int TaskItem::toRealIndex(int _index)
-{
-
-}
-
 /// Меняет местами детей по их индексам
-void TaskItem::swapChilds(int _one, int _second, bool _hideDone)
+void TaskItem::swapChilds(int _one, int _second)
 {
-	if( !_hideDone )
-		std::swap( childItems[_one], childItems[_second]);
-	else
-	{
-
-	}
+	std::swap( childItems[_one], childItems[_second]);
 }

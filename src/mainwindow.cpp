@@ -10,7 +10,14 @@ TM::TM(QWidget *parent)
     : QMainWindow(parent), p_LastActs(new LastActs(&m_Tasks, &m_Activities, this))
 {
 	ui.setupUi(this);
-	ui.treeView->setModel(&m_Tasks);
+
+	// Задачи
+	p_ProxyHideDone = new QSortFilterProxyModel(this);
+	p_ProxyHideDone->setSourceModel(&m_Tasks);
+	p_ProxyHideDone->setDynamicSortFilter(true);
+	ui.treeView->setModel(p_ProxyHideDone);
+
+	// Активности
 	ui.lvLastActivities->setModel( p_LastActs );
 
 	/// Slots
@@ -33,11 +40,8 @@ TM::TM(QWidget *parent)
 			this, SLOT(slot_SelectedLastAct(const QModelIndex&)) );
 	connect( ui.cbHideDone, SIGNAL(stateChanged(int)), &m_Tasks, SLOT(setHideDone(int)) );
 
-	/// Focuses
-//	connect( ui.actionFocusTasks, SIGNAL(triggered(bool)), ui.treeView, SLOT(setFocus()) );
-//	connect( ui.actionFocusNotes, SIGNAL(triggered(bool)), ui.Notes, SLOT(setFocus()) );
 
-	/// Shortcuts
+	// Shortcuts
 	p_ShcFocusTasks		= new QShortcut(QKeySequence("Ctrl+T"), this, SLOT(slot_SetFocusTasks()));
 	p_ShcFocusNotes		= new QShortcut(QKeySequence("Ctrl+N"), this, SLOT(slot_SetFocusNotes()));
 	p_ShcFocusAddActivity	= new QShortcut(QKeySequence("Ctrl+A"), this, SLOT(slot_SetFocusAddActivity()));
@@ -98,7 +102,10 @@ void TM::slot_AddItem()
 		try
 		{
 			QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
-			QModelIndex newidx = m_Tasks.addChild(idx);
+			QModelIndex srcidx = p_ProxyHideDone->mapToSource(idx);
+			QModelIndex srcnewidx = m_Tasks.addChild(srcidx);
+			QModelIndex newidx = p_ProxyHideDone->mapFromSource(srcnewidx);
+
 			ui.treeView->expand(idx);
 			ui.treeView->edit(newidx);
 			ui.treeView->selectionModel()->setCurrentIndex(newidx, QItemSelectionModel::ClearAndSelect);
@@ -218,7 +225,10 @@ void TM::slot_TaskChanged(const QModelIndex& _new, const QModelIndex& _old)
 {
 	if( _old.isValid() )
 	{
-		TaskItem *item = m_Tasks.getItem(_old);
+		QModelIndex idx = p_ProxyHideDone->mapToSource(_old);
+		TaskItem *item = m_Tasks.getItem(idx);
+		Q_ASSERT(item);
+
 		QString s = ui.Notes->toPlainText();
 		if( item->getNotes()!=s )
 		{
@@ -231,7 +241,9 @@ void TM::slot_TaskChanged(const QModelIndex& _new, const QModelIndex& _old)
 	}
 	if( _new.isValid() )
 	{
-		TaskItem *item = m_Tasks.getItem(_new);
+		QModelIndex idx = p_ProxyHideDone->mapToSource(_new);
+		TaskItem *item = m_Tasks.getItem(idx);
+		Q_ASSERT(item);
 		updateTaskProperties(*item);
 	}
 	else
@@ -267,13 +279,12 @@ void TM::slot_Restore()
 		m_Tasks.clear();
 		Saver saver;
 		saver.restore(m_Tasks);
-//		saver.restore(m_Activities);
-		m_Activities.setToday();
+//		m_Activities.setToday();
 		ui.treeView->reset();
 		ui.treeView->expandAll();
 		ui.treeView->resizeColumnToContents(0);
 
-		slot_CurrentActivity();
+//		slot_CurrentActivity();
 	}
 	catch(std::exception& ex)
 	{
