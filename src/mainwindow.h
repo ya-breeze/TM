@@ -20,6 +20,14 @@ public:
 	TM( QWidget *parent = 0 );
 	~TM();
 
+	enum Directions
+	{
+		UP,
+		DOWN,
+		RIGHT,
+		LEFT
+	};
+
 public slots:
 	void slot_AddItem();
 	void slot_AddSiblingItem();
@@ -61,6 +69,9 @@ public slots:
 private:
 	void updateTaskProperties( const Task& _task );
 	void closeEvent(QCloseEvent *event);
+	/// Возвращает индекс задачи, соседней по заданному направлению
+	bool getNeighbourIndex(const QModelIndex& _idx, Directions _dir, QModelIndex &_parent, int &_row);
+//	void moveTask(const QModelIndex& _task, const QModelIndex& _parent, int _row);
 
 	Ui::TMClass	ui;
 	TaskTree	m_Tasks;
@@ -76,6 +87,11 @@ private:
 	QShortcut	*p_ShcFocusNotes;
 	QShortcut	*p_ShcFocusActivities;
 	QShortcut	*p_ShcFocusAddActivity;
+
+	QShortcut	*p_ShcMoveUp;
+	QShortcut	*p_ShcMoveDown;
+	QShortcut	*p_ShcMoveLeft;
+	QShortcut	*p_ShcMoveRight;
 
 	HideDone	*p_ProxyHideDone;
 };

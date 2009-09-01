@@ -15,6 +15,7 @@
 #include <QList>
 
 #include <map>
+#include <deque>
 
 #include "smart.h"
 #include "Task.h"
@@ -25,13 +26,14 @@
 class TaskItem : public Task
 {
 public:
-	typedef std::vector<TaskItem*>		TaskItemVec;
+	typedef std::deque<TaskItem*>		TaskItemVec;
 
 	TaskItem( TaskItem *parent = NULL );
 	TaskItem( const Task& _task, TaskItem *parent = NULL );
 	~TaskItem();
 
 	void appendChild(TaskItem *child);
+	void insertChild(int _index, TaskItem *_child);
 	void removeChild(TaskItem *child);
 	void removeChild(int);
 	void swapChilds(int _one, int _second);
@@ -93,11 +95,16 @@ public:
 	void	setDataChanged( const QModelIndex& _index );
 	void	setDataChanged( TaskItem *_item );
 
+//	void	setDataRecurseChanged( const QModelIndex& _index );
+
 	void	moveUp( const QModelIndex& _index );
 	void	moveDown( const QModelIndex& _index );
 	void	moveLeft( const QModelIndex& _index );
 	void	moveRight( const QModelIndex& _index );
 
+//	void	swapTasks( const QModelIndex& _one, const QModelIndex& _two );
+	/// Двигает указанную задачу на строку _row у родителя _parent
+	void	moveTask( const QModelIndex& _task, const QModelIndex& _parent, int _row);
 public slots:
 protected:
 	TaskMap		m_Tasks;

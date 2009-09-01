@@ -31,6 +31,33 @@ TaskItem::~TaskItem()
 void TaskItem::appendChild(TaskItem *item)
 {
 	childItems.push_back(item);
+	item->setItemParent(this);
+}
+
+void TaskItem::insertChild(int _index, TaskItem *_child)
+{
+	Q_ASSERT(_index>=0);
+//	DEBUG("index - " << _index << " for " << _child->getName() << ". Child count - " << childCount());
+
+	if( _index>=childCount() )
+	{
+		appendChild(_child);
+		return;
+	}
+
+	int index = 0;
+	for(TaskItemVec::iterator it=childItems.begin();it!=childItems.end();++it)
+	{
+		if( _index==index )
+		{
+			childItems.insert(it, _child);
+			_child->setItemParent(this);
+			return;
+		}
+		++index;
+	}
+
+	ERROR("Wrong index in insertChild");
 }
 
 void TaskItem::removeChild(TaskItem *item)
@@ -419,6 +446,19 @@ bool TaskTree::setData( const QModelIndex& _index, const QVariant& _value, int _
 	return true;
 }
 
+//void TaskTree::setDataRecurseChanged( const QModelIndex& _index )
+//{
+//	QModelIndex parentidx = parent(_index);
+//
+//	beginRemoveRows(parentidx, _index.row(), _index.row());
+//	endInsertRows();
+//
+//	beginInsertRows(parentidx, _index.row(), _index.row());
+//	endInsertRows();
+//
+//	setChanged();
+//}
+
 void TaskTree::setDataChanged( TaskItem *_item )
 {
 	int row = _item->row();
@@ -426,6 +466,12 @@ void TaskTree::setDataChanged( TaskItem *_item )
 	QModelIndex index2 = createIndex( row, columnCount(QModelIndex()), _item );
 
 	emit dataChanged(index1, index2);
+
+	// childs
+	for(int i=0;i<_item->childCount();++i)
+	{
+		setDataChanged(_item->child(i));
+	}
 
 	setChanged();
 }
@@ -482,9 +528,92 @@ void TaskItem::swapChilds(int _one, int _second)
 	std::swap( childItems[_one], childItems[_second]);
 }
 
-bool TaskTree::dropMimeData( const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent )
+bool TaskTree::dropMimeData( const QMimeData */*data*/, Qt::DropAction /*action*/, int row, int column, const QModelIndex & parent )
 {
 	DEBUG("row " << row << ", column " << column << ", parent " << parent.isValid() );
 
 	return false;
+}
+
+//void TaskTree::swapTasks( const QModelIndex& _one, const QModelIndex& _two )
+//{
+//	QModelIndex parent1 = parent(_one);
+//	QModelIndex parent2 = parent(_two);
+//
+//	if( parent1==parent2 )
+//	{
+//		TaskItem *parent = (TaskItem*)(parent1.internalPointer());
+//		parent->swapChilds(_one.row(), _two.row());
+//		setDataChanged(_one);
+//		setDataChanged(_two);
+//	}
+//}
+
+void TaskTree::moveTask( const QModelIndex& _task, const QModelIndex& _parent, int _row)
+{
+	if( !_task.isValid() )
+		ERROR("Try to move task with invalid index");
+
+	QModelIndex parentCurr = parent(_task);
+	TaskItem *task = (TaskItem*)(_task.internalPointer());
+	TaskItem *parent = (TaskItem*)(parentCurr.internalPointer());
+	DEBUG("Moving '" << task->getName() << "' to '" << parent->getName() << "':"<< _row <<" childs - " << parent->childCount());
+
+	int offset = 0;
+	if( parentCurr==_parent )
+	{
+		if( _task.row()==_row )
+			return;
+		if( _task.row()<_row )
+			offset = 2;
+
+		// В какое место вставляем?
+		if( _row>=parent->childCount() )
+		{
+TRACE;
+			// Вставляем в конец - тут всё просто, т.к. никого не придётся двигать
+
+			// Оторвём от текущёго родителя
+			beginRemoveRows(parentCurr, _task.row(), _task.row());
+			parent->removeChild(_task.row());
+			endRemoveRows();
+
+			// Вставим к новому родителю
+			beginInsertRows(parentCurr, _row-offset, _row-offset);
+			parent->appendChild(task);
+			endInsertRows();
+		}
+		else
+		{
+TRACE;
+			// Вставляем в середину - придётся замещать
+			// кого замещаем?
+			TaskItem *replaced = parent->child(_row);
+
+			// Оторвём от текущёго родителя того, кого двигаем
+			beginRemoveRows(parentCurr, _task.row(), _task.row());
+			DEBUG("Remove '" << task->getName() << "' from '" << parent->getName() << "':"<< _task.row());
+			parent->removeChild(_task.row());
+			endRemoveRows();
+
+			// Оторвём от родителя того, кого замещаем
+			beginRemoveRows(parentCurr, replaced->row(), replaced->row());
+			DEBUG("Remove '" << replaced->getName() << "' from '" << parent->getName() << "':"<< replaced->row());
+			parent->removeChild(replaced);
+			endRemoveRows();
+
+			// Теперь вставляем обоих
+			beginInsertRows(parentCurr, _row-offset, _row-offset+1);
+			DEBUG("Total childs " << parent->childCount() << ", inserting to " << _row-1-offset << ":" << _row-offset);
+			parent->insertChild(_row-offset, task);
+			parent->insertChild(_row-offset+1, replaced);
+			endInsertRows();
+		}
+//
+//
+//		parent->swapChilds(_task.row(), _row);
+//		setDataChanged(_task);
+//		setDataChanged( index(_row, 0, parentCurr) );
+	}
+
 }

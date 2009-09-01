@@ -53,6 +53,11 @@ TM::TM(QWidget *parent)
 	p_ShcDelTask		= new QShortcut(QKeySequence("Del"), this, SLOT(slot_DelItem()));
 	p_ShcSetFinished	= new QShortcut(QKeySequence("Space"), this, SLOT(slot_SetFinished()));
 
+	p_ShcMoveUp		= new QShortcut(QKeySequence("Ctrl+Up"), this, SLOT(slot_MoveUp()));
+	p_ShcMoveDown		= new QShortcut(QKeySequence("Ctrl+Down"), this, SLOT(slot_MoveDown()));
+	p_ShcMoveLeft		= new QShortcut(QKeySequence("Ctrl+Left"), this, SLOT(slot_MoveLeft()));
+	p_ShcMoveRight		= new QShortcut(QKeySequence("Ctrl+Right"), this, SLOT(slot_MoveRight()));
+
 	if( p_ProxyHideDone->getHideDone() )
 		ui.cbHideDone->setChecked(true);
 	ui.teStartTime->setEnabled(false);
@@ -461,14 +466,47 @@ void TM::slot_AddInterrupt()
 	m_Activities.updateActivity(act);
 }
 
+//void TM::moveTask(const QModelIndex& _task, const QModelIndex& _parent, int _row)
+//{
+//	ui.treeView->collapse(_one);
+//	ui.treeView->collapse(_two);
+//	if( _one!=_two )
+//	{
+////		m_Tasks.swapTasks( p_ProxyHideDone->mapToSource(_one), p_ProxyHideDone->mapToSource(_two));
+//		ui.treeView->selectionModel()->setCurrentIndex(_two, QItemSelectionModel::ClearAndSelect);
+//	}
+//}
+
 void TM::slot_MoveUp()
 {
 	QModelIndex proxyidx = ui.treeView->selectionModel()->currentIndex();
 	if( !proxyidx.isValid() )
 		return;
 
-	QModelIndex idx = p_ProxyHideDone->mapToSource(proxyidx);
-	m_Tasks.moveUp(idx);
+	QModelIndex parent;
+	int row, realrow;
+	if( getNeighbourIndex(proxyidx, UP, parent, row) )
+	{
+		// Нужно преобразовать row из прокси в m_Tasks
+		QModelIndex idx = p_ProxyHideDone->index(row, 0, parent);
+		QModelIndex realparent = p_ProxyHideDone->mapToSource(parent);
+		if( idx.isValid() )
+		{
+			// Уже есть такой элемент, нужно просто получить его row
+			realrow = p_ProxyHideDone->mapToSource(idx).row();
+		}
+		else
+		{
+			// Такого элемента нет, значит добавляем в конец
+			realrow = m_Tasks.rowCount(realparent);
+		}
+
+		m_Tasks.moveTask(p_ProxyHideDone->mapToSource(proxyidx), realparent, realrow);
+		m_Tasks.setChanged();
+
+		idx = p_ProxyHideDone->index(row, 0, parent);
+		ui.treeView->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::ClearAndSelect);
+	}
 }
 
 void TM::slot_MoveDown()
@@ -477,8 +515,31 @@ void TM::slot_MoveDown()
 	if( !proxyidx.isValid() )
 		return;
 
-	QModelIndex idx = p_ProxyHideDone->mapToSource(proxyidx);
-	m_Tasks.moveDown(idx);
+	QModelIndex parent;
+	int row, realrow;
+	if( getNeighbourIndex(proxyidx, DOWN, parent, row) )
+	{
+		// Нужно преобразовать row из прокси в m_Tasks
+		QModelIndex idx = p_ProxyHideDone->index(row, 0, parent);
+		QModelIndex realparent = p_ProxyHideDone->mapToSource(parent);
+		if( idx.isValid() )
+		{
+			// Уже есть такой элемент, нужно просто получить его row
+			realrow = p_ProxyHideDone->mapToSource(idx).row();
+		}
+		else
+		{
+			// Такого элемента нет, значит добавляем в конец
+			realrow = m_Tasks.rowCount(realparent);
+		}
+
+		m_Tasks.moveTask(p_ProxyHideDone->mapToSource(proxyidx), realparent, realrow);
+		m_Tasks.setChanged();
+
+		idx = p_ProxyHideDone->index(row, 0, parent);
+		DEBUG("select " << row << " - " << idx.isValid());
+		ui.treeView->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::ClearAndSelect);
+	}
 }
 
 void TM::slot_MoveLeft()
@@ -487,8 +548,6 @@ void TM::slot_MoveLeft()
 	if( !proxyidx.isValid() )
 		return;
 
-	QModelIndex idx = p_ProxyHideDone->mapToSource(proxyidx);
-	m_Tasks.moveLeft(idx);
 }
 
 void TM::slot_MoveRight()
@@ -497,11 +556,65 @@ void TM::slot_MoveRight()
 	if( !proxyidx.isValid() )
 		return;
 
-	QModelIndex idx = p_ProxyHideDone->mapToSource(proxyidx);
-	m_Tasks.moveRight(idx);
 }
 
 void TM::slot_HideDone()
 {
 	p_ProxyHideDone->setHideDone(ui.cbHideDone->isChecked());
+}
+
+
+bool TM::getNeighbourIndex(const QModelIndex& _idx, Directions _dir, QModelIndex &_parent, int &_row)
+{
+	if( !_idx.isValid() )
+		return false;
+
+	bool res = false;
+	QModelIndex parent = p_ProxyHideDone->parent(_idx);
+	switch( _dir )
+	{
+		case UP :
+		{
+			if( _idx.row() )
+			{
+				_parent = parent;
+				_row = _idx.row()-1;
+				res = true;
+			}
+		}
+		break;
+
+		case DOWN :
+		{
+			if( _idx.row()!=p_ProxyHideDone->rowCount(parent)-1 )
+			{
+				_parent = parent;
+				_row = _idx.row()+2;
+				res = true;
+			}
+		}
+		break;
+
+		case LEFT :
+		{
+			if( parent.isValid() )
+			{
+				res = true;
+				_parent = parent;
+				_row = parent.row()+1;
+			}
+		}
+		break;
+
+		case RIGHT :
+		{
+			ERROR("Not yet implemented");
+		}
+		break;
+
+		default:
+			ERROR("Unknown direction");
+	}
+
+	return res;
 }

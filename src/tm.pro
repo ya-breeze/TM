@@ -12,7 +12,6 @@ HEADERS += HideDone.h \
     qtsingleapp/qtsingleapplication.h \
     smart.h \
     LastActs.h \
-    ActTree.h \
     DayActivities.h \
     Activities.h \
     ChangableObject.h \
@@ -28,7 +27,6 @@ SOURCES += TabletWindow.cpp \
     qtsingleapp/qtlockedfile_unix.cpp \
     qtsingleapp/qtsingleapplication.cpp \
     LastActs.cpp \
-    ActTree.cpp \
     DayActivities.cpp \
     Activities.cpp \
     utils.cpp \
