@@ -71,7 +71,7 @@ private:
 	void closeEvent(QCloseEvent *event);
 	/// Возвращает индекс задачи, соседней по заданному направлению
 	bool getNeighbourIndex(const QModelIndex& _idx, Directions _dir, QModelIndex &_parent, int &_row);
-//	void moveTask(const QModelIndex& _task, const QModelIndex& _parent, int _row);
+	void moveTask(Directions _dir);
 
 	Ui::TMClass	ui;
 	TaskTree	m_Tasks;

@@ -466,18 +466,7 @@ void TM::slot_AddInterrupt()
 	m_Activities.updateActivity(act);
 }
 
-//void TM::moveTask(const QModelIndex& _task, const QModelIndex& _parent, int _row)
-//{
-//	ui.treeView->collapse(_one);
-//	ui.treeView->collapse(_two);
-//	if( _one!=_two )
-//	{
-////		m_Tasks.swapTasks( p_ProxyHideDone->mapToSource(_one), p_ProxyHideDone->mapToSource(_two));
-//		ui.treeView->selectionModel()->setCurrentIndex(_two, QItemSelectionModel::ClearAndSelect);
-//	}
-//}
-
-void TM::slot_MoveUp()
+void TM::moveTask(Directions _dir)
 {
 	QModelIndex proxyidx = ui.treeView->selectionModel()->currentIndex();
 	if( !proxyidx.isValid() )
@@ -485,7 +474,7 @@ void TM::slot_MoveUp()
 
 	QModelIndex parent;
 	int row, realrow;
-	if( getNeighbourIndex(proxyidx, UP, parent, row) )
+	if( getNeighbourIndex(proxyidx, _dir, parent, row) )
 	{
 		// Нужно преобразовать row из прокси в m_Tasks
 		QModelIndex idx = p_ProxyHideDone->index(row, 0, parent);
@@ -506,104 +495,27 @@ void TM::slot_MoveUp()
 
 		ui.treeView->selectionModel()->setCurrentIndex(p_ProxyHideDone->mapFromSource(idx), QItemSelectionModel::ClearAndSelect);
 	}
+
+}
+
+void TM::slot_MoveUp()
+{
+	moveTask(UP);
 }
 
 void TM::slot_MoveDown()
 {
-	QModelIndex proxyidx = ui.treeView->selectionModel()->currentIndex();
-	if( !proxyidx.isValid() )
-		return;
-
-	QModelIndex parent;
-	int row, realrow;
-	if( getNeighbourIndex(proxyidx, DOWN, parent, row) )
-	{
-		// Нужно преобразовать row из прокси в m_Tasks
-		QModelIndex idx = p_ProxyHideDone->index(row, 0, parent);
-		QModelIndex realparent = p_ProxyHideDone->mapToSource(parent);
-		if( idx.isValid() )
-		{
-			// Уже есть такой элемент, нужно просто получить его row
-			realrow = p_ProxyHideDone->mapToSource(idx).row();
-		}
-		else
-		{
-			// Такого элемента нет, значит добавляем в конец
-			realrow = m_Tasks.rowCount(realparent);
-		}
-
-		idx = m_Tasks.moveTask(p_ProxyHideDone->mapToSource(proxyidx), realparent, realrow);
-		m_Tasks.setChanged();
-
-		DEBUG("select " << row << " - " << idx.isValid());
-		ui.treeView->selectionModel()->setCurrentIndex(p_ProxyHideDone->mapFromSource(idx), QItemSelectionModel::ClearAndSelect);
-	}
+	moveTask(DOWN);
 }
 
 void TM::slot_MoveLeft()
 {
-	QModelIndex proxyidx = ui.treeView->selectionModel()->currentIndex();
-	if( !proxyidx.isValid() )
-		return;
-
-
-	QModelIndex parent;
-	int row, realrow;
-	if( getNeighbourIndex(proxyidx, LEFT, parent, row) )
-	{
-		// Нужно преобразовать row из прокси в m_Tasks
-		QModelIndex idx = p_ProxyHideDone->index(row, 0, parent);
-		QModelIndex realparent = p_ProxyHideDone->mapToSource(parent);
-		if( idx.isValid() )
-		{
-			// Уже есть такой элемент, нужно просто получить его row
-			realrow = p_ProxyHideDone->mapToSource(idx).row();
-		}
-		else
-		{
-			// Такого элемента нет, значит добавляем в конец
-			realrow = m_Tasks.rowCount(realparent);
-		}
-
-		idx = m_Tasks.moveTask(p_ProxyHideDone->mapToSource(proxyidx), realparent, realrow);
-		m_Tasks.setChanged();
-
-		DEBUG("select " << row << " - " << idx.isValid());
-		ui.treeView->selectionModel()->setCurrentIndex(p_ProxyHideDone->mapFromSource(idx), QItemSelectionModel::ClearAndSelect);
-	}
+	moveTask(LEFT);
 }
 
 void TM::slot_MoveRight()
 {
-	QModelIndex proxyidx = ui.treeView->selectionModel()->currentIndex();
-	if( !proxyidx.isValid() )
-		return;
-
-
-	QModelIndex parent;
-	int row, realrow;
-	if( getNeighbourIndex(proxyidx, RIGHT, parent, row) )
-	{
-		// Нужно преобразовать row из прокси в m_Tasks
-		QModelIndex idx = p_ProxyHideDone->index(row, 0, parent);
-		QModelIndex realparent = p_ProxyHideDone->mapToSource(parent);
-		if( idx.isValid() )
-		{
-			// Уже есть такой элемент, нужно просто получить его row
-			realrow = p_ProxyHideDone->mapToSource(idx).row();
-		}
-		else
-		{
-			// Такого элемента нет, значит добавляем в конец
-			realrow = m_Tasks.rowCount(realparent);
-		}
-
-		idx = m_Tasks.moveTask(p_ProxyHideDone->mapToSource(proxyidx), realparent, realrow);
-		m_Tasks.setChanged();
-
-		DEBUG("select " << row << " - " << idx.isValid());
-		ui.treeView->selectionModel()->setCurrentIndex(p_ProxyHideDone->mapFromSource(idx), QItemSelectionModel::ClearAndSelect);
-	}
+	moveTask(RIGHT);
 }
 
 void TM::slot_HideDone()
