@@ -564,8 +564,9 @@ QModelIndex TaskTree::moveTask( const QModelIndex& _task, const QModelIndex& _pa
 	TaskItem *parentCurrTask = (TaskItem*)(parentCurr.internalPointer());
 	if( !parentCurrTask )
 		parentCurrTask = rootItem.get();
-	DEBUG("Moving '" << task->getName() << "' to '" << parentTask->getName() << "':"<< _row <<" childs - " << parentTask->childCount());
+	//DEBUG("Moving '" << task->getName() << "' to '" << parentTask->getName() << "':"<< _row <<" childs - " << parentTask->childCount());
 
+	// TODO Тут можно объединить ветки логики, но надо не забыть про row = row-1 в случае одного родителя
 	if( parentCurr==_parent )
 	{
 		if( _task.row()==_row )
@@ -573,7 +574,6 @@ QModelIndex TaskTree::moveTask( const QModelIndex& _task, const QModelIndex& _pa
 
 		// Оторвём от предыдущего места того, кого двигаем
 		beginRemoveRows(parentCurr, _task.row(), _task.row());
-//		DEBUG("Remove '" << task->getName() << "' from '" << parent->getName() << "':"<< _task.row());
 		parentCurrTask->removeChild(_task.row());
 		endRemoveRows();
 
@@ -583,7 +583,6 @@ QModelIndex TaskTree::moveTask( const QModelIndex& _task, const QModelIndex& _pa
 		if( _row>_task.row() )
 			row = row-1;
 		beginInsertRows(_parent, row, row);
-//		DEBUG("Total childs " << parent->childCount() << ", inserting to " << row<< ":" << row);
 		parentTask->insertChild(row, task);
 		endInsertRows();
 
@@ -592,16 +591,13 @@ QModelIndex TaskTree::moveTask( const QModelIndex& _task, const QModelIndex& _pa
 	}
 	else
 	{
-		TRACE;
 		// Оторвём от предыдущего места того, кого двигаем
 		beginRemoveRows(parentCurr, _task.row(), _task.row());
-		DEBUG("Remove '" << task->getName() << "' from '" << parentCurrTask->getName() << "':"<< _task.row());
 		parentCurrTask->removeChild(_task.row());
 		endRemoveRows();
 
 		// Вставим в указанное место
 		beginInsertRows(_parent, _row, _row);
-		DEBUG("Total childs " << parentTask->childCount() << ", inserting to " << _row<< ":" << _row);
 		parentTask->insertChild(_row, task);
 		endInsertRows();
 
