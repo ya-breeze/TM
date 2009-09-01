@@ -104,7 +104,7 @@ public:
 
 //	void	swapTasks( const QModelIndex& _one, const QModelIndex& _two );
 	/// Двигает указанную задачу на строку _row у родителя _parent
-	void	moveTask( const QModelIndex& _task, const QModelIndex& _parent, int _row);
+	QModelIndex	moveTask( const QModelIndex& _task, const QModelIndex& _parent, int _row);
 public slots:
 protected:
 	TaskMap		m_Tasks;

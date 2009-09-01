@@ -549,7 +549,7 @@ bool TaskTree::dropMimeData( const QMimeData */*data*/, Qt::DropAction /*action*
 //	}
 //}
 
-void TaskTree::moveTask( const QModelIndex& _task, const QModelIndex& _parent, int _row)
+QModelIndex TaskTree::moveTask( const QModelIndex& _task, const QModelIndex& _parent, int _row)
 {
 	if( !_task.isValid() )
 		ERROR("Try to move task with invalid index");
@@ -563,51 +563,47 @@ void TaskTree::moveTask( const QModelIndex& _task, const QModelIndex& _parent, i
 	if( parentCurr==_parent )
 	{
 		if( _task.row()==_row )
-			return;
+			return _task;
 		if( _task.row()<_row )
-			offset = 2;
+			offset = 1;
 
 		// В какое место вставляем?
 		if( _row>=parent->childCount() )
 		{
 TRACE;
-			// Вставляем в конец - тут всё просто, т.к. никого не придётся двигать
-
-			// Оторвём от текущёго родителя
+			// Оторвём из предыдущего места
 			beginRemoveRows(parentCurr, _task.row(), _task.row());
 			parent->removeChild(_task.row());
 			endRemoveRows();
 
 			// Вставим к новому родителю
-			beginInsertRows(parentCurr, _row-offset, _row-offset);
+			beginInsertRows(parentCurr, _row-1, _row-1);
 			parent->appendChild(task);
 			endInsertRows();
+
+			return createIndex(_row-1, 0, task);
 		}
 		else
 		{
 TRACE;
-			// Вставляем в середину - придётся замещать
-			// кого замещаем?
-			TaskItem *replaced = parent->child(_row);
-
-			// Оторвём от текущёго родителя того, кого двигаем
+			// Оторвём от предыдущего места того, кого двигаем
 			beginRemoveRows(parentCurr, _task.row(), _task.row());
 			DEBUG("Remove '" << task->getName() << "' from '" << parent->getName() << "':"<< _task.row());
 			parent->removeChild(_task.row());
 			endRemoveRows();
 
-			// Оторвём от родителя того, кого замещаем
-			beginRemoveRows(parentCurr, replaced->row(), replaced->row());
-			DEBUG("Remove '" << replaced->getName() << "' from '" << parent->getName() << "':"<< replaced->row());
-			parent->removeChild(replaced);
-			endRemoveRows();
-
-			// Теперь вставляем обоих
-			beginInsertRows(parentCurr, _row-offset, _row-offset+1);
-			DEBUG("Total childs " << parent->childCount() << ", inserting to " << _row-1-offset << ":" << _row-offset);
-			parent->insertChild(_row-offset, task);
-			parent->insertChild(_row-offset+1, replaced);
+			// Вставим в указанное место
+			int row = _row;
+			// Т.к. мы двигаем внутри одного родителя, то если мы вставляли ПОСЛЕ прежнего значения, то реально после вставки индекс уже изменился
+			if( _row>_task.row() )
+				row = row-1;
+			beginInsertRows(parentCurr, row, row);
+			DEBUG("Total childs " << parent->childCount() << ", inserting to " << row<< ":" << row);
+			parent->insertChild(row, task);
 			endInsertRows();
+
+
+			return createIndex(row, 0, task);
 		}
 //
 //
@@ -616,4 +612,5 @@ TRACE;
 //		setDataChanged( index(_row, 0, parentCurr) );
 	}
 
+	return QModelIndex();
 }

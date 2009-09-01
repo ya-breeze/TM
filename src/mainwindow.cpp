@@ -501,11 +501,10 @@ void TM::slot_MoveUp()
 			realrow = m_Tasks.rowCount(realparent);
 		}
 
-		m_Tasks.moveTask(p_ProxyHideDone->mapToSource(proxyidx), realparent, realrow);
+		idx = m_Tasks.moveTask(p_ProxyHideDone->mapToSource(proxyidx), realparent, realrow);
 		m_Tasks.setChanged();
 
-		idx = p_ProxyHideDone->index(row, 0, parent);
-		ui.treeView->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::ClearAndSelect);
+		ui.treeView->selectionModel()->setCurrentIndex(p_ProxyHideDone->mapFromSource(idx), QItemSelectionModel::ClearAndSelect);
 	}
 }
 
@@ -533,12 +532,11 @@ void TM::slot_MoveDown()
 			realrow = m_Tasks.rowCount(realparent);
 		}
 
-		m_Tasks.moveTask(p_ProxyHideDone->mapToSource(proxyidx), realparent, realrow);
+		idx = m_Tasks.moveTask(p_ProxyHideDone->mapToSource(proxyidx), realparent, realrow);
 		m_Tasks.setChanged();
 
-		idx = p_ProxyHideDone->index(row, 0, parent);
 		DEBUG("select " << row << " - " << idx.isValid());
-		ui.treeView->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::ClearAndSelect);
+		ui.treeView->selectionModel()->setCurrentIndex(p_ProxyHideDone->mapFromSource(idx), QItemSelectionModel::ClearAndSelect);
 	}
 }
 
