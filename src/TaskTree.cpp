@@ -481,3 +481,10 @@ void TaskItem::swapChilds(int _one, int _second)
 {
 	std::swap( childItems[_one], childItems[_second]);
 }
+
+bool TaskTree::dropMimeData( const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent )
+{
+	DEBUG("row " << row << ", column " << column << ", parent " << parent.isValid() );
+
+	return false;
+}
