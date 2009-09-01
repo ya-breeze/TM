@@ -569,7 +569,7 @@ void TM::slot_MoveLeft()
 		m_Tasks.setChanged();
 
 		DEBUG("select " << row << " - " << idx.isValid());
-//		ui.treeView->selectionModel()->setCurrentIndex(p_ProxyHideDone->mapFromSource(idx), QItemSelectionModel::ClearAndSelect);
+		ui.treeView->selectionModel()->setCurrentIndex(p_ProxyHideDone->mapFromSource(idx), QItemSelectionModel::ClearAndSelect);
 	}
 }
 
@@ -579,6 +579,31 @@ void TM::slot_MoveRight()
 	if( !proxyidx.isValid() )
 		return;
 
+
+	QModelIndex parent;
+	int row, realrow;
+	if( getNeighbourIndex(proxyidx, RIGHT, parent, row) )
+	{
+		// Нужно преобразовать row из прокси в m_Tasks
+		QModelIndex idx = p_ProxyHideDone->index(row, 0, parent);
+		QModelIndex realparent = p_ProxyHideDone->mapToSource(parent);
+		if( idx.isValid() )
+		{
+			// Уже есть такой элемент, нужно просто получить его row
+			realrow = p_ProxyHideDone->mapToSource(idx).row();
+		}
+		else
+		{
+			// Такого элемента нет, значит добавляем в конец
+			realrow = m_Tasks.rowCount(realparent);
+		}
+
+		idx = m_Tasks.moveTask(p_ProxyHideDone->mapToSource(proxyidx), realparent, realrow);
+		m_Tasks.setChanged();
+
+		DEBUG("select " << row << " - " << idx.isValid());
+		ui.treeView->selectionModel()->setCurrentIndex(p_ProxyHideDone->mapFromSource(idx), QItemSelectionModel::ClearAndSelect);
+	}
 }
 
 void TM::slot_HideDone()
@@ -632,7 +657,12 @@ bool TM::getNeighbourIndex(const QModelIndex& _idx, Directions _dir, QModelIndex
 
 		case RIGHT :
 		{
-			ERROR("Not yet implemented");
+			if( _idx.row() )
+			{
+				res = true;
+				_parent = p_ProxyHideDone->index(_idx.row()-1, 0, parent);
+				_row = p_ProxyHideDone->rowCount(_parent);
+			}
 		}
 		break;
 

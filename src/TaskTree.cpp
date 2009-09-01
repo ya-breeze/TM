@@ -554,6 +554,8 @@ QModelIndex TaskTree::moveTask( const QModelIndex& _task, const QModelIndex& _pa
 	if( !_task.isValid() )
 		ERROR("Try to move task with invalid index");
 
+	setChanged();
+
 	QModelIndex parentCurr = parent(_task);
 	TaskItem *task = (TaskItem*)(_task.internalPointer());
 	TaskItem *parentTask = (TaskItem*)(_parent.internalPointer());
@@ -602,6 +604,8 @@ QModelIndex TaskTree::moveTask( const QModelIndex& _task, const QModelIndex& _pa
 		DEBUG("Total childs " << parentTask->childCount() << ", inserting to " << _row<< ":" << _row);
 		parentTask->insertChild(_row, task);
 		endInsertRows();
+
+		return createIndex(_row, 0, task);
 	}
 
 	return QModelIndex();
