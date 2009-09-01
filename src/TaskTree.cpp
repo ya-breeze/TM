@@ -556,60 +556,52 @@ QModelIndex TaskTree::moveTask( const QModelIndex& _task, const QModelIndex& _pa
 
 	QModelIndex parentCurr = parent(_task);
 	TaskItem *task = (TaskItem*)(_task.internalPointer());
-	TaskItem *parent = (TaskItem*)(parentCurr.internalPointer());
-	DEBUG("Moving '" << task->getName() << "' to '" << parent->getName() << "':"<< _row <<" childs - " << parent->childCount());
+	TaskItem *parentTask = (TaskItem*)(_parent.internalPointer());
+	if( !parentTask )
+		parentTask = rootItem.get();
+	TaskItem *parentCurrTask = (TaskItem*)(parentCurr.internalPointer());
+	if( !parentCurrTask )
+		parentCurrTask = rootItem.get();
+	DEBUG("Moving '" << task->getName() << "' to '" << parentTask->getName() << "':"<< _row <<" childs - " << parentTask->childCount());
 
-	int offset = 0;
 	if( parentCurr==_parent )
 	{
 		if( _task.row()==_row )
 			return _task;
-		if( _task.row()<_row )
-			offset = 1;
 
-		// В какое место вставляем?
-		if( _row>=parent->childCount() )
-		{
-TRACE;
-			// Оторвём из предыдущего места
-			beginRemoveRows(parentCurr, _task.row(), _task.row());
-			parent->removeChild(_task.row());
-			endRemoveRows();
+		// Оторвём от предыдущего места того, кого двигаем
+		beginRemoveRows(parentCurr, _task.row(), _task.row());
+//		DEBUG("Remove '" << task->getName() << "' from '" << parent->getName() << "':"<< _task.row());
+		parentCurrTask->removeChild(_task.row());
+		endRemoveRows();
 
-			// Вставим к новому родителю
-			beginInsertRows(parentCurr, _row-1, _row-1);
-			parent->appendChild(task);
-			endInsertRows();
-
-			return createIndex(_row-1, 0, task);
-		}
-		else
-		{
-TRACE;
-			// Оторвём от предыдущего места того, кого двигаем
-			beginRemoveRows(parentCurr, _task.row(), _task.row());
-			DEBUG("Remove '" << task->getName() << "' from '" << parent->getName() << "':"<< _task.row());
-			parent->removeChild(_task.row());
-			endRemoveRows();
-
-			// Вставим в указанное место
-			int row = _row;
-			// Т.к. мы двигаем внутри одного родителя, то если мы вставляли ПОСЛЕ прежнего значения, то реально после вставки индекс уже изменился
-			if( _row>_task.row() )
-				row = row-1;
-			beginInsertRows(parentCurr, row, row);
-			DEBUG("Total childs " << parent->childCount() << ", inserting to " << row<< ":" << row);
-			parent->insertChild(row, task);
-			endInsertRows();
+		// Вставим в указанное место
+		int row = _row;
+		// Т.к. мы двигаем внутри одного родителя, то если мы вставляли ПОСЛЕ прежнего значения, то реально после вставки индекс уже изменился
+		if( _row>_task.row() )
+			row = row-1;
+		beginInsertRows(_parent, row, row);
+//		DEBUG("Total childs " << parent->childCount() << ", inserting to " << row<< ":" << row);
+		parentTask->insertChild(row, task);
+		endInsertRows();
 
 
-			return createIndex(row, 0, task);
-		}
-//
-//
-//		parent->swapChilds(_task.row(), _row);
-//		setDataChanged(_task);
-//		setDataChanged( index(_row, 0, parentCurr) );
+		return createIndex(row, 0, task);
+	}
+	else
+	{
+		TRACE;
+		// Оторвём от предыдущего места того, кого двигаем
+		beginRemoveRows(parentCurr, _task.row(), _task.row());
+		DEBUG("Remove '" << task->getName() << "' from '" << parentCurrTask->getName() << "':"<< _task.row());
+		parentCurrTask->removeChild(_task.row());
+		endRemoveRows();
+
+		// Вставим в указанное место
+		beginInsertRows(_parent, _row, _row);
+		DEBUG("Total childs " << parentTask->childCount() << ", inserting to " << _row<< ":" << _row);
+		parentTask->insertChild(_row, task);
+		endInsertRows();
 	}
 
 	return QModelIndex();
