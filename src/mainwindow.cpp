@@ -86,11 +86,7 @@ void TM::slot_SetFinished()
 				item->setFinished(QDateTime());
 
 			m_Tasks.setDataChanged(idx);
-//			// Если эту задачу больше показывать не нужно, значит и родитель поменялся
-//			idx = m_Tasks.parent(idx);
-//			m_Tasks.setDataChanged(idx);
-
-			updateTaskProperties(*item);
+			// Слать сигнал о изменении родителя НЕ нужно
 		}
 		catch(std::exception& ex)
 		{
@@ -241,15 +237,30 @@ void TM::slot_TaskChanged(const QModelIndex& _new, const QModelIndex& _old)
 		TaskItem *item = m_Tasks.getItem(idx);
 		Q_ASSERT(item);
 
+		// Заметки
 		QString s = ui.Notes->toPlainText();
 		if( item->getNotes()!=s )
 		{
 			item->setNotes(s);
 			m_Tasks.setChanged();
 		}
+
+		// Время начала
+		QDateTime startedCur;
 		if( ui.cbStartedTime->isChecked() )
-			item->setStarted(ui.teStartTime->dateTime());
-		item->setPlannedTime(ui.lePlannedTime->text());
+			startedCur = ui.teStartTime->dateTime();
+		if( startedCur!=item->getStarted() )
+		{
+			item->setStarted(startedCur);
+			m_Tasks.setChanged();
+		}
+
+		// Планируемое время
+		if( ui.lePlannedTime->text()!=item->getPlannedTime() )
+		{
+			item->setPlannedTime(ui.lePlannedTime->text());
+			m_Tasks.setChanged();
+		}
 	}
 	if( _new.isValid() )
 	{
@@ -443,7 +454,6 @@ void TM::slot_SetStartTime()
 
 	QModelIndex idx = p_ProxyHideDone->mapToSource(proxyidx);
 
-	m_Tasks.setDataChanged(idx);
 	if( ui.cbStartedTime->isChecked() )
 	{
 		ui.teStartTime->setEnabled(true);
@@ -452,6 +462,8 @@ void TM::slot_SetStartTime()
 	{
 		ui.teStartTime->setEnabled(false);
 	}
+
+	// Сохраняем изменения при смене текущей задачи, поэтому тут задачу менять не нужно
 }
 
 void TM::slot_AddInterrupt()
