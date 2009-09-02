@@ -32,12 +32,14 @@ void TaskItem::appendChild(TaskItem *item)
 {
 	childItems.push_back(item);
 	item->setItemParent(this);
+	item->setParentId(this->getId());
 }
 
 void TaskItem::insertChild(int _index, TaskItem *_child)
 {
 	Q_ASSERT(_index>=0);
 //	DEBUG("index - " << _index << " for " << _child->getName() << ". Child count - " << childCount());
+	_child->setParentId(this->getId());
 
 	if( _index>=childCount() )
 	{
@@ -526,6 +528,13 @@ void TaskTree::moveRight( const QModelIndex& _index )
 void TaskItem::swapChilds(int _one, int _second)
 {
 	std::swap( childItems[_one], childItems[_second]);
+}
+
+QStringList TaskTree::mimeTypes() const
+{
+	QStringList types;
+	types << "application/TM-Task";
+	return types;
 }
 
 bool TaskTree::dropMimeData( const QMimeData */*data*/, Qt::DropAction /*action*/, int row, int column, const QModelIndex & parent )

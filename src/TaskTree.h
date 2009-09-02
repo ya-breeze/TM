@@ -74,6 +74,7 @@ public:
 	int columnCount( const QModelIndex &parent = QModelIndex() ) const;
 
 	bool dropMimeData( const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent );
+	QStringList mimeTypes() const;
 
 	QModelIndex addChild( const QModelIndex &index );
 	QModelIndex addChild( const QModelIndex &index, const Task& _task );
