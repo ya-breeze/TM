@@ -7,6 +7,10 @@
 
 #include "TaskTree.h"
 
+#include <QMimeData>
+#include <QMessageBox>
+#include <QApplication>
+
 #include "utils.h"
 
 TaskItem::TaskItem( TaskItem *parent )
@@ -537,11 +541,70 @@ QStringList TaskTree::mimeTypes() const
 	return types;
 }
 
-bool TaskTree::dropMimeData( const QMimeData */*data*/, Qt::DropAction /*action*/, int row, int column, const QModelIndex & parent )
+bool TaskTree::dropMimeData( const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex & parent )
 {
 	DEBUG("row " << row << ", column " << column << ", parent " << parent.isValid() );
 
-	return false;
+	if (action == Qt::IgnoreAction)
+		return true;
+
+	if (!data->hasFormat("application/TM-Task"))
+		return false;
+
+	QByteArray encodedData = data->data("application/TM-Task");
+	QDataStream stream(&encodedData, QIODevice::ReadOnly);
+	QStringList newItems;
+
+	while( !stream.atEnd() )
+	{
+		QString text;
+		stream >> text;
+
+		QModelIndex index = getItemIndex(text);
+		if( index.isValid() )
+		{
+			if( row==-1 )
+			{
+				TaskItem *parentItem = (TaskItem*)(parent.internalPointer());
+				DEBUG("parent - " << parentItem->getName() << ":" << parentItem->childCount());
+				moveTask(index, parent, rowCount(parent));
+			}
+			else
+			{
+				moveTask(index, parent, row);
+			}
+		}
+	}
+
+	return true;
+}
+
+QMimeData* TaskTree::mimeData(const QModelIndexList &_indexes) const
+{
+	QMimeData *mimeData = new QMimeData();
+	QByteArray encodedData;
+	QSet<QModelIndex> indexes;
+
+	QDataStream stream( &encodedData, QIODevice::WriteOnly );
+
+	foreach(QModelIndex index, _indexes)
+	{
+		if( indexes.find(index)!=indexes.end() || index.column()!=0 )
+			continue;
+
+		TaskItem *item = (TaskItem*)(index.internalPointer());
+		DEBUG("Prepare to move " << item->getName() << " - " << index.row()<<":"<<index.column());
+		if( index.isValid() )
+		{
+			TaskItem *item= (TaskItem*)(index.internalPointer());
+			QString text = item->getId().toString();
+			stream << text;
+		}
+		indexes.insert(index);
+	}
+
+	mimeData->setData( "application/TM-Task", encodedData );
+	return mimeData;
 }
 
 //void TaskTree::swapTasks( const QModelIndex& _one, const QModelIndex& _two )
@@ -562,6 +625,7 @@ QModelIndex TaskTree::moveTask( const QModelIndex& _task, const QModelIndex& _pa
 {
 	if( !_task.isValid() )
 		ERROR("Try to move task with invalid index");
+	// TODO Тут надо проверить, что мы НЕ пытаемся вставить элемент внутрь собственных потомков - иначе фигня какая-то получается
 
 	setChanged();
 
@@ -573,7 +637,7 @@ QModelIndex TaskTree::moveTask( const QModelIndex& _task, const QModelIndex& _pa
 	TaskItem *parentCurrTask = (TaskItem*)(parentCurr.internalPointer());
 	if( !parentCurrTask )
 		parentCurrTask = rootItem.get();
-	//DEBUG("Moving '" << task->getName() << "' to '" << parentTask->getName() << "':"<< _row <<" childs - " << parentTask->childCount());
+	DEBUG("Moving '" << task->getName() << "' to '" << parentTask->getName() << "':"<< _row <<" childs - " << parentTask->childCount());
 
 	// TODO Тут можно объединить ветки логики, но надо не забыть про row = row-1 в случае одного родителя
 	if( parentCurr==_parent )
@@ -591,6 +655,7 @@ QModelIndex TaskTree::moveTask( const QModelIndex& _task, const QModelIndex& _pa
 		// Т.к. мы двигаем внутри одного родителя, то если мы вставляли ПОСЛЕ прежнего значения, то реально после вставки индекс уже изменился
 		if( _row>_task.row() )
 			row = row-1;
+		DEBUG("Insert to '" << parentTask->getName() << "':"<< row <<" childs - " << parentTask->childCount());
 		beginInsertRows(_parent, row, row);
 		parentTask->insertChild(row, task);
 		endInsertRows();
@@ -601,11 +666,14 @@ QModelIndex TaskTree::moveTask( const QModelIndex& _task, const QModelIndex& _pa
 	else
 	{
 		// Оторвём от предыдущего места того, кого двигаем
+		DEBUG("Remove from '" << parentCurrTask->getName() << "':"<< _task.row() <<" childs - " << parentCurrTask->childCount());
 		beginRemoveRows(parentCurr, _task.row(), _task.row());
 		parentCurrTask->removeChild(_task.row());
 		endRemoveRows();
 
+		qApp->processEvents();
 		// Вставим в указанное место
+		DEBUG("Insert to '" << parentTask->getName() << "':"<< _row <<" childs - " << parentTask->childCount());
 		beginInsertRows(_parent, _row, _row);
 		parentTask->insertChild(_row, task);
 		endInsertRows();
