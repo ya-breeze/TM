@@ -18,6 +18,7 @@ TabletWindow::TabletWindow(QWidget *parent)
 	ui.setupUi(this);
 	ui.treeView->setModel(&m_Tasks);
 
+	slot_Restore();
 }
 
 void TabletWindow::slot_SetFocusTasks()
@@ -138,4 +139,5 @@ void TabletWindow::slot_Sync()
 	{
 		QMessageBox::critical(this, tr("Sync failed"), tr("Sync failed"));
 	}
+	slot_Restore();
 }

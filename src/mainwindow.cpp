@@ -611,4 +611,5 @@ void TM::slot_Sync()
 	{
 		QMessageBox::critical(this, tr("Sync failed"), tr("Sync failed"));
 	}
+	slot_Restore();
 }
