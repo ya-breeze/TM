@@ -604,12 +604,11 @@ void TM::slot_Sync()
 	Saver svr;
 	QProcess process(this);
 	process.setWorkingDirectory(svr.getHome());
-	process.setStandardOutputFile("/tmp/tmsync.log");
-	process.setStandardErrorFile("/tmp/tmsync.errors");
-	int res = process.execute(svr.getHome()+"/sync", QStringList());
-	if( res )
+//	process.setStandardOutputFile("/tmp/tmsync.log");
+//	process.setStandardErrorFile("/tmp/tmsync.errors");
+	process.start("./sync", QStringList());
+	if( !process.waitForFinished() )
 	{
-		QMessageBox::critical(this, tr("Sync failed"), tr("Sync failed ") + QString::number(res));
+		QMessageBox::critical(this, tr("Sync failed"), tr("Sync failed"));
 	}
-
 }

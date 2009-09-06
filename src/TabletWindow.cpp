@@ -8,6 +8,7 @@
 #include "TabletWindow.h"
 
 #include <QMessageBox>
+#include <QProcess>
 
 #include "Saver.h"
 
@@ -121,5 +122,20 @@ void TabletWindow::slot_Save()
 	catch(std::exception& ex)
 	{
 		QMessageBox::critical(this, tr("Can't save"), ex.what());
+	}
+}
+
+void TabletWindow::slot_Sync()
+{
+	slot_Save();
+	Saver svr;
+	QProcess process(this);
+	process.setWorkingDirectory(svr.getHome());
+//	process.setStandardOutputFile("/tmp/tmsync.log");
+//	process.setStandardErrorFile("/tmp/tmsync.errors");
+	process.start("./sync", QStringList());
+	if( !process.waitForFinished() )
+	{
+		QMessageBox::critical(this, tr("Sync failed"), tr("Sync failed"));
 	}
 }
