@@ -5,7 +5,9 @@ QT += core \
     gui \
     network
 INCLUDEPATH += qtsingleapp
-HEADERS += HideDone.h \
+HEADERS += PlannedTime.h \
+    TimeScale.h \
+    HideDone.h \
     TabletWindow.h \
     qtsingleapp/qtlocalpeer.h \
     qtsingleapp/qtlockedfile.h \
@@ -21,7 +23,9 @@ HEADERS += HideDone.h \
     Task.h \
     TaskTree.h \
     mainwindow.h
-SOURCES += TabletWindow.cpp \
+SOURCES += PlannedTime.cpp \
+    TimeScale.cpp \
+    TabletWindow.cpp \
     qtsingleapp/qtlocalpeer.cpp \
     qtsingleapp/qtlockedfile.cpp \
     qtsingleapp/qtlockedfile_unix.cpp \

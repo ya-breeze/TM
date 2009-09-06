@@ -65,6 +65,7 @@ public slots:
 	void slot_MoveLeft();
 	void slot_MoveRight();
 
+	void slot_Sync();
 
 private:
 	void updateTaskProperties( const Task& _task );

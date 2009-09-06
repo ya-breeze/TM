@@ -14,8 +14,8 @@
 #include "utils.h"
 
 
-#define FNAME_TASKS	"/.TM/Tasks"
-#define FNAME_ACTS	"/.TM/Activities."
+#define FNAME_TASKS	"Tasks"
+#define FNAME_ACTS	"Activities."
 
 QString	Saver::getHome() const
 {
@@ -23,7 +23,7 @@ QString	Saver::getHome() const
 	if( home==NULL)
 		return "/tmp";
 
-	return home;
+	return QString(home) + "/.TM/";
 }
 
 QString Saver::escapeString(const QString& _str)
