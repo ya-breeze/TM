@@ -1,0 +1,8 @@
+*.o
+moc_*.cpp
+ui_*.h
+Makefile*
+.cproject
+.project
+qrc_*.cpp
+src/tm
