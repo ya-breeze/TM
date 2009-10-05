@@ -1,4 +1,4 @@
-# DEFINES += TABLET
+DEFINES += TABLET
 TEMPLATE = app
 TARGET = tm
 QT += core \
@@ -23,7 +23,8 @@ HEADERS += PlannedTime.h \
     Task.h \
     TaskTree.h \
     mainwindow.h \
-    CategoryTree.h
+    CategoryTree.h \
+    TabletDlgTask.h
 SOURCES += PlannedTime.cpp \
     TimeScale.cpp \
     TabletWindow.cpp \
@@ -41,9 +42,11 @@ SOURCES += PlannedTime.cpp \
     TaskTree.cpp \
     main.cpp \
     mainwindow.cpp \
-    CategoryTree.cpp
+    CategoryTree.cpp \
+    TabletDlgTask.cpp
 FORMS += tabletmain.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    TabletDlgTask.ui
 RESOURCES += tm.qrc
 TRANSLATIONS = tm.ts
 QMAKE_CXXFLAGS += -g3

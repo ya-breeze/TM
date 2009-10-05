@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="images" >
+    <file>icons/list.png</file>
+    <file>icons/1day.png</file>
     <file>icons/folder_sent_mail.png</file>
     <file>icons/folder.png</file>
     <file>icons/agt_login.png</file>

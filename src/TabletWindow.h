@@ -12,6 +12,7 @@
 #include "ui_tabletmain.h"
 
 #include "TaskTree.h"
+#include "HideDone.h"
 
 class TabletWindow : public QMainWindow
 {
@@ -33,10 +34,15 @@ public slots:
 	void slot_Save();
 	void slot_Sync();
 	void slot_HideNotes();
+	void slot_TaskChanged(const QModelIndex& _new, const QModelIndex& _old);
+	void slot_TaskProperties();
 
 protected:
+	void updateTaskProperties( const Task& _task );
+
 	Ui::TabletMain	ui;
 	TaskTree	m_Tasks;
+	HideDone	*p_ProxyHideDone;
 };
 
 #endif /* TABLETWINDOW_H_ */
