@@ -22,7 +22,8 @@ HEADERS += PlannedTime.h \
     Saver.h \
     Task.h \
     TaskTree.h \
-    mainwindow.h CategoryTree.h
+    mainwindow.h \
+    CategoryTree.h
 SOURCES += PlannedTime.cpp \
     TimeScale.cpp \
     TabletWindow.cpp \
@@ -39,7 +40,8 @@ SOURCES += PlannedTime.cpp \
     Task.cpp \
     TaskTree.cpp \
     main.cpp \
-    mainwindow.cpp CategoryTree.cpp
+    mainwindow.cpp \
+    CategoryTree.cpp
 FORMS += tabletmain.ui \
     mainwindow.ui
 RESOURCES += tm.qrc

@@ -498,7 +498,7 @@
    <sender>btnHideNotes</sender>
    <signal>clicked()</signal>
    <receiver>TabletMain</receiver>
-   <slot>close()</slot>
+   <slot>slot_HideNotes()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>300</x>

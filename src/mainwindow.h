@@ -1,6 +1,7 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef _MAINWINDOW_H
+#define _MAINWINDOW_H
 
+#include <QObject>
 #include <QtGui/QMainWindow>
 #include "ui_mainwindow.h"
 
