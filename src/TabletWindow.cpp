@@ -141,3 +141,8 @@ void TabletWindow::slot_Sync()
 	}
 	slot_Restore();
 }
+
+void TabletWindow::slot_HideNotes()
+{
+	ui.teNotes->setVisible( !ui.teNotes->isVisible() );
+}

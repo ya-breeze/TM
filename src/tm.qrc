@@ -1,5 +1,10 @@
 <RCC>
   <qresource prefix="images" >
+    <file>icons/folder_sent_mail.png</file>
+    <file>icons/folder.png</file>
+    <file>icons/agt_login.png</file>
+    <file>icons/appointment.png</file>
+    <file>icons/contents.png</file>
     <file>icons/1.png</file>
     <file alias="MainIcon" >icons/12.png</file>
   </qresource>

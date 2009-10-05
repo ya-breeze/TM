@@ -25,8 +25,9 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="text">
-         <string>Tasks</string>
+        <property name="icon">
+         <iconset resource="tm.qrc">
+          <normaloff>:/images/icons/appointment.png</normaloff>:/images/icons/appointment.png</iconset>
         </property>
        </widget>
       </item>
@@ -38,8 +39,9 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="text">
-         <string>Chrono</string>
+        <property name="icon">
+         <iconset resource="tm.qrc">
+          <normaloff>:/images/icons/contents.png</normaloff>:/images/icons/contents.png</iconset>
         </property>
        </widget>
       </item>
@@ -51,8 +53,9 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="text">
-         <string>Add activity</string>
+        <property name="icon">
+         <iconset resource="tm.qrc">
+          <normaloff>:/images/icons/agt_login.png</normaloff>:/images/icons/agt_login.png</iconset>
         </property>
        </widget>
       </item>
@@ -64,73 +67,61 @@
        <number>0</number>
       </property>
       <widget class="QWidget" name="page">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout_3">
-          <item>
-           <widget class="QTreeView" name="treeView">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>3</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QTextEdit" name="teNotes">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>1</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <widget class="QTreeView" name="treeView">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>3</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QPushButton" name="btnHideNotes"/>
+          </item>
           <item>
            <widget class="QPushButton" name="btnAddChild">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="text">
-             <string>Child</string>
+            <property name="icon">
+             <iconset resource="tm.qrc">
+              <normaloff>:/images/icons/folder_sent_mail.png</normaloff>:/images/icons/folder_sent_mail.png</iconset>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="btnAddSibling">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="text">
-             <string>Sibling</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnDeleteTask">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Delete</string>
+            <property name="icon">
+             <iconset resource="tm.qrc">
+              <normaloff>:/images/icons/folder.png</normaloff>:/images/icons/folder.png</iconset>
             </property>
            </widget>
           </item>
          </layout>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="teNotes">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>1</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -355,7 +346,9 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="tm.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>btnAddActivity</sender>
@@ -438,22 +431,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>btnDeleteTask</sender>
-   <signal>clicked()</signal>
-   <receiver>TabletMain</receiver>
-   <slot>slot_TaskDelete()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>583</x>
-     <y>372</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>319</x>
-     <y>239</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionRestore</sender>
    <signal>activated()</signal>
    <receiver>TabletMain</receiver>
@@ -510,6 +487,22 @@
     <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>319</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnHideNotes</sender>
+   <signal>clicked()</signal>
+   <receiver>TabletMain</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>300</x>
+     <y>319</y>
     </hint>
     <hint type="destinationlabel">
      <x>319</x>

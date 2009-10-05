@@ -32,6 +32,7 @@ public slots:
 	void slot_Restore();
 	void slot_Save();
 	void slot_Sync();
+	void slot_HideNotes();
 
 protected:
 	Ui::TabletMain	ui;
