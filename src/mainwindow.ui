@@ -420,10 +420,17 @@
     <property name="title">
      <string>Tasks</string>
     </property>
+    <widget class="QMenu" name="menuProperties">
+     <property name="title">
+      <string>Properties</string>
+     </property>
+     <addaction name="actionEditCategories"/>
+    </widget>
     <addaction name="actionAdd"/>
     <addaction name="actionAddChild"/>
     <addaction name="actionDel"/>
     <addaction name="separator"/>
+    <addaction name="menuProperties"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTasks"/>
@@ -464,6 +471,11 @@
   <action name="actionSync">
    <property name="text">
     <string>Sync</string>
+   </property>
+  </action>
+  <action name="actionEditCategories">
+   <property name="text">
+    <string>EditCategories</string>
    </property>
   </action>
  </widget>
@@ -536,6 +548,22 @@
    <signal>activated()</signal>
    <receiver>TMClass</receiver>
    <slot>slot_Sync()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>363</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionEditCategories</sender>
+   <signal>activated()</signal>
+   <receiver>TMClass</receiver>
+   <slot>slot_Categories()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>

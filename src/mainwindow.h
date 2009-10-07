@@ -12,6 +12,7 @@
 #include "Activities.h"
 #include "LastActs.h"
 #include "HideDone.h"
+#include "CategoryTree.h"
 
 class TM : public QMainWindow
 {
@@ -68,6 +69,9 @@ public slots:
 
 	void slot_Sync();
 
+	/// Вызывает диалог для правки привязанных категорий
+	void slot_Categories();
+
 private:
 	void updateTaskProperties( const Task& _task );
 	void closeEvent(QCloseEvent *event);
@@ -77,6 +81,8 @@ private:
 
 	Ui::TMClass	ui;
 	TaskTree	m_Tasks;
+	CategoryTree m_Cats;
+
 	Activities	m_Activities;
 	LastActs	*p_LastActs;
 

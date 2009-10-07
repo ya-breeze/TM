@@ -7,6 +7,8 @@
 #include "utils.h"
 #include "Saver.h"
 
+#include "CategoryEdit.h"
+
 TM::TM(QWidget *parent)
     : QMainWindow(parent), p_LastActs(new LastActs(&m_Tasks, &m_Activities, this))
 {
@@ -612,4 +614,18 @@ void TM::slot_Sync()
 		QMessageBox::critical(this, tr("Sync failed"), tr("Sync failed"));
 	}
 	slot_Restore();
+}
+
+void TM::slot_Categories()
+{
+	CategoryEdit dlg;
+
+	QModelIndex proxyidx = ui.treeView->selectionModel()->currentIndex();
+	QModelIndex idx = p_ProxyHideDone->mapToSource(proxyidx);
+
+	TaskItem *item = m_Tasks.getItem(idx);
+	if( !item )
+		ERROR("No one task is specified");
+
+	dlg.edit(*item);
 }
