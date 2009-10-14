@@ -67,6 +67,11 @@ TM::TM(QWidget *parent)
 
 	slot_Restore();
 	slot_BtnUpdateTime();
+
+
+
+	m_Cats.addCategory( Category("test") );
+	m_Cats.addCategory( Category("test:test2") );
 }
 
 TM::~TM()
@@ -618,14 +623,21 @@ void TM::slot_Sync()
 
 void TM::slot_Categories()
 {
-	CategoryEdit dlg;
+	try
+	{
+		CategoryEdit dlg(this, &m_Cats);
 
-	QModelIndex proxyidx = ui.treeView->selectionModel()->currentIndex();
-	QModelIndex idx = p_ProxyHideDone->mapToSource(proxyidx);
+		QModelIndex proxyidx = ui.treeView->selectionModel()->currentIndex();
+		QModelIndex idx = p_ProxyHideDone->mapToSource(proxyidx);
 
-	TaskItem *item = m_Tasks.getItem(idx);
-	if( !item )
-		ERROR("No one task is specified");
+		TaskItem *item = m_Tasks.getItem(idx);
+		if( !item )
+			ERROR("No one task is specified");
 
-	dlg.edit(*item);
+		dlg.edit(*item);
+	}
+	catch(std::exception& ex)
+	{
+		QMessageBox::critical(this, tr("Error"), ex.what());
+	}
 }

@@ -97,5 +97,53 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>btnChild</sender>
+   <signal>clicked()</signal>
+   <receiver>DlgCatEdit</receiver>
+   <slot>slot_AddChild()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>593</x>
+     <y>24</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>319</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnSibling</sender>
+   <signal>clicked()</signal>
+   <receiver>DlgCatEdit</receiver>
+   <slot>slot_AddSibling()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>593</x>
+     <y>64</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>319</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnDelete</sender>
+   <signal>clicked()</signal>
+   <receiver>DlgCatEdit</receiver>
+   <slot>slot_Delete()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>593</x>
+     <y>104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>319</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>

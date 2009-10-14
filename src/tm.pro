@@ -1,11 +1,12 @@
-#DEFINES += TABLET
+# DEFINES += TABLET
 TEMPLATE = app
 TARGET = tm
 QT += core \
     gui \
     network
 INCLUDEPATH += qtsingleapp
-HEADERS += PlannedTime.h \
+HEADERS += Category.h \
+    PlannedTime.h \
     TimeScale.h \
     HideDone.h \
     TabletWindow.h \
@@ -26,7 +27,8 @@ HEADERS += PlannedTime.h \
     CategoryTree.h \
     TabletDlgTask.h \
     CategoryEdit.h
-SOURCES += PlannedTime.cpp \
+SOURCES += Category.cpp \
+    PlannedTime.cpp \
     TimeScale.cpp \
     TabletWindow.cpp \
     qtsingleapp/qtlocalpeer.cpp \

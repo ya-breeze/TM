@@ -8,42 +8,53 @@
 #include "CategoryTree.h"
 
 CategoryTree::CategoryTree( QObject *parent)
+	: QStandardItemModel(parent)
 {
-	// TODO Auto-generated constructor stub
-
 }
 
-CategoryTree::~CategoryTree()
+
+QModelIndex CategoryTree::addCategory(const Category& _cat)
 {
-	// TODO Auto-generated destructor stub
+	QStandardItem *parentItem = invisibleRootItem();
+	for(int i=0;i<_cat.deep()+1;++i)
+		parentItem = addCategory(parentItem, _cat.partialName(i+1));
+
+	return parentItem->index();
 }
 
-QVariant CategoryTree::data( const QModelIndex &index, int role ) const
+CaterotyItem::CaterotyItem( const Category& _cat )
+	: Category(_cat)
 {
-
-}
-bool CategoryTree::setData( const QModelIndex& index, const QVariant& value, int role )
-{
-
+	setText( name() );
 }
 
-QVariant CategoryTree::headerData( int section, Qt::Orientation orientation, int role ) const
+QStandardItem* CategoryTree::addCategory( QStandardItem *_item, const QString& _cat )
 {
+	for(int i=0;i<_item->rowCount();++i)
+	{
+		if( _item->child(i,0)->text()==_cat )
+		{
+			return _item->child(i,0);
+		}
+	}
 
+	// Такого дитя нет - надо добавить
+	QString childName(_cat);
+	if( _item->parent() )
+	{
+		CaterotyItem *catItem = dynamic_cast<CaterotyItem*>(_item);
+		Q_ASSERT(catItem);
+		childName = catItem->childName(_cat);
+	}
+
+	QStandardItem *item = new CaterotyItem( childName );
+	_item->appendRow(item);
+
+	return item;
 }
-QModelIndex CategoryTree::index( int row, int column, const QModelIndex &parent ) const
-{
 
-}
-QModelIndex CategoryTree::parent( const QModelIndex &index ) const
+QModelIndex CategoryTree::addChild( const QModelIndex &index, const QString& _name )
 {
-
-}
-int CategoryTree::rowCount( const QModelIndex &parent ) const
-{
-
-}
-int CategoryTree::columnCount( const QModelIndex &parent ) const
-{
-
+	QStandardItem *item = itemFromIndex(index);
+	return addCategory(item, _name)->index();
 }
