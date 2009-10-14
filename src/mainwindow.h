@@ -69,6 +69,8 @@ public slots:
 
 	void slot_Sync();
 
+	/// Вызывает диалог для правки списка категорий
+	void slot_TotalCategories();
 	/// Вызывает диалог для правки привязанных категорий
 	void slot_Categories();
 

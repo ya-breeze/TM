@@ -161,14 +161,14 @@
       </widget>
       <widget class="QToolBox" name="toolBox">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="page">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>368</width>
+          <width>376</width>
           <height>337</height>
          </rect>
         </property>
@@ -267,6 +267,23 @@
              </property>
             </widget>
            </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="label_13">
+             <property name="text">
+              <string>Categories</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <widget class="QLineEdit" name="le_Categories"/>
+             </item>
+             <item>
+              <widget class="QToolButton" name="btnEditCategories"/>
+             </item>
+            </layout>
+           </item>
           </layout>
          </item>
         </layout>
@@ -276,8 +293,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>368</width>
-          <height>337</height>
+          <width>305</width>
+          <height>334</height>
          </rect>
         </property>
         <attribute name="label">
@@ -420,17 +437,11 @@
     <property name="title">
      <string>Tasks</string>
     </property>
-    <widget class="QMenu" name="menuProperties">
-     <property name="title">
-      <string>Properties</string>
-     </property>
-     <addaction name="actionEditCategories"/>
-    </widget>
     <addaction name="actionAdd"/>
     <addaction name="actionAddChild"/>
     <addaction name="actionDel"/>
     <addaction name="separator"/>
-    <addaction name="menuProperties"/>
+    <addaction name="actionEditCategories"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTasks"/>
@@ -563,11 +574,27 @@
    <sender>actionEditCategories</sender>
    <signal>activated()</signal>
    <receiver>TMClass</receiver>
-   <slot>slot_Categories()</slot>
+   <slot>slot_TotalCategories()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>363</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnEditCategories</sender>
+   <signal>clicked()</signal>
+   <receiver>TMClass</receiver>
+   <slot>slot_Categories()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>693</x>
+     <y>387</y>
     </hint>
     <hint type="destinationlabel">
      <x>363</x>

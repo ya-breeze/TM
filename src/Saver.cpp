@@ -61,6 +61,7 @@ void Saver::saveTask(std::ofstream& _file, const Task& _task)
 		<< "DateStarted:" << _task.getStarted().toString(Qt::ISODate) << std::endl
 		<< "DateFinished:" << _task.getFinished().toString(Qt::ISODate) << std::endl
 		<< "PlannedTime:" << _task.getPlannedTime().toUtf8().data() << std::endl
+		<< "Categories:" << _task.getCategories().join(";").toUtf8().data() << std::endl
 		<< "END:VTODO" << std::endl;
 }
 
@@ -91,7 +92,7 @@ void Saver::save(TaskTree& _tree)
 	recurseSave(file, _tree, QModelIndex());
 }
 
-void Saver::restore(TaskTree& _tree)
+void Saver::restore(TaskTree& _tree, CategoryTree& _cats)
 {
 	QString fname = getHome() + FNAME_TASKS;
 	std::ifstream file(fname.toUtf8().data());
@@ -184,6 +185,17 @@ void Saver::restore(TaskTree& _tree)
 				{
 					task.setPlannedTime( value );
 					someLines = false;
+				}
+				else if( id.compare( "Categories", Qt::CaseInsensitive ) == 0 )
+				{
+					QStringList lst = value.split(";");
+					task.setCategories( lst );
+					someLines = false;
+
+					// Проверим, что такие категории есть
+					for(int i=0;i<lst.size();++i)
+						if( !lst[i].isEmpty() )
+							_cats.addCategory( Category(lst[i]) );
 				}
 			}
 		}

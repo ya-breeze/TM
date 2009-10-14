@@ -13,6 +13,7 @@
 
 #include "TaskTree.h"
 #include "HideDone.h"
+#include "CategoryTree.h"
 
 class TabletWindow : public QMainWindow
 {
@@ -41,8 +42,9 @@ protected:
 	void updateTaskProperties( const Task& _task );
 
 	Ui::TabletMain	ui;
-	TaskTree	m_Tasks;
-	HideDone	*p_ProxyHideDone;
+	TaskTree		m_Tasks;
+	CategoryTree	m_Cats;
+	HideDone		*p_ProxyHideDone;
 };
 
 #endif /* TABLETWINDOW_H_ */

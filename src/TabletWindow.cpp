@@ -107,7 +107,7 @@ void TabletWindow::slot_Restore()
 	{
 		m_Tasks.clear();
 		Saver saver;
-		saver.restore(m_Tasks);
+		saver.restore(m_Tasks, m_Cats);
 //		m_Activities.setToday();
 		ui.treeView->reset();
 		ui.treeView->expandAll();

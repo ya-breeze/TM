@@ -14,6 +14,8 @@
 #include <QUuid>
 #include <QDateTime>
 
+#include "Category.h"
+
 class Task
 {
 	typedef std::vector<QUuid> UuidVec;
@@ -30,10 +32,12 @@ class Task
 	/// Планируемое время выполнения
 	QString		m_PlannedTime;
 
+	/// Список категорий
+	QStringList	m_Categories;
 public:
 	Task( const QString& _name = "" );
 
-	///////////////////// Get/Set ///////////////////
+    ///////////////////// Get/Set ///////////////////
 	QString getPlannedTime() const
 	{
 		return m_PlannedTime;
@@ -119,6 +123,20 @@ public:
 		this->str_Name = str_Name;
 	}
 
+    const QStringList& getCategories() const
+    {
+        return m_Categories;
+    }
+
+    void setCategories(const QStringList& m_Categories)
+    {
+        this->m_Categories = m_Categories;
+    }
+
+    void addCategory(const QString& _cat)
+    {
+    	m_Categories << _cat;
+    }
 };
 
 #endif /* TASK_H_ */

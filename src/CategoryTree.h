@@ -44,11 +44,27 @@ public:
 	QModelIndex	addCategory( const Category& _cat );
 	/// Добавляет потомка для указанного индекса
 	QModelIndex addChild( const QModelIndex &index, const QString& _name );
-	/// Сбрасывает выбранные категории
-	void		clearCheckboxes();
+	/// Сбрасывает выбранные категории для указанного родителя
+	void		clearCheckboxes(QStandardItem *_item = NULL);
+	/// Выставляет свойство checkable у всех категорий для указанного родителя
+	void		setCheckable(bool _value, QStandardItem *_item = NULL);
+	/// Выставляет флажок для указанной категории
+	void		setChecked( const QString& _name, Qt::CheckState _value = Qt::Checked );
+	/// Возвращает список выбранных категорий для указанного родителя
+	QStringList	checkedList(QStandardItem *_item = NULL) const;
 
 protected:
-	QStandardItem*	addCategory( QStandardItem *_item, const QString& _cat );
+	/// Проверяет, что переданная категория-потомок существует. Если не существует и _addOnMiss==true, то явно добавляет потомка.
+	/// В качестве _cat должно передаваться название категории на этом уровне, т.е. БЕЗ ":"
+	QStandardItem*	checkExists( QStandardItem *_item, const QString& _cat, bool _addOnMiss = true );
+	/// Ищет указанную категорию. Если категории нет - возвращает NULL
+	QStandardItem*	find( const Category& _cat );
+	/// Возвращает список выбранных категорий для указанного родителя
+	void checkedList(QStandardItem *_item, QStringList& _lst) const;
+
+	/// В это значение выставляется checkable создаваемых категорий - чтобы в режиме списка не давать check, а в режиме
+	/// задачи - давать
+	bool			is_Checkable;
 };
 
 #endif /* CATEGORYTREE_H_ */

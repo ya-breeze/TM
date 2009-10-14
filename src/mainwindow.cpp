@@ -68,10 +68,6 @@ TM::TM(QWidget *parent)
 	slot_Restore();
 	slot_BtnUpdateTime();
 
-
-
-	m_Cats.addCategory( Category("test") );
-	m_Cats.addCategory( Category("test:test2") );
 }
 
 TM::~TM()
@@ -309,7 +305,7 @@ void TM::slot_Restore()
 	{
 		m_Tasks.clear();
 		Saver saver;
-		saver.restore(m_Tasks);
+		saver.restore(m_Tasks, m_Cats);
 		m_Activities.setToday();
 		ui.treeView->reset();
 		ui.treeView->expandAll();
@@ -635,6 +631,20 @@ void TM::slot_Categories()
 			ERROR("No one task is specified");
 
 		dlg.edit(*item);
+	}
+	catch(std::exception& ex)
+	{
+		QMessageBox::critical(this, tr("Error"), ex.what());
+	}
+}
+
+/// Вызывает диалог для правки списка категорий
+void TM::slot_TotalCategories()
+{
+	try
+	{
+		CategoryEdit dlg(this, &m_Cats);
+		dlg.edit();
 	}
 	catch(std::exception& ex)
 	{

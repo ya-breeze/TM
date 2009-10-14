@@ -21,7 +21,13 @@ class CategoryEdit : public QDialog
 
 public:
 	CategoryEdit( QWidget *parent, CategoryTree *_cats);
+
+
+	/// Редактировать категории переданной задачи
 	void edit(Task& _task);
+
+	/// Редактировать список категории
+	void edit();
 
 protected slots:
 	void slot_AddChild();
@@ -29,6 +35,11 @@ protected slots:
 	void slot_Delete();
 
 protected:
+	/// Отображает список категорий задачи
+	void catsFromTask(Task& _task);
+	/// Обновляет список категорий задачи
+	void catsToTask(Task& _task);
+
 	Ui::DlgCatEdit	ui;
 	CategoryTree	*p_Cats;
 };

@@ -14,6 +14,7 @@
 
 #include "TaskTree.h"
 #include "DayActivities.h"
+#include "CategoryTree.h"
 
 class Saver
 {
@@ -21,7 +22,7 @@ public:
 	typedef std::set<QDate> DateSet;
 
 	void	save(TaskTree& _tree);
-	void	restore(TaskTree& _tree);
+	void	restore(TaskTree& _tree, CategoryTree& _cats);
 
 	void	save(const QDate& _date, const DayActivities& _tree);
 	void	restore(const QDate& _date, DayActivities& _tree);
