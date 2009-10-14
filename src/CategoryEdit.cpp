@@ -9,6 +9,8 @@
 
 #include <QInputDialog>
 
+#include "utils.h"
+
 CategoryEdit::CategoryEdit( QWidget *parent, CategoryTree *_cats )
 	: QDialog(parent), p_Cats(_cats)
 {
@@ -18,14 +20,15 @@ CategoryEdit::CategoryEdit( QWidget *parent, CategoryTree *_cats )
 
 void CategoryEdit::edit(Task& _task)
 {
+	DEBUG(_task.getName());
 	exec();
 }
 
 void CategoryEdit::slot_AddChild()
 {
 	bool ok;
-	QString text = QInputDialog::getText(this, tr("QInputDialog::getText()"),
-										 tr("User name:"), QLineEdit::Normal,
+	QString text = QInputDialog::getText(this, tr("Input category name"),
+										 tr("Category name:"), QLineEdit::Normal,
 										 tr("Empty"), &ok);
 	if (ok && !text.isEmpty())
 	{

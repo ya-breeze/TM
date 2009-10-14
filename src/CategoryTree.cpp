@@ -56,5 +56,15 @@ QStandardItem* CategoryTree::addCategory( QStandardItem *_item, const QString& _
 QModelIndex CategoryTree::addChild( const QModelIndex &index, const QString& _name )
 {
 	QStandardItem *item = itemFromIndex(index);
+	if( !index.isValid() )
+		item = invisibleRootItem();
+	Q_ASSERT(item);
+
 	return addCategory(item, _name)->index();
+}
+
+/// Сбрасывает выбранные категории
+void CategoryTree::clearCheckboxes()
+{
+
 }

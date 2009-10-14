@@ -40,8 +40,12 @@ public:
 ////	TaskItem* getItem( const QUuid& _id) const;
 ////	QModelIndex getItemIndex( const QUuid& _id) const;
 
+	/// Добавляет категорию
 	QModelIndex	addCategory( const Category& _cat );
+	/// Добавляет потомка для указанного индекса
 	QModelIndex addChild( const QModelIndex &index, const QString& _name );
+	/// Сбрасывает выбранные категории
+	void		clearCheckboxes();
 
 protected:
 	QStandardItem*	addCategory( QStandardItem *_item, const QString& _cat );
