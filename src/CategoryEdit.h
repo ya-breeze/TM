@@ -23,8 +23,8 @@ public:
 	CategoryEdit( QWidget *parent, CategoryTree *_cats);
 
 
-	/// Редактировать категории переданной задачи
-	void edit(Task& _task);
+	/// Редактировать переданные категории
+	QStringList edit(const QStringList& _lst);
 
 	/// Редактировать список категории
 	void edit();

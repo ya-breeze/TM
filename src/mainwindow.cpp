@@ -630,7 +630,8 @@ void TM::slot_Categories()
 		if( !item )
 			ERROR("No one task is specified");
 
-		dlg.edit(*item);
+		QStringList cats = dlg.edit(item->getCategories());
+		item->setCategories(cats);
 	}
 	catch(std::exception& ex)
 	{
@@ -645,6 +646,26 @@ void TM::slot_TotalCategories()
 	{
 		CategoryEdit dlg(this, &m_Cats);
 		dlg.edit();
+	}
+	catch(std::exception& ex)
+	{
+		QMessageBox::critical(this, tr("Error"), ex.what());
+	}
+}
+
+/// Вызывает диалог для редактирования отображаемых категорий
+void TM::slot_SelectShowCats()
+{
+	try
+	{
+		CategoryEdit dlg(this, &m_Cats);
+
+		QStringList cats = dlg.edit( p_ProxyHideDone->getCategories() );
+		p_ProxyHideDone->setCategories(cats);
+		ui.treeView->expandAll();
+		ui.treeView->resizeColumnToContents(0);
+
+		DEBUG("Filter cats has " << cats.size());
 	}
 	catch(std::exception& ex)
 	{

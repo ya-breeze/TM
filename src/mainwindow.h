@@ -61,6 +61,8 @@ public slots:
 	void slot_AddInterrupt();
 	/// Прячет/показывает выполненные задачи
 	void slot_HideDone();
+	/// Вызывает диалог для редактирования отображаемых категорий
+	void slot_SelectShowCats();
 
 	void slot_MoveUp();
 	void slot_MoveDown();

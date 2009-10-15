@@ -19,17 +19,21 @@ CategoryEdit::CategoryEdit( QWidget *parent, CategoryTree *_cats )
 	ui.treeView->expandAll();
 }
 
-void CategoryEdit::edit(Task& _task)
+QStringList CategoryEdit::edit(const QStringList& _lst)
 {
-	DEBUG(_task.getName());
 	p_Cats->setCheckable(true);
 	p_Cats->clearCheckboxes();
 
-	catsFromTask(_task);
-	if( exec()==QDialog::Rejected )
-		return;
+	// Пометим выбранные в текущий момент
+	for(int i=0;i<_lst.size();++i)
+		p_Cats->setChecked(_lst[i], Qt::Checked);
 
-	catsToTask(_task);
+	if( exec()==QDialog::Rejected )
+		return _lst;
+
+	// Сформируем обновлённый список
+	QStringList lst = p_Cats->checkedList();
+	return lst;
 }
 
 void CategoryEdit::slot_AddChild()

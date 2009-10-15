@@ -27,7 +27,8 @@ HEADERS += Category.h \
     CategoryTree.h \
     TabletDlgTask.h \
     CategoryEdit.h
-SOURCES += Category.cpp \
+SOURCES += HideDone.cpp \
+    Category.cpp \
     PlannedTime.cpp \
     TimeScale.cpp \
     TabletWindow.cpp \
