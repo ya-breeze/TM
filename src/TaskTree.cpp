@@ -683,3 +683,18 @@ QModelIndex TaskTree::moveTask( const QModelIndex& _task, const QModelIndex& _pa
 
 	return QModelIndex();
 }
+
+/// Возвращает true, если среди категорий задачи содержится хотя бы одна категория из переданного списка
+bool TaskItem::containsCategory(const QStringList& _lst) const
+{
+	const QStringList& lst = getCategories();
+	for(int i=0; i<lst.size();++i)
+	{
+		if( _lst.indexOf(lst[i])!=-1 )
+		{
+			return true;
+		}
+	}
+
+	return false;
+}

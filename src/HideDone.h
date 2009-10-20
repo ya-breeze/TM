@@ -30,6 +30,10 @@ public:
     const QStringList& getCategories() const;
     void setCategories(const QStringList& m_Categories);
 	bool filterAcceptsRow( int sourceRow, const QModelIndex &sourceParent ) const;
+
+protected:
+	/// Возвращает true, если у переданного узла, или его потомков есть среди категорий текущие
+	bool filterCategories( TaskItem *_item ) const;
 };
 
 

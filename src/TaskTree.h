@@ -47,6 +47,8 @@ public:
 	TaskItem*	parent();
 	void		setItemParent(TaskItem*);
 
+	/// Возвращает true, если среди категорий задачи содержится хотя бы одна категория из переданного списка
+	bool		containsCategory(const QStringList& _lst) const;
 private:
 	TaskItemVec		childItems;
 	TaskItem		*parentItem;
