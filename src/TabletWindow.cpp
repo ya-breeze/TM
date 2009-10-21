@@ -9,10 +9,13 @@
 
 #include <QMessageBox>
 #include <QProcess>
+#include <QCloseEvent>
 
 #include "Saver.h"
 
 #include "TabletDlgTask.h"
+#include "CategoryEdit.h"
+#include "utils.h"
 
 TabletWindow::TabletWindow(QWidget *parent)
 	: QMainWindow(parent)
@@ -248,8 +251,63 @@ void TabletWindow::updateTaskProperties( const Task& _task )
 
 void TabletWindow::slot_TaskProperties()
 {
-	QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
+	TRACE;
+	try
+	{
+		QModelIndex proxyidx = ui.treeView->selectionModel()->currentIndex();
+		QModelIndex idx = p_ProxyHideDone->mapToSource(proxyidx);
 
-	TabletDlgTask dlg(this);
-	dlg.exec();
+		TaskItem *item = m_Tasks.getItem(idx);
+		if( !item )
+			ERROR("No one task is specified");
+
+		TabletDlgTask dlg(this);
+		dlg.edit( item, &m_Cats );
+	}
+	catch(std::exception& ex)
+	{
+		QMessageBox::critical(this, tr("Error"), ex.what());
+	}
+}
+
+/// Вызывает диалог настройки фильтров
+void TabletWindow::slot_Filter()
+{
+	try
+	{
+		CategoryEdit dlg(this, &m_Cats);
+
+		QStringList cats = dlg.edit( p_ProxyHideDone->getCategories() );
+		p_ProxyHideDone->setCategories(cats);
+		ui.treeView->expandAll();
+		ui.treeView->resizeColumnToContents(0);
+
+		DEBUG("Filter cats has " << cats.size());
+	}
+	catch(std::exception& ex)
+	{
+		QMessageBox::critical(this, tr("Error"), ex.what());
+	}
+}
+
+void TabletWindow::closeEvent(QCloseEvent *event)
+{
+	QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
+	slot_TaskChanged(idx, idx);
+
+	if( m_Tasks.hasChanged() || m_Activities.hasChanged() )
+	{
+		int btn = QMessageBox::question(this, tr("Unsaved data"), tr("Save them?"), QMessageBox::Yes, QMessageBox::No, QMessageBox::Cancel );
+		if( btn==QMessageBox::Cancel )
+		{
+			event->ignore();
+			return;
+		}
+
+		event->accept();
+		if( btn==QMessageBox::Yes )
+			slot_Save();
+	}
+	else
+		QMainWindow::closeEvent(event);
 }

@@ -14,7 +14,9 @@
 #include "TaskTree.h"
 #include "HideDone.h"
 #include "CategoryTree.h"
+#include "Activities.h"
 
+/// Класс главного окна для GUI-таблетки
 class TabletWindow : public QMainWindow
 {
 	Q_OBJECT
@@ -37,13 +39,18 @@ public slots:
 	void slot_HideNotes();
 	void slot_TaskChanged(const QModelIndex& _new, const QModelIndex& _old);
 	void slot_TaskProperties();
+	/// Вызывает диалог настройки фильтров
+	void slot_Filter();
 
 protected:
+	void closeEvent(QCloseEvent *event);
 	void updateTaskProperties( const Task& _task );
 
 	Ui::TabletMain	ui;
 	TaskTree		m_Tasks;
 	CategoryTree	m_Cats;
+	Activities		m_Activities;
+
 	HideDone		*p_ProxyHideDone;
 };
 

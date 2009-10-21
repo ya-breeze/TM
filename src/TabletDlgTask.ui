@@ -105,6 +105,13 @@
     </layout>
    </item>
    <item>
+    <widget class="QPushButton" name="btnCategories">
+     <property name="text">
+      <string>Categories</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -160,6 +167,22 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnCategories</sender>
+   <signal>clicked()</signal>
+   <receiver>TabletDlgTask</receiver>
+   <slot>slot_Filter()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>319</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>319</x>
+     <y>239</y>
     </hint>
    </hints>
   </connection>

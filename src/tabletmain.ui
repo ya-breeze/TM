@@ -81,7 +81,7 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="btnFilters">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -574,6 +574,22 @@
    <hints>
     <hint type="sourcelabel">
      <x>111</x>
+     <y>318</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>319</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnFilters</sender>
+   <signal>clicked()</signal>
+   <receiver>TabletMain</receiver>
+   <slot>slot_Filter()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>71</x>
      <y>318</y>
     </hint>
     <hint type="destinationlabel">
