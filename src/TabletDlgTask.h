@@ -26,6 +26,10 @@ protected slots:
 	int exec();
 	/// Диалог выбора категорий задачи
 	void slot_Filter();
+	/// Вызывается при смене состояния признака окончания
+	void slot_Finish(int);
+	/// Выставляет время начала в текущее время
+	void slot_UpdateStartTime();
 
 protected:
 	Ui::TabletDlgTask	ui;

@@ -55,6 +55,9 @@ bool HideDone::filterAcceptsRow( int sourceRow, const QModelIndex &sourceParent 
 		QModelIndex index = tree->index( sourceRow, 0, sourceParent );
 		TaskItem *task = tree->getItem(index);
 		Q_ASSERT(task);
+		// TODO Тут должно быть чуть хитрее. Например, если у нас есть потомок уже выполненный с установленной категорией,
+		// то мы его всё равно зачтём, а не должны. Видимо нужно идти рекурсивно и спрашивать этой же самой функцией, т.е.
+		// с учётом всех фильтров (в данный момент - признак окончания)
 		if( !filterCategories(task) )
 			return false;
 	}

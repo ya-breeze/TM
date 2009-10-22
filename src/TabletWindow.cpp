@@ -76,6 +76,7 @@ void TabletWindow::slot_TaskAddChild()
 		QModelIndex newidx = m_Tasks.addChild(idx);
 		newidx = p_ProxyHideDone->mapFromSource(newidx);
 		ui.treeView->expand(idx);
+		ui.treeView->scrollTo(newidx, QAbstractItemView::PositionAtCenter);
 		ui.treeView->edit(newidx);
 		ui.treeView->selectionModel()->setCurrentIndex(newidx, QItemSelectionModel::ClearAndSelect);
 		ui.treeView->resizeColumnToContents(0);
@@ -94,6 +95,7 @@ void TabletWindow::slot_TaskAddSibling()
 		idx = p_ProxyHideDone->mapToSource(idx);
 		QModelIndex newidx = m_Tasks.addSibling(idx);
 		newidx = p_ProxyHideDone->mapFromSource(newidx);
+		ui.treeView->scrollTo(newidx, QAbstractItemView::PositionAtCenter);
 		ui.treeView->edit(newidx);
 		ui.treeView->selectionModel()->setCurrentIndex(newidx, QItemSelectionModel::ClearAndSelect);
 		ui.treeView->resizeColumnToContents(0);
