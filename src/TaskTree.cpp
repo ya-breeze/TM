@@ -406,6 +406,9 @@ TaskItem* TaskTree::getItem(QModelIndex _idx) const
 QModelIndex TaskTree::getItemIndex( const QUuid& _id) const
 {
 	DEBUG("Searching for task with id=" << _id);
+	if( _id.isNull() )
+		return QModelIndex();
+
 	TaskMap::const_iterator it=m_Tasks.find(_id);
 	if( it!=m_Tasks.end() )
 	{
@@ -418,6 +421,9 @@ QModelIndex TaskTree::getItemIndex( const QUuid& _id) const
 TaskItem* TaskTree::getItem( const QUuid& _id ) const
 {
 //	DEBUG("Searching for task with id=" << _id);
+	if( _id.isNull() )
+		return rootItem.get();
+
 	TaskMap::const_iterator it=m_Tasks.find(_id);
 	if( it!=m_Tasks.end() )
 		return it->second.get();

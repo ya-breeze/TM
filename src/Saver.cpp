@@ -49,10 +49,15 @@ QString Saver::escapeString(const QString& _str)
 	return res;
 }
 
-void Saver::saveTask(std::ofstream& _file, const Task& _task)
+void Saver::saveTask(const Task& _task)
 {
-//	DEBUG(_task.getName() << ":'" << escapeString(_task.getNotes()) << "'");
-	_file << "BEGIN:VTODO" << std::endl
+	QString fname = getHome() + FNAME_TASKS;
+	std::ofstream file((fname + "." + _task.getId()).toUtf8().data(), std::ios::trunc);
+	if( !file )
+		ERROR("Unable to open file '" << fname << "'");
+
+	//	DEBUG(_task.getName() << ":'" << escapeString(_task.getNotes()) << "'");
+	file << "BEGIN:VTODO" << std::endl
 		<< "ID:" << _task.getId().toString().toStdString() << std::endl
 		<< "Name:" << _task.getName().toUtf8().data() << std::endl
 		<< "Notes:" << escapeString(_task.getNotes()).toUtf8().data() << std::endl
@@ -65,7 +70,7 @@ void Saver::saveTask(std::ofstream& _file, const Task& _task)
 		<< "END:VTODO" << std::endl;
 }
 
-void Saver::recurseSave(std::ofstream& _file, const TaskTree& _tree, const QModelIndex& _idx)
+void Saver::recurseSave(const TaskTree& _tree, const QModelIndex& _idx)
 {
 	size_t sz = _tree.rowCount(_idx);
 	for(size_t i=0;i<sz;++i)
@@ -73,10 +78,10 @@ void Saver::recurseSave(std::ofstream& _file, const TaskTree& _tree, const QMode
 		QModelIndex idx = _tree.index(i, 0, _idx);
 		const TaskItem *item = _tree.getItem(idx);
 		Q_ASSERT(item);
-		saveTask(_file, *item);
+		saveTask(*item);
 
 		if( _tree.columnCount(idx) )
-			recurseSave(_file, _tree, idx);
+			recurseSave(_tree, idx);
 	}
 }
 
@@ -85,54 +90,38 @@ void Saver::save(TaskTree& _tree)
 	QString fname = getHome() + FNAME_TASKS;
 	if( !createDirFromFile(fname) )
 		ERROR("Can't create directory for file '" <<fname<<"'")
-	std::ofstream file(fname.toUtf8().data(), std::ios::trunc);
-	if( !file )
-		ERROR("Unable to open file '" << fname << "'");
-
-	recurseSave(file, _tree, QModelIndex());
+	recurseSave(_tree, QModelIndex());
 }
 
 void Saver::restore(TaskTree& _tree, CategoryTree& _cats)
 {
-	QString fname = getHome() + FNAME_TASKS;
-	std::ifstream file(fname.toUtf8().data());
-	if( !file )
-		ERROR("Unable to open file '" << fname << "'");
+	QStringList files = getTaskList();
 
-	size_t line = 0;
-	bool hasStarted = false;
-	Task task;
-	bool someLines = false;
+	TaskMap tasks;
 
-	while( !file.eof() )
+	for(int i=0;i<files.size();i++)
 	{
-		std::string s;
-		std::getline(file, s);
-		++line;
-		if( s.empty() )
-			continue;
+		DEBUG(files[i]);
+		QString fname = getHome() + files[i];
+		std::ifstream file(fname.toUtf8().data());
+		if( file.fail() )
+			ERROR("Unable to open file '" << fname << "'");
 
-		if( s=="BEGIN:VTODO" )
+		Task task;
+		int line = 0;
+		bool someLines = false;
+
+		while( !file.eof() )
 		{
-			if( hasStarted )
-				ERROR("Begin new ToDo while other is not ended on line " << line);
-			hasStarted = true;
-			task = Task();
-			someLines = false;
-		}
-		else if( s=="END:VTODO" )
-		{
-			if( !hasStarted )
-				ERROR("End ToDo while nothing begins on line " << line);
-			hasStarted = false;
-			_tree.addChild(task.getParentId(), task);
-			someLines = false;
-		}
-		else
-		{
-			if( someLines && s[0]==' ' )
+			std::string s;
+			std::getline( file, s );
+			++line;
+			if( s.empty() )
+				continue;
+
+			if( someLines && s[0] == ' ' )
 			{
-				task.setNotes( task.getNotes() + '\n' + QString::fromUtf8( s.c_str() ).mid(1) );
+				task.setNotes( task.getNotes() + '\n' + QString::fromUtf8( s.c_str() ).mid( 1 ) );
 			}
 			else
 			{
@@ -144,7 +133,7 @@ void Saver::restore(TaskTree& _tree, CategoryTree& _cats)
 				}
 				QString id = lst[0];
 				lst.removeFirst();
-				QString value = lst.join(":");
+				QString value = lst.join( ":" );
 
 				if( id == "ID" )
 				{
@@ -168,17 +157,17 @@ void Saver::restore(TaskTree& _tree, CategoryTree& _cats)
 				}
 				else if( id.compare( "DateCreated", Qt::CaseInsensitive ) == 0 )
 				{
-					task.setCreated( QDateTime::fromString(value, Qt::ISODate) );
+					task.setCreated( QDateTime::fromString( value, Qt::ISODate ) );
 					someLines = false;
 				}
 				else if( id.compare( "DateStarted", Qt::CaseInsensitive ) == 0 )
 				{
-					task.setStarted( QDateTime::fromString(value, Qt::ISODate) );
+					task.setStarted( QDateTime::fromString( value, Qt::ISODate ) );
 					someLines = false;
 				}
 				else if( id.compare( "DateFinished", Qt::CaseInsensitive ) == 0 )
 				{
-					task.setFinished( QDateTime::fromString(value, Qt::ISODate) );
+					task.setFinished( QDateTime::fromString( value, Qt::ISODate ) );
 					someLines = false;
 				}
 				else if( id.compare( "PlannedTime", Qt::CaseInsensitive ) == 0 )
@@ -188,20 +177,26 @@ void Saver::restore(TaskTree& _tree, CategoryTree& _cats)
 				}
 				else if( id.compare( "Categories", Qt::CaseInsensitive ) == 0 )
 				{
-					QStringList lst = value.split(";");
+					QStringList lst = value.split( ";" );
 					task.setCategories( lst );
 					someLines = false;
 
 					// Проверим, что такие категории есть
-					for(int i=0;i<lst.size();++i)
+					for( int i = 0; i < lst.size(); ++i )
 						if( !lst[i].isEmpty() )
-							_cats.addCategory( Category(lst[i]) );
+							_cats.addCategory( Category( lst[i] ) );
 				}
 			}
 		}
+
+		tasks[task.getId()] = task;
 	}
 
-	_tree.setChanged(false);
+	// Добавим задачи в дерево
+	while( !tasks.empty() )
+		recurseAddTasks(_tree, tasks.begin()->second, tasks);
+
+	_tree.setChanged( false );
 }
 
 void Saver::save(const QDate& _date, const DayActivities& _tree)
@@ -330,4 +325,52 @@ Saver::DateSet Saver::getActiveDays()
 	}
 
 	return res;
+}
+
+/// Возвращает список файлов задач
+QStringList	Saver::getTaskList()
+{
+	QStringList res;
+	QString fname = getHome() + FNAME_TASKS;
+
+	if( !createDirFromFile(fname) )
+		ERROR("Can't create directory for file '" <<fname<<"'");
+
+	fname = fname.left(fname.lastIndexOf("/"));
+
+	QDir dir(fname);
+	dir.setFilter( QDir::Files | QDir::Hidden | QDir::NoSymLinks );
+	QStringList filters;
+	filters << "Tasks.*";
+	dir.setNameFilters( filters );
+
+	QFileInfoList list = dir.entryInfoList();
+	for( int i = 0; i < list.size(); ++i )
+	{
+		QFileInfo fileInfo = list.at(i);
+		res << fileInfo.fileName();
+	}
+
+	return res;
+}
+
+/// Добавляет задачи в дерево таким образом, что родительский узел для _task добавляется перед _task.
+/// После добавления, _task из _tasks удаляется
+void Saver::recurseAddTasks(TaskTree& _tree, Task& _task, TaskMap& _tasks)
+{
+	// А есть ли родитель в дереве?
+	if( _tree.getItem( _task.getParentId() )==NULL )
+	{
+		// Родителя в дереве нет - нужно рекурсивно добавлять
+		TaskMap::iterator it=_tasks.find(_task.getParentId());
+		if( it==_tasks.end() )
+			ERROR("There is no task with id " << _task.getParentId());
+		recurseAddTasks(_tree, it->second, _tasks);
+	}
+
+	// Родитель уже в дереве - смело добавляем потомка
+	_tree.addChild( _task.getParentId(), _task );
+
+	// Теперь можно удалить добавленную задачу
+	_tasks.erase(_task.getId());
 }
