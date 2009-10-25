@@ -13,6 +13,7 @@
 #include <QObject>
 #include <stdexcept>
 #include <sstream>
+#include <QDateTime>
 
 
 //#include <map>
@@ -41,5 +42,11 @@ inline std::ostream& operator<<(std::ostream& _os, const QString& _s)
 bool createDirFromFile( const char* );
 /// Создаёт указанный каталог по имени файла, включая вышележащие каталоги. Возвращает true если удалось
 bool createDirFromFile( const QString& );
+
+/// \brief Формирует строку для отображения времени начала задачи
+///
+/// Выводит дату _date относительно переданной даты _now в более простом для человека виде.
+/// Например: "завтра", "послезавтра", "на неделе" и т.д.
+QString prettyDate( const QDateTime& _now, const QDateTime& _date);
 
 #endif /* UTILS_H_ */

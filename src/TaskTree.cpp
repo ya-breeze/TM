@@ -190,7 +190,13 @@ QVariant TaskTree::data( const QModelIndex &index, int role ) const
 				if( !item->getFinished().isNull() )
 					res += "<Done>";
 				else if( !item->getStarted().isNull() )
-					res += "<Working>";
+				{
+					QDateTime now = QDateTime::currentDateTime();
+					if( now>item->getStarted() )
+						res += tr("<Working>");
+					else
+						res += prettyDate(now, item->getStarted());
+				}
 
 				return res;
 			}
