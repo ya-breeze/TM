@@ -85,9 +85,6 @@
           <attribute name="headerVisible">
            <bool>false</bool>
           </attribute>
-          <attribute name="headerVisible">
-           <bool>false</bool>
-          </attribute>
          </widget>
         </item>
         <item>
@@ -166,7 +163,7 @@
        </layout>
       </widget>
       <widget class="QWidget" name="page_2">
-       <layout class="QVBoxLayout" name="verticalLayout_6">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
          <widget class="QLabel" name="label">
           <property name="text">
@@ -186,30 +183,60 @@
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QToolButton" name="btnToTasks">
-            <property name="text">
-             <string>...</string>
-            </property>
-           </widget>
-          </item>
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_5">
-          <item>
-           <widget class="QLabel" name="label_6">
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>Started</string>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="1">
            <widget class="QLabel" name="lblActivityStarted">
             <property name="text">
              <string>----.--.-- --:--</string>
             </property>
            </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_9">
+            <property name="text">
+             <string>Interrupts</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <widget class="QLabel" name="lblInterrupts">
+              <property name="text">
+               <string>0</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="btnAddInterrupt">
+              <property name="minimumSize">
+               <size>
+                <width>50</width>
+                <height>50</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Add interrupt</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>
@@ -259,8 +286,15 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QToolButton" name="btnUpdateTime"/>
+          <item row="0" column="2" rowspan="2">
+           <widget class="QToolButton" name="btnUpdateTime">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>50</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_4">
@@ -269,8 +303,12 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="1" colspan="2">
-           <widget class="QLineEdit" name="leActivityName"/>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="leActivityName">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -603,6 +641,70 @@
     <hint type="sourcelabel">
      <x>71</x>
      <y>318</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>319</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnUpdateTime</sender>
+   <signal>clicked()</signal>
+   <receiver>TabletMain</receiver>
+   <slot>slot_ActStartTime()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>604</x>
+     <y>69</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>319</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnNewActivity</sender>
+   <signal>clicked()</signal>
+   <receiver>TabletMain</receiver>
+   <slot>slot_AddActivity()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>338</x>
+     <y>197</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>319</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rbActivityTask</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>TabletMain</receiver>
+   <slot>slot_ActivityType()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>194</x>
+     <y>148</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>319</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnAddInterrupt</sender>
+   <signal>clicked()</signal>
+   <receiver>TabletMain</receiver>
+   <slot>slot_AddInterrupt()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>603</x>
+     <y>148</y>
     </hint>
     <hint type="destinationlabel">
      <x>319</x>

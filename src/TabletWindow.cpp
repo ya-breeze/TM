@@ -18,7 +18,7 @@
 #include "utils.h"
 
 TabletWindow::TabletWindow(QWidget *parent)
-	: QMainWindow(parent)
+	: QMainWindow(parent), p_LastActs(new LastActs(&m_Tasks, &m_Activities, this))
 {
 	ui.setupUi(this);
 	// Задачи
@@ -26,6 +26,9 @@ TabletWindow::TabletWindow(QWidget *parent)
 	p_ProxyHideDone->setSourceModel(&m_Tasks);
 	p_ProxyHideDone->setDynamicSortFilter(true);
 	ui.treeView->setModel(p_ProxyHideDone);
+
+	// Активности
+	ui.lvLastActivities->setModel( p_LastActs );
 
 	connect( ui.treeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
 			this, SLOT(slot_TaskChanged(const QModelIndex&, const QModelIndex&)) );
@@ -45,6 +48,7 @@ void TabletWindow::slot_SetFocusChrono()
 
 void TabletWindow::slot_SetFocusAddActivity()
 {
+	slot_ActStartTime();
 	ui.stackedWidget->setCurrentIndex(2);
 }
 
@@ -113,12 +117,12 @@ void TabletWindow::slot_Restore()
 		m_Tasks.clear();
 		Saver saver;
 		saver.restore(m_Tasks, m_Cats);
-//		m_Activities.setToday();
+		m_Activities.setToday();
 		ui.treeView->reset();
 		ui.treeView->expandAll();
 		ui.treeView->resizeColumnToContents(0);
 
-//		slot_CurrentActivity();
+		slot_CurrentActivity();
 	}
 	catch(std::exception& ex)
 	{
@@ -136,8 +140,8 @@ void TabletWindow::slot_Save()
 		Saver saver;
 		saver.save(m_Tasks);
 		m_Tasks.setChanged(false);
-//		if( m_Activities.hasChanged() )
-//			m_Activities.save();
+		if( m_Activities.hasChanged() )
+			m_Activities.save();
 	}
 	catch(std::exception& ex)
 	{
@@ -318,4 +322,88 @@ void TabletWindow::closeEvent(QCloseEvent *event)
 	}
 	else
 		QMainWindow::closeEvent(event);
+}
+
+/// Сбрасывает время начала активности в текущее время
+void TabletWindow::slot_ActStartTime()
+{
+	ui.teActivityStartTime->setDateTime( QDateTime::currentDateTime() );
+}
+
+/// Добавляет новую активность
+void TabletWindow::slot_AddActivity()
+{
+	try
+	{
+		Activity act( ui.teActivityStartTime->dateTime() );
+
+		if( ui.rbActivityTask->isChecked() )
+		{
+			QModelIndex proxyidx = ui.treeView->selectionModel()->currentIndex();
+			QModelIndex idx = p_ProxyHideDone->mapToSource(proxyidx);
+
+			TaskItem *item = m_Tasks.getItem(idx);
+			if( !item )
+				ERROR("No one task is specified");
+			act.setAssignedTask(item->getId());
+			act.setName( item->getName() );
+		}
+		else
+		{
+			act.setName(ui.leActivityName->text());
+		}
+		bool setCurrent = true;
+		if( m_Activities.hasCurActivity() && m_Activities.getCurrentActivity().getStartTime()>act.getStartTime() )
+			setCurrent = false;
+		m_Activities.addActivity(act, setCurrent);
+
+		slot_CurrentActivity();
+	}
+	catch(std::exception& _ex)
+	{
+		QMessageBox::critical(this, tr("Can't add activity"), _ex.what());
+	}
+}
+
+void TabletWindow::slot_CurrentActivity()
+{
+	if( !m_Activities.hasCurActivity() )
+		return;
+
+	Activity act = m_Activities.getCurrentActivity();
+	ui.lblCurrentActivity->setText(act.getName());
+	ui.lblActivityStarted->setText( act.getStartTime().toString("yyyy.MM.dd hh:mm") );
+	if( !act.getAssignedTask().isNull() )
+	{
+		TaskItem *item = m_Tasks.getItem(act.getAssignedTask());
+		if( !item )
+			ERROR("Wrong task in activity");
+		ui.lblCurrentActivity->setText(item->getName());
+	}
+	ui.lblInterrupts->setText( QString::number(act.getInterrupts()) );
+}
+
+void TabletWindow::slot_ActivityType()
+{
+	if( ui.rbActivityTask->isChecked() )
+	{
+		ui.leActivityName->setEnabled(false);
+	}
+	else
+	{
+		ui.leActivityName->setEnabled(true);
+	}
+}
+
+/// Добавляет к текущей активности ещё одно прерывание
+void TabletWindow::slot_AddInterrupt()
+{
+	if( !m_Activities.hasCurActivity() )
+		return;
+
+	Activity act = m_Activities.getCurrentActivity();
+	act.addInterrupt();
+	ui.lblInterrupts->setText( QString::number(act.getInterrupts()) );
+
+	m_Activities.updateActivity(act);
 }

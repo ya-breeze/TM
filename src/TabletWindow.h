@@ -15,6 +15,7 @@
 #include "HideDone.h"
 #include "CategoryTree.h"
 #include "Activities.h"
+#include "LastActs.h"
 
 /// Класс главного окна для GUI-таблетки
 class TabletWindow : public QMainWindow
@@ -41,6 +42,16 @@ public slots:
 	void slot_TaskProperties();
 	/// Вызывает диалог настройки фильтров
 	void slot_Filter();
+	/// Сбрасывает время начала активности в текущее время
+	void slot_ActStartTime();
+	/// Добавляет новую активность
+	void slot_AddActivity();
+	/// Выводит текущую активность
+	void slot_CurrentActivity();
+	/// Слот вызываемый при изменении типа добавляемой активности - чтобы делать enabled/disabled имя
+	void slot_ActivityType();
+	/// Добавляет к текущей активности ещё одно прерывание
+	void slot_AddInterrupt();
 
 protected:
 	void closeEvent(QCloseEvent *event);
@@ -50,6 +61,7 @@ protected:
 	TaskTree		m_Tasks;
 	CategoryTree	m_Cats;
 	Activities		m_Activities;
+	LastActs		*p_LastActs;
 
 	HideDone		*p_ProxyHideDone;
 };
