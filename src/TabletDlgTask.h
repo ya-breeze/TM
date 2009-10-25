@@ -20,7 +20,8 @@ class TabletDlgTask : public QDialog
 
 public:
 	TabletDlgTask( QWidget *parent = NULL );
-	void edit(TaskItem *_item, CategoryTree *_cats);
+	/// Отображает диалог редактирования задачи. При accept возвращает true
+	bool edit(TaskItem *_item, CategoryTree *_cats);
 
 protected slots:
 	int exec();

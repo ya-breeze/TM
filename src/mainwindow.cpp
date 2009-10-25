@@ -646,6 +646,7 @@ void TM::slot_TotalCategories()
 	{
 		CategoryEdit dlg(this, &m_Cats);
 		dlg.edit();
+		ui.treeView->scrollTo(ui.treeView->selectionModel()->currentIndex(), QAbstractItemView::PositionAtCenter);
 	}
 	catch(std::exception& ex)
 	{

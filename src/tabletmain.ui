@@ -15,6 +15,9 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="margin">
+     <number>0</number>
+    </property>
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
@@ -68,6 +71,9 @@
       </property>
       <widget class="QWidget" name="page">
        <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="margin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QTreeView" name="treeView">
           <property name="sizePolicy">
@@ -76,6 +82,12 @@
             <verstretch>3</verstretch>
            </sizepolicy>
           </property>
+          <attribute name="headerVisible">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="headerVisible">
+           <bool>false</bool>
+          </attribute>
          </widget>
         </item>
         <item>

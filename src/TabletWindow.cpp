@@ -253,7 +253,6 @@ void TabletWindow::updateTaskProperties( const Task& _task )
 
 void TabletWindow::slot_TaskProperties()
 {
-	TRACE;
 	try
 	{
 		QModelIndex proxyidx = ui.treeView->selectionModel()->currentIndex();
@@ -264,7 +263,12 @@ void TabletWindow::slot_TaskProperties()
 			ERROR("No one task is specified");
 
 		TabletDlgTask dlg(this);
-		dlg.edit( item, &m_Cats );
+		if( dlg.edit( item, &m_Cats ) )
+		{
+			// TODO По хорошему, при изменении данных задачи, TaskTree должен посылать сигнал dataChanged()
+			// Но пока мы этого не делаем - нужно сбросить фильтр
+			p_ProxyHideDone->invalidate();
+		}
 	}
 	catch(std::exception& ex)
 	{

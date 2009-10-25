@@ -18,7 +18,7 @@ TabletDlgTask::TabletDlgTask( QWidget *parent )
 	ui.setupUi(this);
 }
 
-void TabletDlgTask::edit(TaskItem *_item, CategoryTree *_cats)
+bool TabletDlgTask::edit(TaskItem *_item, CategoryTree *_cats)
 {
 	Q_ASSERT(_item && _cats);
 
@@ -47,12 +47,20 @@ void TabletDlgTask::edit(TaskItem *_item, CategoryTree *_cats)
 	ui.lePlannedTime->setText(m_Task->getPlannedTime());
 
 	if( exec()==QDialog::Rejected )
-		return;
+		return false;
 
 	// Теперь изменим текущую задачу
-	m_Task->setCreated(ui.teStartTime->dateTime());
-	m_Task->setFinished( QDateTime::fromString(ui.lblFinishTime->text(), "yyyy.MM.dd H:mm") );
+	if( ui.cbStartedTime->isChecked() )
+		m_Task->setStarted(ui.teStartTime->dateTime());
+	else
+		m_Task->setStarted( QDateTime() );
+	if( ui.cbFinishTime->isChecked() )
+		m_Task->setFinished( QDateTime::fromString(ui.lblFinishTime->text(), "yyyy.MM.dd H:mm") );
+	else
+		m_Task->setFinished( QDateTime() );
 	m_Task->setPlannedTime(ui.lePlannedTime->text());
+
+	return true;
 }
 
 /// Диалог выбора категорий задачи
