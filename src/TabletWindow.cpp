@@ -168,6 +168,7 @@ void TabletWindow::slot_HideNotes()
 
 void TabletWindow::slot_TaskChanged(const QModelIndex& _new, const QModelIndex& _old)
 {
+TRACE;
 	if( _old.isValid() )
 	{
 		QModelIndex idx = p_ProxyHideDone->mapToSource(_old);
@@ -287,6 +288,7 @@ void TabletWindow::slot_Filter()
 		p_ProxyHideDone->setCategories(cats);
 		ui.treeView->expandAll();
 		ui.treeView->resizeColumnToContents(0);
+		ui.treeView->scrollTo(ui.treeView->selectionModel()->currentIndex(), QAbstractItemView::PositionAtCenter);
 
 		DEBUG("Filter cats has " << cats.size());
 	}

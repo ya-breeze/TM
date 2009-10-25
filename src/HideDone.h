@@ -32,8 +32,10 @@ public:
 	bool filterAcceptsRow( int sourceRow, const QModelIndex &sourceParent ) const;
 
 protected:
-	/// Возвращает true, если у переданного узла, или его потомков есть среди категорий текущие
-	bool filterCategories( TaskItem *_item ) const;
+	/// Возвращает true, если переданая задача (без потомков) соответствует заданным условиям
+	bool filterTask( TaskItem *_item ) const;
+	/// Возвращает true, если переданная задача или её потомки соответствует заданным условиям
+	bool filterTaskRecursed( TaskItem *_item ) const;
 };
 
 

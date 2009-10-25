@@ -38,47 +38,63 @@ void HideDone::setCategories(const QStringList& m_Categories)
 
 bool HideDone::filterAcceptsRow( int sourceRow, const QModelIndex &sourceParent ) const
 {
-	// Проверим hideDone
+	TaskTree *tree = dynamic_cast<TaskTree*>(sourceModel());
+	Q_ASSERT(tree);
+
+	QModelIndex index = tree->index( sourceRow, 0, sourceParent );
+	TaskItem *task = tree->getItem(index);
+	Q_ASSERT(task);
+
+	// Что с признаком выполненности?
+	// Тут мы явно проверяем этот признак, хотя он и проверяется в filterTask. Дело в том,
+	// что если родитель завершён, то дальше проверять вообще не нужно, а иначе если
+	// хотя бы один потомок не завершён, то родитель будет показан, хотя это не требуется
 	if( need_HideDone )
 	{
-		QModelIndex index1 = sourceModel()->index( sourceRow, 1, sourceParent );
-		if( sourceModel()->data( index1 ).toString().contains( "<Done>" ) )
+		if( !task->getFinished().isNull() )
 			return false;
 	}
 
-	// Проверим категории
+	return filterTaskRecursed(task);
+}
+
+/// Возвращает true, если переданая задача (без потомков) соответствует заданным условиям
+bool HideDone::filterTask( TaskItem *_item ) const
+{
+	Q_ASSERT(_item);
+
+	// Что с признаком выполненности?
+	if( need_HideDone )
+	{
+		if( !_item->getFinished().isNull() )
+			return false;
+	}
+
+	// Категории
 	if( !m_Categories.empty() )
 	{
-		TaskTree *tree = dynamic_cast<TaskTree*>(sourceModel());
-		Q_ASSERT(tree);
-
-		QModelIndex index = tree->index( sourceRow, 0, sourceParent );
-		TaskItem *task = tree->getItem(index);
-		Q_ASSERT(task);
-		// TODO Тут должно быть чуть хитрее. Например, если у нас есть потомок уже выполненный с установленной категорией,
-		// то мы его всё равно зачтём, а не должны. Видимо нужно идти рекурсивно и спрашивать этой же самой функцией, т.е.
-		// с учётом всех фильтров (в данный момент - признак окончания)
-		if( !filterCategories(task) )
+		// Содержит ли текущая задача?
+		if( !_item->containsCategory(m_Categories) )
 			return false;
 	}
 
 	return true;
 }
 
-/// Возвращает true, если у переданного узла, или его потомков есть среди категорий текущие
-bool HideDone::filterCategories( TaskItem *_item ) const
+/// Возвращает true, если переданная задача или её потомки соответствует заданным условиям
+bool HideDone::filterTaskRecursed( TaskItem *_item ) const
 {
 	Q_ASSERT(_item);
 
 	// Содержит ли текущая задача?
-	if( _item->containsCategory(m_Categories) )
+	if( filterTask(_item) )
 		return true;
 
 	// Содержат ли потомки?
 	for(int i=0; i<_item->childCount(); ++i)
 	{
 		TaskItem *item = _item->child(i);
-		if( filterCategories(item) )
+		if( filterTaskRecursed(item) )
 			return true;
 	}
 
