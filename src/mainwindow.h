@@ -63,6 +63,8 @@ public slots:
 	void slot_HideDone();
 	/// Вызывает диалог для редактирования отображаемых категорий
 	void slot_SelectShowCats();
+	/// Вызывается при изменении текста в фильтре быстрой фильтрации
+	void slot_FastFilter(const QString& _value);
 
 	void slot_MoveUp();
 	void slot_MoveDown();

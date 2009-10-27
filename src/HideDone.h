@@ -16,12 +16,14 @@
 /// \brief Фильтрация задач
 ///
 /// Фильтрация обеспечивается пока по двум параметрам - признаку выполненности и списку категорий
+/// Плюс есть т.н. "быстрый фильтр", т.е. возможность фильтравать по вхождению подстроки
 class HideDone : public QSortFilterProxyModel
 {
 	Q_OBJECT
 
 	bool		need_HideDone;
 	QStringList	m_Categories;
+	QString		str_FastFilter;
 public:
 	HideDone( QObject *parent = NULL );
 
@@ -31,6 +33,8 @@ public:
     void setCategories(const QStringList& m_Categories);
 	bool filterAcceptsRow( int sourceRow, const QModelIndex &sourceParent ) const;
 
+	/// Изменяет используемый быстрый фильтр
+	void setFastFilter( const QString& _value );
 protected:
 	/// Возвращает true, если переданая задача (без потомков) соответствует заданным условиям
 	bool filterTask( TaskItem *_item ) const;

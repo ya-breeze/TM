@@ -78,6 +78,10 @@ bool HideDone::filterTask( TaskItem *_item ) const
 			return false;
 	}
 
+	// Быстрый фильтр
+	if( !str_FastFilter.isEmpty() && !_item->getName().contains(str_FastFilter, Qt::CaseInsensitive) )
+		return false;
+
 	return true;
 }
 
@@ -99,4 +103,11 @@ bool HideDone::filterTaskRecursed( TaskItem *_item ) const
 	}
 
 	return false;
+}
+
+/// Изменяет используемый быстрый фильтр
+void HideDone::setFastFilter( const QString& _value )
+{
+	str_FastFilter = _value;
+	invalidate();
 }

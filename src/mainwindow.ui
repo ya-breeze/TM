@@ -46,13 +46,23 @@
           </widget>
          </item>
          <item>
+          <widget class="QCheckBox" name="cbHideDone">
+           <property name="text">
+            <string>Hide done</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <item>
-            <widget class="QCheckBox" name="cbHideDone">
+            <widget class="QLabel" name="label_14">
              <property name="text">
-              <string>Hide done</string>
+              <string>Fast filter</string>
              </property>
             </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="leFastFilter"/>
            </item>
            <item>
             <widget class="QPushButton" name="btnShownCategories">
@@ -625,6 +635,22 @@
    <hints>
     <hint type="sourcelabel">
      <x>250</x>
+     <y>419</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>363</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>leFastFilter</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>TMClass</receiver>
+   <slot>slot_FastFilter(const QString&amp;)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>134</x>
      <y>419</y>
     </hint>
     <hint type="destinationlabel">

@@ -673,3 +673,10 @@ void TM::slot_SelectShowCats()
 		QMessageBox::critical(this, tr("Error"), ex.what());
 	}
 }
+
+/// Вызывается при изменении текста в фильтре быстрой фильтрации
+void TM::slot_FastFilter(const QString& _value)
+{
+	p_ProxyHideDone->setFastFilter(_value);
+	ui.treeView->expandAll();
+}
