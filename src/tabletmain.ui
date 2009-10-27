@@ -118,6 +118,29 @@
            </widget>
           </item>
           <item>
+           <widget class="QLabel" name="label_6">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Fast Filter</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="leFastFIlter">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="btnHideNotes"/>
           </item>
           <item>
@@ -705,6 +728,22 @@
     <hint type="sourcelabel">
      <x>603</x>
      <y>148</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>319</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>leFastFIlter</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>TabletMain</receiver>
+   <slot>slot_FastFilter(const QString&amp;)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>277</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
      <x>319</x>

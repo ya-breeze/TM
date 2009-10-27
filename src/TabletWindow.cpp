@@ -407,3 +407,10 @@ void TabletWindow::slot_AddInterrupt()
 
 	m_Activities.updateActivity(act);
 }
+
+/// Вызывается при изменении текста в фильтре быстрой фильтрации
+void TabletWindow::slot_FastFilter(const QString& _value)
+{
+	p_ProxyHideDone->setFastFilter(_value);
+	ui.treeView->expandAll();
+}

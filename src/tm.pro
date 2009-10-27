@@ -5,7 +5,8 @@ QT += core \
     gui \
     network
 INCLUDEPATH += qtsingleapp
-HEADERS += Category.h \
+HEADERS += Filter.h \
+    Category.h \
     PlannedTime.h \
     TimeScale.h \
     HideDone.h \
@@ -27,7 +28,8 @@ HEADERS += Category.h \
     CategoryTree.h \
     TabletDlgTask.h \
     CategoryEdit.h
-SOURCES += HideDone.cpp \
+SOURCES += Filter.cpp \
+    HideDone.cpp \
     Category.cpp \
     PlannedTime.cpp \
     TimeScale.cpp \

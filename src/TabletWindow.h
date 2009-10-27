@@ -52,6 +52,8 @@ public slots:
 	void slot_ActivityType();
 	/// Добавляет к текущей активности ещё одно прерывание
 	void slot_AddInterrupt();
+	/// Вызывается при изменении текста в фильтре быстрой фильтрации
+	void slot_FastFilter(const QString& _value);
 
 protected:
 	void closeEvent(QCloseEvent *event);
