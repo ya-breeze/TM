@@ -74,7 +74,7 @@ bool HideDone::filterTask( TaskItem *_item ) const
 	if( !m_Categories.empty() )
 	{
 		// Содержит ли текущая задача?
-		if( !_item->containsCategory(m_Categories) )
+		if( !_item->containsCategory(m_Categories) && !checkStartDate(_item) )
 			return false;
 	}
 
@@ -110,4 +110,26 @@ void HideDone::setFastFilter( const QString& _value )
 {
 	str_FastFilter = _value;
 	invalidate();
+}
+
+/// Проверяет категории на основе даты начала задачи - TM-REQ-047
+bool HideDone::checkStartDate( TaskItem *_item ) const
+{
+	QDateTime now = QDateTime::currentDateTime();
+
+	// Время:День
+	if( now.date()==_item->getStarted().date() )
+	{
+		if( m_Categories.contains(QString::fromUtf8("Время:День"), Qt::CaseInsensitive) )
+				return true;
+	}
+
+	// Время:Неделя
+	if( now.date().year()==_item->getStarted().date().year() && now.date().weekNumber()==_item->getStarted().date().weekNumber() )
+	{
+		if( m_Categories.contains(QString::fromUtf8("Время:Неделя"), Qt::CaseInsensitive) )
+				return true;
+	}
+
+	return false;
 }

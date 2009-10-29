@@ -40,6 +40,8 @@ protected:
 	bool filterTask( TaskItem *_item ) const;
 	/// Возвращает true, если переданная задача или её потомки соответствует заданным условиям
 	bool filterTaskRecursed( TaskItem *_item ) const;
+	/// Проверяет категории на основе даты начала задачи - TM-REQ-047
+	bool checkStartDate( TaskItem *_item ) const;
 };
 
 
