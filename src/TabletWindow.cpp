@@ -413,4 +413,5 @@ void TabletWindow::slot_FastFilter(const QString& _value)
 {
 	p_ProxyHideDone->setFastFilter(_value);
 	ui.treeView->expandAll();
+	ui.treeView->scrollTo(ui.treeView->selectionModel()->currentIndex(), QAbstractItemView::PositionAtCenter);
 }
