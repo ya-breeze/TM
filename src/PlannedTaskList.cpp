@@ -79,6 +79,7 @@ QVariant PlannedTaskList::data( const QModelIndex& _idx, int role ) const
 		// Выделим сегодняшний день
 		if( m_Start.addDays( _idx.column() ) == QDate::currentDate() )
 		{
+			return QBrush( QColor( "#cccccc" ) );
 			return QBrush( QColor( "#c1ffc1" ) );
 		}
 		// Выделим выходные

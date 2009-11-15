@@ -49,6 +49,9 @@ public:
 
 	/// Возвращает true, если среди категорий задачи содержится хотя бы одна категория из переданного списка
 	bool		containsCategory(const QStringList& _lst) const;
+
+	/// Возвращает время запланированного окончания задачи. Фактически getStartTime()+plannedTime
+	QDateTime	getPlannedFinish() const;
 private:
 	TaskItemVec		childItems;
 	TaskItem		*parentItem;

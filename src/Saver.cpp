@@ -101,7 +101,7 @@ void Saver::restore(TaskTree& _tree, CategoryTree& _cats)
 
 	for(int i=0;i<files.size();i++)
 	{
-		DEBUG(files[i]);
+//		DEBUG(files[i]);
 		QString fname = getHome() + files[i];
 		std::ifstream file(fname.toUtf8().data());
 		if( file.fail() )

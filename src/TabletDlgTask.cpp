@@ -60,6 +60,9 @@ bool TabletDlgTask::edit(TaskItem *_item, CategoryTree *_cats)
 		m_Task->setFinished( QDateTime() );
 	m_Task->setPlannedTime(ui.lePlannedTime->text());
 
+	// TODO Пошлём сигнал об изменении данных
+
+
 	return true;
 }
 

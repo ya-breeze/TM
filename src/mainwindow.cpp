@@ -20,6 +20,8 @@ TM::TM(QWidget *parent)
 	p_ProxyHideDone->setDynamicSortFilter(true);
 	ui.treeView->setModel(p_ProxyHideDone);
 
+	p_PlannedTasks = new PlannedTaskList(&m_Tasks, this);
+
 	// Активности
 	ui.lvLastActivities->setModel( p_LastActs );
 

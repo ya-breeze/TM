@@ -13,6 +13,7 @@
 #include "LastActs.h"
 #include "HideDone.h"
 #include "CategoryTree.h"
+#include "PlannedTaskList.h"
 
 class TM : public QMainWindow
 {
@@ -88,6 +89,7 @@ private:
 	Ui::TMClass	ui;
 	TaskTree	m_Tasks;
 	CategoryTree m_Cats;
+	PlannedTaskList	*p_PlannedTasks;
 
 	Activities	m_Activities;
 	LastActs	*p_LastActs;

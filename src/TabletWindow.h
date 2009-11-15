@@ -16,6 +16,7 @@
 #include "CategoryTree.h"
 #include "Activities.h"
 #include "LastActs.h"
+#include "PlannedTaskList.h"
 
 /// Класс главного окна для GUI-таблетки
 class TabletWindow : public QMainWindow
@@ -29,6 +30,7 @@ public slots:
 	void slot_SetFocusTasks();
 	void slot_SetFocusChrono();
 	void slot_SetFocusAddActivity();
+	void on_btnPlanned_clicked();
 
 	void slot_TaskDelete();
 	void slot_TaskAddChild();
@@ -54,6 +56,19 @@ public slots:
 	void slot_AddInterrupt();
 	/// Вызывается при изменении текста в фильтре быстрой фильтрации
 	void slot_FastFilter(const QString& _value);
+	/// При изменении времени начала календаря
+	void on_deStart_dateChanged( const QDate& _date );
+	/// При изменении времени конца календаря
+	void on_deEnd_dateChanged( const QDate& _date );
+	/// При изменении модели календаря
+	void on_PlannedTasks_modelReset();
+
+	/// Сдвигает календарь на сегодняшний день
+	void on_btnToday_clicked();
+	/// Сдвигает календарь на неделю назад
+	void on_btnWeekAgo_clicked();
+	/// Сдвигает календарь на неделю вперед
+	void on_btnWeekAfter_clicked();
 
 protected:
 	void closeEvent(QCloseEvent *event);
@@ -64,6 +79,7 @@ protected:
 	CategoryTree	m_Cats;
 	Activities		m_Activities;
 	LastActs		*p_LastActs;
+	PlannedTaskList	*p_PlannedTasks;
 
 	HideDone		*p_ProxyHideDone;
 };

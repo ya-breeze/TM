@@ -1,11 +1,13 @@
-# DEFINES += TABLET
+ DEFINES += TABLET
 TEMPLATE = app
 TARGET = tm
 QT += core \
     gui \
     network
 INCLUDEPATH += qtsingleapp
-HEADERS += Filter.h \
+HEADERS += PlannedTasks.h \
+    PlannedTaskList.h \
+    Filter.h \
     Category.h \
     PlannedTime.h \
     TimeScale.h \
@@ -28,7 +30,9 @@ HEADERS += Filter.h \
     CategoryTree.h \
     TabletDlgTask.h \
     CategoryEdit.h
-SOURCES += Filter.cpp \
+SOURCES += PlannedTasks.cpp \
+    PlannedTaskList.cpp \
+    Filter.cpp \
     HideDone.cpp \
     Category.cpp \
     PlannedTime.cpp \
@@ -51,7 +55,8 @@ SOURCES += Filter.cpp \
     CategoryTree.cpp \
     TabletDlgTask.cpp \
     CategoryEdit.cpp
-FORMS += tabletmain.ui \
+FORMS += PlannedTasks.ui \
+    tabletmain.ui \
     mainwindow.ui \
     TabletDlgTask.ui \
     CatEdit.ui

@@ -20,12 +20,22 @@
 TabletWindow::TabletWindow(QWidget *parent)
 	: QMainWindow(parent), p_LastActs(new LastActs(&m_Tasks, &m_Activities, this))
 {
-	ui.setupUi(this);
-	// Задачи
 	p_ProxyHideDone = new HideDone(this);
 	p_ProxyHideDone->setSourceModel(&m_Tasks);
 	p_ProxyHideDone->setDynamicSortFilter(true);
+
+	p_PlannedTasks = new PlannedTaskList(&m_Tasks, this);
+	p_PlannedTasks->setObjectName("PlannedTasks");
+
+
+	ui.setupUi(this);
+
+	// Задачи
 	ui.treeView->setModel(p_ProxyHideDone);
+
+	ui.tblPlannedTasks->setModel(p_PlannedTasks);
+	ui.deStart->setDate(p_PlannedTasks->startDate());
+	ui.deEnd->setDate(p_PlannedTasks->endDate());
 
 	// Активности
 	ui.lvLastActivities->setModel( p_LastActs );
@@ -39,6 +49,15 @@ TabletWindow::TabletWindow(QWidget *parent)
 void TabletWindow::slot_SetFocusTasks()
 {
 	ui.stackedWidget->setCurrentIndex(0);
+}
+
+void TabletWindow::on_btnPlanned_clicked()
+{
+	ui.stackedWidget->setCurrentIndex(3);
+	ui.tblPlannedTasks->resizeColumnsToContents();
+	ui.tblPlannedTasks->resizeRowsToContents();
+
+	ui.tblPlannedTasks->scrollTo( p_PlannedTasks->index(8, 0, QModelIndex()), QAbstractItemView::PositionAtTop);
 }
 
 void TabletWindow::slot_SetFocusChrono()
@@ -273,6 +292,7 @@ void TabletWindow::slot_TaskProperties()
 			// TODO По хорошему, при изменении данных задачи, TaskTree должен посылать сигнал dataChanged()
 			// Но пока мы этого не делаем - нужно сбросить фильтр
 			p_ProxyHideDone->invalidate();
+			p_PlannedTasks->on_modelReset();
 		}
 	}
 	catch(std::exception& ex)
@@ -414,4 +434,55 @@ void TabletWindow::slot_FastFilter(const QString& _value)
 	p_ProxyHideDone->setFastFilter(_value);
 	ui.treeView->expandAll();
 	ui.treeView->scrollTo(ui.treeView->selectionModel()->currentIndex(), QAbstractItemView::PositionAtCenter);
+}
+
+/// При изменении времени начала календаря
+void TabletWindow::on_deStart_dateChanged( const QDate& _date )
+{
+	p_PlannedTasks->setStartDate(_date);
+	on_PlannedTasks_modelReset();
+}
+
+/// При изменении времени конца календаря
+void TabletWindow::on_deEnd_dateChanged( const QDate& _date )
+{
+	p_PlannedTasks->setEndDate(_date);
+	on_PlannedTasks_modelReset();
+}
+
+/// При изменении модели календаря
+void TabletWindow::on_PlannedTasks_modelReset()
+{
+	ui.tblPlannedTasks->resizeColumnsToContents();
+	ui.tblPlannedTasks->resizeRowsToContents();
+}
+
+/// Сдвигает календарь на сегодняшний день
+void TabletWindow::on_btnToday_clicked()
+{
+	int days = p_PlannedTasks->columnCount( QModelIndex() );
+	p_PlannedTasks->setStartDate( QDate::currentDate() );
+	p_PlannedTasks->setEndDate(p_PlannedTasks->startDate().addDays(days));
+
+	on_PlannedTasks_modelReset();
+}
+
+/// Сдвигает календарь на неделю назад
+void TabletWindow::on_btnWeekAgo_clicked()
+{
+	int days = p_PlannedTasks->columnCount( QModelIndex() );
+	p_PlannedTasks->setStartDate( p_PlannedTasks->startDate().addDays(-7) );
+	p_PlannedTasks->setEndDate(p_PlannedTasks->startDate().addDays(days));
+
+	on_PlannedTasks_modelReset();
+}
+
+/// Сдвигает календарь на неделю вперед
+void TabletWindow::on_btnWeekAfter_clicked()
+{
+	int days = p_PlannedTasks->columnCount( QModelIndex() );
+	p_PlannedTasks->setStartDate( p_PlannedTasks->startDate().addDays(+7) );
+	p_PlannedTasks->setEndDate(p_PlannedTasks->startDate().addDays(days));
+
+	on_PlannedTasks_modelReset();
 }

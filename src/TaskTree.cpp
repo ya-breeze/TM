@@ -10,6 +10,7 @@
 #include <QMimeData>
 #include <QMessageBox>
 #include <QApplication>
+#include <QRegExp>
 
 #include "utils.h"
 
@@ -709,4 +710,35 @@ bool TaskItem::containsCategory(const QStringList& _lst) const
 	}
 
 	return false;
+}
+
+/// Возвращает время запланированного окончания задачи. Фактически getStartTime()+plannedTime
+QDateTime TaskItem::getPlannedFinish() const
+{
+//	DEBUG("Task " << getName());
+
+	QDateTime res = getStarted().addSecs(60*60); // one hour
+	QRegExp re("(\\d+)\\s*(d|h)", Qt::CaseInsensitive);
+
+	int pos = re.indexIn(getPlannedTime());
+	if( pos!=-1 )
+	{
+//		DEBUG(re.cap(0).toUtf8().data());
+//		DEBUG(re.cap(1).toUtf8().data());
+//		DEBUG(re.cap(2).toUtf8().data());
+		int value = re.cap(1).toInt();
+		QString multiplier = re.cap(2);
+		if( multiplier=="h" )
+		{
+			res = getStarted().addSecs(60*60 * value);
+		}
+		else if( multiplier=="d" )
+		{
+			res = getStarted().addDays(value);
+		}
+	}
+
+//	DEBUG(getStarted().toString().toUtf8().data() << " - " << res.toString().toUtf8().data());
+
+	return res;
 }
