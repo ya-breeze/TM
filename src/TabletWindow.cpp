@@ -191,7 +191,6 @@ void TabletWindow::slot_HideNotes()
 
 void TabletWindow::slot_TaskChanged(const QModelIndex& _new, const QModelIndex& _old)
 {
-TRACE;
 	if( _old.isValid() )
 	{
 		QModelIndex idx = p_ProxyHideDone->mapToSource(_old);
@@ -485,4 +484,9 @@ void TabletWindow::on_btnWeekAfter_clicked()
 	p_PlannedTasks->setEndDate(p_PlannedTasks->startDate().addDays(days));
 
 	on_PlannedTasks_modelReset();
+}
+
+void TabletWindow::resizeEvent( QResizeEvent * )
+{
+	ui.treeView->scrollTo(ui.treeView->selectionModel()->currentIndex(), QAbstractItemView::PositionAtCenter);
 }

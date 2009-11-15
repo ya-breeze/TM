@@ -71,6 +71,7 @@ public slots:
 	void on_btnWeekAfter_clicked();
 
 protected:
+	void resizeEvent( QResizeEvent * event );
 	void closeEvent(QCloseEvent *event);
 	void updateTaskProperties( const Task& _task );
 
