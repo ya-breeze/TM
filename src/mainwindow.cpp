@@ -513,7 +513,6 @@ void TM::moveTask(Directions _dir)
 
 		ui.treeView->selectionModel()->setCurrentIndex(p_ProxyHideDone->mapFromSource(idx), QItemSelectionModel::ClearAndSelect);
 	}
-
 }
 
 void TM::slot_MoveUp()

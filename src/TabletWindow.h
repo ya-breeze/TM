@@ -23,6 +23,14 @@ class TabletWindow : public QMainWindow
 {
 	Q_OBJECT
 
+	enum Directions
+	{
+		UP,
+		DOWN,
+		RIGHT,
+		LEFT
+	};
+
 public:
 	TabletWindow( QWidget *parent = 0 );
 
@@ -70,10 +78,19 @@ public slots:
 	/// Сдвигает календарь на неделю вперед
 	void on_btnWeekAfter_clicked();
 
+	void slot_MoveUp();
+	void slot_MoveDown();
+	void slot_MoveLeft();
+	void slot_MoveRight();
+
 protected:
 	void resizeEvent( QResizeEvent * event );
 	void closeEvent(QCloseEvent *event);
 	void updateTaskProperties( const Task& _task );
+
+	/// Возвращает индекс задачи, соседней по заданному направлению
+	bool getNeighbourIndex(const QModelIndex& _idx, Directions _dir, QModelIndex &_parent, int &_row);
+	void moveTask(Directions _dir);
 
 	Ui::TabletMain	ui;
 	TaskTree		m_Tasks;

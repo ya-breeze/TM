@@ -10,6 +10,8 @@
 #include <QMessageBox>
 #include <QProcess>
 #include <QCloseEvent>
+#include <QShortcut>
+#include <QKeySequence>
 
 #include "Saver.h"
 
@@ -42,6 +44,12 @@ TabletWindow::TabletWindow(QWidget *parent)
 
 	connect( ui.treeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
 			this, SLOT(slot_TaskChanged(const QModelIndex&, const QModelIndex&)) );
+
+	// Shortcuts
+	new QShortcut(QKeySequence("Ctrl+Up"), this, SLOT(slot_MoveUp()));
+	new QShortcut(QKeySequence("Ctrl+Down"), this, SLOT(slot_MoveDown()));
+	new QShortcut(QKeySequence("Ctrl+Left"), this, SLOT(slot_MoveLeft()));
+	new QShortcut(QKeySequence("Ctrl+Right"), this, SLOT(slot_MoveRight()));
 
 	slot_Restore();
 }
@@ -489,4 +497,117 @@ void TabletWindow::on_btnWeekAfter_clicked()
 void TabletWindow::resizeEvent( QResizeEvent * )
 {
 	ui.treeView->scrollTo(ui.treeView->selectionModel()->currentIndex(), QAbstractItemView::PositionAtCenter);
+}
+
+void TabletWindow::slot_MoveUp()
+{
+	moveTask(UP);
+}
+
+void TabletWindow::slot_MoveDown()
+{
+	moveTask(DOWN);
+}
+
+void TabletWindow::slot_MoveLeft()
+{
+	moveTask(LEFT);
+}
+
+void TabletWindow::slot_MoveRight()
+{
+	moveTask(RIGHT);
+}
+
+void TabletWindow::moveTask(Directions _dir)
+{
+	QModelIndex proxyidx = ui.treeView->selectionModel()->currentIndex();
+	if( !proxyidx.isValid() )
+		return;
+
+	QModelIndex parent;
+	int row, realrow;
+	if( getNeighbourIndex(proxyidx, _dir, parent, row) )
+	{
+		// Нужно преобразовать row из прокси в m_Tasks
+		QModelIndex idx = p_ProxyHideDone->index(row, 0, parent);
+		QModelIndex realparent = p_ProxyHideDone->mapToSource(parent);
+		if( idx.isValid() )
+		{
+			// Уже есть такой элемент, нужно просто получить его row
+			realrow = p_ProxyHideDone->mapToSource(idx).row();
+		}
+		else
+		{
+			// Такого элемента нет, значит добавляем в конец
+			realrow = m_Tasks.rowCount(realparent);
+		}
+
+		idx = m_Tasks.moveTask(p_ProxyHideDone->mapToSource(proxyidx), realparent, realrow);
+		m_Tasks.setChanged();
+
+		ui.treeView->selectionModel()->setCurrentIndex(p_ProxyHideDone->mapFromSource(idx), QItemSelectionModel::ClearAndSelect);
+	}
+}
+
+
+bool TabletWindow::getNeighbourIndex(const QModelIndex& _idx, Directions _dir, QModelIndex &_parent, int &_row)
+{
+	if( !_idx.isValid() )
+		return false;
+
+	bool res = false;
+	QModelIndex parent = p_ProxyHideDone->parent(_idx);
+	switch( _dir )
+	{
+		case UP :
+		{
+			if( _idx.row() )
+			{
+				_parent = parent;
+				_row = _idx.row()-1;
+				res = true;
+			}
+		}
+		break;
+
+		case DOWN :
+		{
+			if( _idx.row()!=p_ProxyHideDone->rowCount(parent)-1 )
+			{
+				_parent = parent;
+				_row = _idx.row()+2;
+				res = true;
+			}
+		}
+		break;
+
+		case LEFT :
+		{
+			if( parent.isValid() )
+			{
+				res = true;
+				QModelIndex grandparent = p_ProxyHideDone->parent(parent);
+				_parent = grandparent;
+				_row = parent.row()+1;
+			}
+		}
+		break;
+
+		case RIGHT :
+		{
+			if( _idx.row() )
+			{
+				res = true;
+				_parent = p_ProxyHideDone->index(_idx.row()-1, 0, parent);
+				_row = p_ProxyHideDone->rowCount(_parent);
+			}
+		}
+		break;
+
+		default:
+			ERROR("Unknown direction");
+	}
+
+	return res;
 }
