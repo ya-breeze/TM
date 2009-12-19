@@ -36,7 +36,6 @@ public:
 
 public slots:
 	void slot_SetFocusTasks();
-	void slot_SetFocusChrono();
 	void slot_SetFocusAddActivity();
 	void on_btnPlanned_clicked();
 
@@ -59,9 +58,9 @@ public slots:
 	/// Выводит текущую активность
 	void slot_CurrentActivity();
 	/// Слот вызываемый при изменении типа добавляемой активности - чтобы делать enabled/disabled имя
-	void slot_ActivityType();
+	void on_rbActivityTask_toggled();
 	/// Добавляет к текущей активности ещё одно прерывание
-	void slot_AddInterrupt();
+	void on_btnAddInterrupt_clicked();
 	/// Вызывается при изменении текста в фильтре быстрой фильтрации
 	void slot_FastFilter(const QString& _value);
 	/// При изменении времени начала календаря
@@ -78,11 +77,15 @@ public slots:
 	/// Сдвигает календарь на неделю вперед
 	void on_btnWeekAfter_clicked();
 
+	/// Очищает используемый быстрый фильтр
+	void on_btnClearFastFilter_clicked();
+
 	void slot_MoveUp();
 	void slot_MoveDown();
 	void slot_MoveLeft();
 	void slot_MoveRight();
 
+	void slot_ModelReset();
 protected:
 	void resizeEvent( QResizeEvent * event );
 	void closeEvent(QCloseEvent *event);

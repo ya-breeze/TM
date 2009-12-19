@@ -34,6 +34,7 @@ TabletWindow::TabletWindow(QWidget *parent)
 
 	// Задачи
 	ui.treeView->setModel(p_ProxyHideDone);
+	connect(p_ProxyHideDone, SIGNAL(layoutChanged()), this, SLOT(slot_ModelReset()));
 
 	ui.tblPlannedTasks->setModel(p_PlannedTasks);
 	ui.deStart->setDate(p_PlannedTasks->startDate());
@@ -41,6 +42,8 @@ TabletWindow::TabletWindow(QWidget *parent)
 
 	// Активности
 	ui.lvLastActivities->setModel( p_LastActs );
+	ui.rbActivityTask->setChecked(false);
+	ui.rbActivityTask->setChecked(true);
 
 	connect( ui.treeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
 			this, SLOT(slot_TaskChanged(const QModelIndex&, const QModelIndex&)) );
@@ -61,22 +64,17 @@ void TabletWindow::slot_SetFocusTasks()
 
 void TabletWindow::on_btnPlanned_clicked()
 {
-	ui.stackedWidget->setCurrentIndex(3);
+	ui.stackedWidget->setCurrentIndex(2);
 	ui.tblPlannedTasks->resizeColumnsToContents();
 	ui.tblPlannedTasks->resizeRowsToContents();
 
 	ui.tblPlannedTasks->scrollTo( p_PlannedTasks->index(8, 0, QModelIndex()), QAbstractItemView::PositionAtTop);
 }
 
-void TabletWindow::slot_SetFocusChrono()
-{
-	ui.stackedWidget->setCurrentIndex(1);
-}
-
 void TabletWindow::slot_SetFocusAddActivity()
 {
 	slot_ActStartTime();
-	ui.stackedWidget->setCurrentIndex(2);
+	ui.stackedWidget->setCurrentIndex(1);
 }
 
 void TabletWindow::slot_TaskDelete()
@@ -199,6 +197,7 @@ void TabletWindow::slot_HideNotes()
 
 void TabletWindow::slot_TaskChanged(const QModelIndex& _new, const QModelIndex& _old)
 {
+	TRACE;
 	if( _old.isValid() )
 	{
 		QModelIndex idx = p_ProxyHideDone->mapToSource(_old);
@@ -242,6 +241,9 @@ void TabletWindow::slot_TaskChanged(const QModelIndex& _new, const QModelIndex& 
 	{
 		ui.Notes->setText("");
 	}
+
+	ui.rbActivityOther->setChecked(true);
+	ui.rbActivityTask->setChecked(_new.isValid());
 }
 
 void TabletWindow::updateTaskProperties( const Task& _task )
@@ -410,20 +412,34 @@ void TabletWindow::slot_CurrentActivity()
 	ui.lblInterrupts->setText( QString::number(act.getInterrupts()) );
 }
 
-void TabletWindow::slot_ActivityType()
+void TabletWindow::on_rbActivityTask_toggled()
 {
 	if( ui.rbActivityTask->isChecked() )
 	{
+		QModelIndex proxyidx = ui.treeView->selectionModel()->currentIndex();
+		QModelIndex idx = p_ProxyHideDone->mapToSource(proxyidx);
+
+		TaskItem *item = m_Tasks.getItem(idx);
+		if( item )
+		{
+			ui.leActivityName->setText(item->getName());
+		}
+		else
+		{
+			ui.leActivityName->setText("<No task selected>");
+		}
+
 		ui.leActivityName->setEnabled(false);
 	}
 	else
 	{
 		ui.leActivityName->setEnabled(true);
+		ui.leActivityName->setText("");
 	}
 }
 
 /// Добавляет к текущей активности ещё одно прерывание
-void TabletWindow::slot_AddInterrupt()
+void TabletWindow::on_btnAddInterrupt_clicked()
 {
 	if( !m_Activities.hasCurActivity() )
 		return;
@@ -614,4 +630,16 @@ bool TabletWindow::getNeighbourIndex(const QModelIndex& _idx, Directions _dir, Q
 	}
 
 	return res;
+}
+
+/// Очищает используемый быстрый фильтр
+void TabletWindow::on_btnClearFastFilter_clicked()
+{
+	ui.leFastFIlter->setText("");
+}
+
+void TabletWindow::slot_ModelReset()
+{
+	QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
+	slot_TaskChanged(idx, QModelIndex());
 }
