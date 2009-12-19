@@ -59,47 +59,62 @@ bool HideDone::filterAcceptsRow( int sourceRow, const QModelIndex &sourceParent 
 }
 
 /// Возвращает true, если переданая задача (без потомков) соответствует заданным условиям
-bool HideDone::filterTask( TaskItem *_item ) const
+HideDone::MatchFilter HideDone::filterTask( TaskItem *_item ) const
 {
 	Q_ASSERT(_item);
 
 	// Что с признаком выполненности?
 	if( need_HideDone )
 	{
+		// Если тут стоит признак завершённости, то дальше потомков смотреть не нужно, а
+		// следовательно, нужно наверх сказать, об этом
 		if( !_item->getFinished().isNull() )
-			return false;
+			return MF_DOESNT_MATCH;
 	}
 
 	// Категории
 	if( !m_Categories.empty() )
 	{
-		// Содержит ли текущая задача?
+		// Содержит ли текущая задача? Если не содержит, то может содержать потомок
 		if( !_item->containsCategory(m_Categories) && !checkStartDate(_item) )
-			return false;
+			return MF_UNKNOWN;
 	}
 
-	// Быстрый фильтр
+	// Быстрый фильтр. Если не совпадает, то может совпадать потомок
 	if( !str_FastFilter.isEmpty() && !_item->getName().contains(str_FastFilter, Qt::CaseInsensitive) )
-		return false;
+		return MF_UNKNOWN;
 
-	return true;
+	return MF_MATCH;
 }
 
 /// Возвращает true, если переданная задача или её потомки соответствует заданным условиям
 bool HideDone::filterTaskRecursed( TaskItem *_item ) const
 {
 	Q_ASSERT(_item);
+//	DEBUG(__LINE__ << " " << _item->getName());
 
 	// Содержит ли текущая задача?
-	if( filterTask(_item) )
+	if( filterTask(_item)==MF_MATCH )
+	{
+//		DEBUG(_item->getName() << " this true");
 		return true;
+	}
+	else if( filterTask(_item)==MF_DOESNT_MATCH )
+	{
+//		DEBUG(_item->getName() << " this doesnt match");
+		return false;
+	}
+
 
 	// Содержат ли потомки?
 	for(int i=0; i<_item->childCount(); ++i)
 	{
 		TaskItem *item = _item->child(i);
 		if( filterTaskRecursed(item) )
+		{
+//			DEBUG(item->getName() << " child  true");
 			return true;
+		}
 	}
 
 	return false;

@@ -25,6 +25,13 @@ class HideDone : public QSortFilterProxyModel
 	QStringList	m_Categories;
 	QString		str_FastFilter;
 public:
+	enum MatchFilter
+	{
+		MF_MATCH,
+		MF_DOESNT_MATCH,
+		MF_UNKNOWN
+	};
+
 	HideDone( QObject *parent = NULL );
 
 	bool getHideDone() const;
@@ -37,7 +44,7 @@ public:
 	void setFastFilter( const QString& _value );
 protected:
 	/// Возвращает true, если переданая задача (без потомков) соответствует заданным условиям
-	bool filterTask( TaskItem *_item ) const;
+	MatchFilter filterTask( TaskItem *_item ) const;
 	/// Возвращает true, если переданная задача или её потомки соответствует заданным условиям
 	bool filterTaskRecursed( TaskItem *_item ) const;
 	/// Проверяет категории на основе даты начала задачи - TM-REQ-047
