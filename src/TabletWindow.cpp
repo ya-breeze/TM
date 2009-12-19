@@ -166,7 +166,7 @@ void TabletWindow::slot_Save()
 
 		Saver saver;
 		saver.save(m_Tasks);
-		m_Tasks.setChanged(false);
+//		m_Tasks.setChanged(false);
 		if( m_Activities.hasChanged() )
 			m_Activities.save();
 	}
@@ -210,7 +210,7 @@ void TabletWindow::slot_TaskChanged(const QModelIndex& _new, const QModelIndex& 
 		if( item->getNotes()!=s )
 		{
 			item->setNotes(s);
-			m_Tasks.setChanged();
+//			m_Tasks.setChanged();
 		}
 
 //		// Время начала
@@ -334,21 +334,21 @@ void TabletWindow::closeEvent(QCloseEvent *event)
 	QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
 	slot_TaskChanged(idx, idx);
 
-	if( m_Tasks.hasChanged() || m_Activities.hasChanged() )
-	{
-		int btn = QMessageBox::question(this, tr("Unsaved data"), tr("Save them?"), QMessageBox::Yes, QMessageBox::No, QMessageBox::Cancel );
-		if( btn==QMessageBox::Cancel )
-		{
-			event->ignore();
-			return;
-		}
-
-		event->accept();
-		if( btn==QMessageBox::Yes )
+//	if( m_Tasks.hasChanged() || m_Activities.hasChanged() )
+//	{
+//		int btn = QMessageBox::question(this, tr("Unsaved data"), tr("Save them?"), QMessageBox::Yes, QMessageBox::No, QMessageBox::Cancel );
+//		if( btn==QMessageBox::Cancel )
+//		{
+//			event->ignore();
+//			return;
+//		}
+//
+//		event->accept();
+//		if( btn==QMessageBox::Yes )
 			slot_Save();
-	}
-	else
-		QMainWindow::closeEvent(event);
+//	}
+//	else
+//		QMainWindow::closeEvent(event);
 }
 
 /// Сбрасывает время начала активности в текущее время
@@ -468,30 +468,34 @@ void TabletWindow::on_PlannedTasks_modelReset()
 void TabletWindow::on_btnToday_clicked()
 {
 	int days = p_PlannedTasks->columnCount( QModelIndex() );
-	p_PlannedTasks->setStartDate( QDate::currentDate() );
-	p_PlannedTasks->setEndDate(p_PlannedTasks->startDate().addDays(days));
-
-	on_PlannedTasks_modelReset();
+	ui.deStart->setDate(QDate::currentDate());
+	ui.deEnd->setDate(QDate::currentDate().addDays(days-1));
 }
 
 /// Сдвигает календарь на неделю назад
 void TabletWindow::on_btnWeekAgo_clicked()
 {
 	int days = p_PlannedTasks->columnCount( QModelIndex() );
-	p_PlannedTasks->setStartDate( p_PlannedTasks->startDate().addDays(-7) );
-	p_PlannedTasks->setEndDate(p_PlannedTasks->startDate().addDays(days));
-
-	on_PlannedTasks_modelReset();
+	ui.deStart->setDate( ui.deStart->date().addDays(-7) );
+	ui.deEnd->setDate(  ui.deStart->date().addDays(days-1)  );
+//
+//	p_PlannedTasks->setStartDate( p_PlannedTasks->startDate().addDays(-7) );
+//	p_PlannedTasks->setEndDate(p_PlannedTasks->startDate().addDays(days));
+//
+//	on_PlannedTasks_modelReset();
 }
 
 /// Сдвигает календарь на неделю вперед
 void TabletWindow::on_btnWeekAfter_clicked()
 {
 	int days = p_PlannedTasks->columnCount( QModelIndex() );
-	p_PlannedTasks->setStartDate( p_PlannedTasks->startDate().addDays(+7) );
-	p_PlannedTasks->setEndDate(p_PlannedTasks->startDate().addDays(days));
-
-	on_PlannedTasks_modelReset();
+	ui.deStart->setDate( ui.deStart->date().addDays(+7) );
+	ui.deEnd->setDate(  ui.deStart->date().addDays(days-1)  );
+//	int days = p_PlannedTasks->columnCount( QModelIndex() );
+//	p_PlannedTasks->setStartDate( p_PlannedTasks->startDate().addDays(+7) );
+//	p_PlannedTasks->setEndDate(p_PlannedTasks->startDate().addDays(days));
+//
+//	on_PlannedTasks_modelReset();
 }
 
 void TabletWindow::resizeEvent( QResizeEvent * )
@@ -544,7 +548,7 @@ void TabletWindow::moveTask(Directions _dir)
 		}
 
 		idx = m_Tasks.moveTask(p_ProxyHideDone->mapToSource(proxyidx), realparent, realrow);
-		m_Tasks.setChanged();
+//		m_Tasks.setChanged();
 
 		ui.treeView->selectionModel()->setCurrentIndex(p_ProxyHideDone->mapFromSource(idx), QItemSelectionModel::ClearAndSelect);
 	}

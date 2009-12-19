@@ -155,7 +155,7 @@ TaskItem *TaskItem::parent()
 
 
 TaskTree::TaskTree( QObject *parent )
-	: QAbstractItemModel(parent), ChangableObject()
+	: QAbstractItemModel(parent)//, ChangableObject()
 {
 	rootItem = PtrTaskItem( new TaskItem(NULL) );
 	rootItem->setId("{00000000-0000-0000-0000-000000000000}");
@@ -287,7 +287,7 @@ void TaskTree::clear()
 {
 	m_Tasks.clear();
 
-	setChanged();
+//	setChanged();
 	reset();
 }
 
@@ -309,7 +309,7 @@ QModelIndex TaskTree::addChild( const QModelIndex &_index, const Task& _task )
 	m_Tasks[item->getId()] = item;
 	endInsertRows();
 
-	setChanged();
+//	setChanged();
 	return createIndex(item->row(), 0, item.get());
 }
 
@@ -360,7 +360,7 @@ QModelIndex TaskTree::addSibling( const QModelIndex &_index, const Task& _task )
 	m_Tasks[item->getId()] = item;
 	endInsertRows();
 
-	setChanged();
+//	setChanged();
 	return createIndex(item->row(), 0, item.get());
 }
 
@@ -398,7 +398,7 @@ void TaskTree::delItem( const QModelIndex &_index )
 	m_Tasks.erase(item->getId());
 	endRemoveRows();
 
-	setChanged();
+//	setChanged();
 }
 
 TaskItem* TaskTree::getItem(QModelIndex _idx) const
@@ -492,7 +492,7 @@ void TaskTree::setDataChanged( TaskItem *_item )
 		setDataChanged(_item->child(i));
 	}
 
-	setChanged();
+//	setChanged();
 }
 
 void TaskTree::setDataChanged( const QModelIndex& _index )
@@ -640,7 +640,7 @@ QModelIndex TaskTree::moveTask( const QModelIndex& _task, const QModelIndex& _pa
 		ERROR("Try to move task with invalid index");
 	// TODO Тут надо проверить, что мы НЕ пытаемся вставить элемент внутрь собственных потомков - иначе фигня какая-то получается
 
-	setChanged();
+//	setChanged();
 
 	QModelIndex parentCurr = parent(_task);
 	TaskItem *task = (TaskItem*)(_task.internalPointer());

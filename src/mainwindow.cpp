@@ -248,7 +248,7 @@ void TM::slot_TaskChanged(const QModelIndex& _new, const QModelIndex& _old)
 		if( item->getNotes()!=s )
 		{
 			item->setNotes(s);
-			m_Tasks.setChanged();
+//			m_Tasks.setChanged();
 		}
 
 		// Время начала
@@ -258,14 +258,14 @@ void TM::slot_TaskChanged(const QModelIndex& _new, const QModelIndex& _old)
 		if( startedCur!=item->getStarted() )
 		{
 			item->setStarted(startedCur);
-			m_Tasks.setChanged();
+//			m_Tasks.setChanged();
 		}
 
 		// Планируемое время
 		if( ui.lePlannedTime->text()!=item->getPlannedTime() )
 		{
 			item->setPlannedTime(ui.lePlannedTime->text());
-			m_Tasks.setChanged();
+//			m_Tasks.setChanged();
 		}
 	}
 	if( _new.isValid() )
@@ -291,7 +291,7 @@ void TM::slot_Save()
 
 		Saver saver;
 		saver.save(m_Tasks);
-		m_Tasks.setChanged(false);
+//		m_Tasks.setChanged(false);
 		if( m_Activities.hasChanged() )
 			m_Activities.save();
 	}
@@ -353,21 +353,21 @@ void TM::closeEvent(QCloseEvent *event)
 	QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
 	slot_TaskChanged(idx, idx);
 
-	if( m_Tasks.hasChanged() || m_Activities.hasChanged() )
-	{
-		int btn = QMessageBox::question(this, tr("Unsaved data"), tr("Save them?"), QMessageBox::Yes, QMessageBox::No, QMessageBox::Cancel );
-		if( btn==QMessageBox::Cancel )
-		{
-			event->ignore();
-			return;
-		}
-
-		event->accept();
-		if( btn==QMessageBox::Yes )
+//	if( m_Tasks.hasChanged() || m_Activities.hasChanged() )
+//	{
+//		int btn = QMessageBox::question(this, tr("Unsaved data"), tr("Save them?"), QMessageBox::Yes, QMessageBox::No, QMessageBox::Cancel );
+//		if( btn==QMessageBox::Cancel )
+//		{
+//			event->ignore();
+//			return;
+//		}
+//
+//		event->accept();
+//		if( btn==QMessageBox::Yes )
 			slot_Save();
-	}
-	else
-		QMainWindow::closeEvent(event);
+//	}
+//	else
+//		QMainWindow::closeEvent(event);
 }
 
 void TM::slot_AddActivity()
@@ -509,7 +509,7 @@ void TM::moveTask(Directions _dir)
 		}
 
 		idx = m_Tasks.moveTask(p_ProxyHideDone->mapToSource(proxyidx), realparent, realrow);
-		m_Tasks.setChanged();
+//		m_Tasks.setChanged();
 
 		ui.treeView->selectionModel()->setCurrentIndex(p_ProxyHideDone->mapFromSource(idx), QItemSelectionModel::ClearAndSelect);
 	}

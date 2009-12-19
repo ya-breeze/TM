@@ -89,7 +89,20 @@ void Saver::save(TaskTree& _tree)
 {
 	QString fname = getHome() + FNAME_TASKS;
 	if( !createDirFromFile(fname) )
-		ERROR("Can't create directory for file '" <<fname<<"'")
+		ERROR("Can't create directory for file '" <<fname<<"'");
+
+	// Удалим все файлы задач - мы же их всё равно будем перезаписывать, а если удалим - не
+	// нужно будет думать про удалённые задачи
+	QStringList files = getTaskList();
+	for(int i=0; i<files.size(); ++i)
+	{
+//		DEBUG("Removing " << files[i]);
+		if( !QFile::remove(getHome() + files[i]) )
+			DEBUG("Can't remove task " << files[i] << " - check permissions");
+	}
+
+
+	// Сохраним
 	recurseSave(_tree, QModelIndex());
 }
 
@@ -196,7 +209,7 @@ void Saver::restore(TaskTree& _tree, CategoryTree& _cats)
 	while( !tasks.empty() )
 		recurseAddTasks(_tree, tasks.begin()->second, tasks);
 
-	_tree.setChanged( false );
+//	_tree.setChanged( false );
 }
 
 void Saver::save(const QDate& _date, const DayActivities& _tree)

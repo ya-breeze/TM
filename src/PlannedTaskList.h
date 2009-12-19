@@ -46,6 +46,7 @@ public:
 	QDate startDate() const;
 	void setEndDate( const QDate& _date);
 	QDate endDate() const;
+	void setDateRange( const QDate& _start,  const QDate& _end );
 
 public slots:
 	void on_rowsInserted( const QModelIndex & parent, int start, int end );

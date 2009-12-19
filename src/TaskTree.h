@@ -23,7 +23,7 @@
 
 
 /// \brief Класс, хранящий данные о одной задаче
-class TaskItem : public Task
+class TaskItem : public Task, public ChangableObject
 {
 public:
 	typedef std::deque<TaskItem*>		TaskItemVec;
@@ -59,7 +59,7 @@ private:
 typedef shared_ptr<TaskItem>	PtrTaskItem;
 
 
-class TaskTree : public QAbstractItemModel, public ChangableObject
+class TaskTree : public QAbstractItemModel
 {
 	Q_OBJECT
 

@@ -1,4 +1,4 @@
-# DEFINES += TABLET
+ DEFINES += TABLET
 TEMPLATE = app
 TARGET = tm
 QT += core \

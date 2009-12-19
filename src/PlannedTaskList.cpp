@@ -257,3 +257,10 @@ void PlannedTaskList::recurseAdd( const QModelIndex& _idx )
 			recurseAdd(idx);
 	}
 }
+
+void PlannedTaskList::setDateRange( const QDate& _start,  const QDate& _end )
+{
+	m_Start = _start;
+	m_End = _end;
+	on_modelReset();
+}

@@ -8,9 +8,10 @@
 #ifndef CHANGABLEOBJECT_H_
 #define CHANGABLEOBJECT_H_
 
+/// \brief Класс для работы с изменяемыми объектами
 class ChangableObject
 {
-	bool	has_Changed;
+	bool has_Changed;
 
 public:
 	ChangableObject()
