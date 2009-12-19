@@ -18,6 +18,8 @@
 
 //#include <map>
 
+#define DT_FORMAT	"yyyy.MM.dd hh:mm"
+
 
 inline std::ostream& operator<<(std::ostream& _os, const QString& _s)
 {

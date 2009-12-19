@@ -17,6 +17,8 @@
 
 #include "TabletDlgTask.h"
 #include "CategoryEdit.h"
+#include "CalendarShower.h"
+#include "dlgcalendar.h"
 #include "utils.h"
 
 TabletWindow::TabletWindow(QWidget *parent)
@@ -29,8 +31,12 @@ TabletWindow::TabletWindow(QWidget *parent)
 	p_PlannedTasks = new PlannedTaskList(&m_Tasks, this);
 	p_PlannedTasks->setObjectName("PlannedTasks");
 
-
 	ui.setupUi(this);
+
+	// Подключим календари
+	CalendarShower *cs = new CalendarShower(this);
+	ui.lblActivityStartTime->installEventFilter(cs);
+	connect(cs, SIGNAL(clicked()), this, SLOT(slot_SelectActivityDT()));
 
 	// Задачи
 	ui.treeView->setModel(p_ProxyHideDone);
@@ -355,7 +361,7 @@ void TabletWindow::closeEvent(QCloseEvent *event)
 /// Сбрасывает время начала активности в текущее время
 void TabletWindow::slot_ActStartTime()
 {
-	ui.teActivityStartTime->setDateTime( QDateTime::currentDateTime() );
+	ui.lblActivityStartTime->setText( QDateTime::currentDateTime().toString(DT_FORMAT) );
 }
 
 /// Добавляет новую активность
@@ -363,7 +369,8 @@ void TabletWindow::slot_AddActivity()
 {
 	try
 	{
-		Activity act( ui.teActivityStartTime->dateTime() );
+		QDateTime dt = QDateTime::fromString(ui.lblActivityStartTime->text(), DT_FORMAT);
+		Activity act( dt );
 
 		if( ui.rbActivityTask->isChecked() )
 		{
@@ -641,4 +648,17 @@ void TabletWindow::slot_ModelReset()
 {
 	QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
 	slot_TaskChanged(idx, QModelIndex());
+}
+
+/// Слот для выбора времени начала активности в специальном диалоге
+void TabletWindow::slot_SelectActivityDT()
+{
+	DlgCalendar cal(this);
+	QDateTime dt = QDateTime::fromString(ui.lblActivityStartTime->text(), DT_FORMAT);
+	if( cal.exec(dt) )
+	{
+		TRACE;
+		ui.lblActivityStartTime->setText( cal.dateTime().toString(DT_FORMAT));
+	}
+	TRACE;
 }

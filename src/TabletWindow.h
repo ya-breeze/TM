@@ -85,7 +85,11 @@ public slots:
 	void slot_MoveLeft();
 	void slot_MoveRight();
 
+	/// Вызывается при работе с быстрым фильтром - это единственный способ поймать работу с быстрым фильтром
 	void slot_ModelReset();
+
+	/// Слот для выбора времени начала активности в специальном диалоге
+	void slot_SelectActivityDT();
 protected:
 	void resizeEvent( QResizeEvent * event );
 	void closeEvent(QCloseEvent *event);
