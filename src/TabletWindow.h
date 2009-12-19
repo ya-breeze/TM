@@ -46,7 +46,7 @@ public slots:
 
 	void slot_Restore();
 	void slot_Save();
-	void slot_Sync();
+//	void slot_Sync();
 	void slot_HideNotes();
 	void slot_TaskChanged(const QModelIndex& _new, const QModelIndex& _old);
 	void slot_TaskProperties();

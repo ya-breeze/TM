@@ -72,7 +72,7 @@ public slots:
 	void slot_MoveLeft();
 	void slot_MoveRight();
 
-	void slot_Sync();
+//	void slot_Sync();
 
 	/// Вызывает диалог для правки списка категорий
 	void slot_TotalCategories();

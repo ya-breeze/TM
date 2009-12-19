@@ -602,21 +602,21 @@ bool TM::getNeighbourIndex(const QModelIndex& _idx, Directions _dir, QModelIndex
 	return res;
 }
 
-void TM::slot_Sync()
-{
-	slot_Save();
-	Saver svr;
-	QProcess process(this);
-	process.setWorkingDirectory(svr.getHome());
-//	process.setStandardOutputFile("/tmp/tmsync.log");
-//	process.setStandardErrorFile("/tmp/tmsync.errors");
-	process.start("./sync", QStringList());
-	if( !process.waitForFinished() )
-	{
-		QMessageBox::critical(this, tr("Sync failed"), tr("Sync failed"));
-	}
-	slot_Restore();
-}
+//void TM::slot_Sync()
+//{
+//	slot_Save();
+//	Saver svr;
+//	QProcess process(this);
+//	process.setWorkingDirectory(svr.getHome());
+////	process.setStandardOutputFile("/tmp/tmsync.log");
+////	process.setStandardErrorFile("/tmp/tmsync.errors");
+//	process.start("./sync", QStringList());
+//	if( !process.waitForFinished() )
+//	{
+//		QMessageBox::critical(this, tr("Sync failed"), tr("Sync failed"));
+//	}
+//	slot_Restore();
+//}
 
 void TM::slot_Categories()
 {

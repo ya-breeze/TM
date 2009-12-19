@@ -508,7 +508,7 @@
      <x>0</x>
      <y>0</y>
      <width>640</width>
-     <height>28</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -518,7 +518,6 @@
     <addaction name="actionRestore"/>
     <addaction name="actionSave"/>
     <addaction name="separator"/>
-    <addaction name="actionSync"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -545,11 +544,6 @@
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
-   </property>
-  </action>
-  <action name="actionSync">
-   <property name="text">
-    <string>Sync</string>
    </property>
   </action>
   <action name="actionDelete">
@@ -679,22 +673,6 @@
    <signal>activated()</signal>
    <receiver>TabletMain</receiver>
    <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>319</x>
-     <y>239</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionSync</sender>
-   <signal>activated()</signal>
-   <receiver>TabletMain</receiver>
-   <slot>slot_Sync()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>

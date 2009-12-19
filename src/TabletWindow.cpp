@@ -176,21 +176,21 @@ void TabletWindow::slot_Save()
 	}
 }
 
-void TabletWindow::slot_Sync()
-{
-	slot_Save();
-	Saver svr;
-	QProcess process(this);
-	process.setWorkingDirectory(svr.getHome());
-//	process.setStandardOutputFile("/tmp/tmsync.log");
-//	process.setStandardErrorFile("/tmp/tmsync.errors");
-	process.start("./sync", QStringList());
-	if( !process.waitForFinished() )
-	{
-		QMessageBox::critical(this, tr("Sync failed"), tr("Sync failed"));
-	}
-	slot_Restore();
-}
+//void TabletWindow::slot_Sync()
+//{
+//	slot_Save();
+//	Saver svr;
+//	QProcess process(this);
+//	process.setWorkingDirectory(svr.getHome());
+////	process.setStandardOutputFile("/tmp/tmsync.log");
+////	process.setStandardErrorFile("/tmp/tmsync.errors");
+//	process.start("./sync", QStringList());
+//	if( !process.waitForFinished() )
+//	{
+//		QMessageBox::critical(this, tr("Sync failed"), tr("Sync failed"));
+//	}
+//	slot_Restore();
+//}
 
 void TabletWindow::slot_HideNotes()
 {
