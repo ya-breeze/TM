@@ -197,7 +197,6 @@ void TabletWindow::slot_HideNotes()
 
 void TabletWindow::slot_TaskChanged(const QModelIndex& _new, const QModelIndex& _old)
 {
-	TRACE;
 	if( _old.isValid() )
 	{
 		QModelIndex idx = p_ProxyHideDone->mapToSource(_old);
