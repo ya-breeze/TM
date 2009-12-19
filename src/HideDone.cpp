@@ -115,10 +115,13 @@ void HideDone::setFastFilter( const QString& _value )
 /// Проверяет категории на основе даты начала задачи - TM-REQ-047
 bool HideDone::checkStartDate( TaskItem *_item ) const
 {
+	if( !_item->getStarted().isValid() )
+		return false;
+
 	QDateTime now = QDateTime::currentDateTime();
 
 	// Время:День
-	if( now.date()==_item->getStarted().date() )
+	if( now.date()>=_item->getStarted().date() )
 	{
 		if( m_Categories.contains(QString::fromUtf8("Время:День"), Qt::CaseInsensitive) )
 				return true;

@@ -96,7 +96,6 @@ void Saver::save(TaskTree& _tree)
 	QStringList files = getTaskList();
 	for(int i=0; i<files.size(); ++i)
 	{
-//		DEBUG("Removing " << files[i]);
 		if( !QFile::remove(getHome() + files[i]) )
 			DEBUG("Can't remove task " << files[i] << " - check permissions");
 	}
