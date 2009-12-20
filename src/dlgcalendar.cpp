@@ -19,6 +19,7 @@ DlgCalendar::~DlgCalendar()
 /// Если true - пользователь нажал Ok
 bool DlgCalendar::exec(const QDateTime& _value)
 {
+	need_Now = false;
 	m_DateTime = _value;
 	if( !m_DateTime.isValid() )
 		m_DateTime = QDateTime::currentDateTime();
@@ -33,7 +34,10 @@ bool DlgCalendar::exec(const QDateTime& _value)
 	if( QDialog::exec()==QDialog::Rejected )
 		return false;
 
-	m_DateTime = QDateTime( ui.calendar->selectedDate(), QTime(ui.sbHour->value(), ui.sbMin->value()) );
+	if( need_Now )
+		m_DateTime = QDateTime::currentDateTime();
+	else
+		m_DateTime = QDateTime( ui.calendar->selectedDate(), QTime(ui.sbHour->value(), ui.sbMin->value()) );
 
 	return true;
 }
@@ -65,7 +69,7 @@ void DlgCalendar::on_btnMinInc_clicked()
 void DlgCalendar::slot_Clicked(QAbstractButton *_btn)
 {
 	if( _btn->text()==DlgCalendar::tr("Now") )
-		m_DateTime = QDateTime::currentDateTime();
+		need_Now = true;
 
 	accept();
 }

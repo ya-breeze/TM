@@ -30,6 +30,7 @@ public slots:
 private:
     Ui::DlgCalendar		ui;
     QDateTime			m_DateTime;
+    bool				need_Now;
 };
 
 #endif // DLGCALENDAR_H
