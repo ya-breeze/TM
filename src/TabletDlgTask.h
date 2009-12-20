@@ -31,6 +31,8 @@ protected slots:
 	void slot_Finish(int);
 	/// Выставляет время начала в текущее время
 	void slot_UpdateStartTime();
+	/// Слот для выбора времени начала в специальном диалоге
+	void on_btnStartTime_clicked();
 
 protected:
 	Ui::TabletDlgTask	ui;

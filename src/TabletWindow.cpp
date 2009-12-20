@@ -657,8 +657,6 @@ void TabletWindow::slot_SelectActivityDT()
 	QDateTime dt = QDateTime::fromString(ui.lblActivityStartTime->text(), DT_FORMAT);
 	if( cal.exec(dt) )
 	{
-		TRACE;
 		ui.lblActivityStartTime->setText( cal.dateTime().toString(DT_FORMAT));
 	}
-	TRACE;
 }

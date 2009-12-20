@@ -11,6 +11,8 @@
 #include <QMessageBox>
 
 #include "CategoryEdit.h"
+#include "dlgcalendar.h"
+#include "utils.h"
 
 TabletDlgTask::TabletDlgTask( QWidget *parent )
 	: QDialog(parent)
@@ -29,7 +31,7 @@ bool TabletDlgTask::edit(TaskItem *_item, CategoryTree *_cats)
 	if( !m_Task->getStarted().isNull() )
 	{
 		ui.cbStartedTime->setChecked(true);
-		ui.teStartTime->setDateTime(m_Task->getStarted());
+		ui.btnStartTime->setText(m_Task->getStarted().toString(DT_FORMAT));
 	}
 	else
 	{
@@ -51,7 +53,10 @@ bool TabletDlgTask::edit(TaskItem *_item, CategoryTree *_cats)
 
 	// Теперь изменим текущую задачу
 	if( ui.cbStartedTime->isChecked() )
-		m_Task->setStarted(ui.teStartTime->dateTime());
+	{
+		QDateTime dt = QDateTime::fromString(ui.btnStartTime->text(), DT_FORMAT);
+		m_Task->setStarted(dt);
+	}
 	else
 		m_Task->setStarted( QDateTime() );
 	if( ui.cbFinishTime->isChecked() )
@@ -101,5 +106,16 @@ void TabletDlgTask::slot_Finish(int _state)
 /// Выставляет время начала в текущее время
 void TabletDlgTask::slot_UpdateStartTime()
 {
-	ui.teStartTime->setDateTime( QDateTime::currentDateTime() );
+	ui.btnStartTime->setText( QDateTime::currentDateTime().toString(DT_FORMAT) );
+}
+
+/// Слот для выбора времени начала в специальном диалоге
+void TabletDlgTask::on_btnStartTime_clicked()
+{
+	DlgCalendar cal(this);
+	QDateTime dt = QDateTime::fromString(ui.btnStartTime->text(), DT_FORMAT);
+	if( cal.exec(dt) )
+	{
+		ui.btnStartTime->setText( cal.dateTime().toString(DT_FORMAT));
+	}
 }
