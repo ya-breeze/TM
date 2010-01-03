@@ -66,11 +66,11 @@ FORMS += dlgcalendar.ui \
     TabletDlgTask.ui \
     CatEdit.ui
 RESOURCES += tm.qrc
-TRANSLATIONS = tm.ts
+TRANSLATIONS = tm_ru.ts
 QMAKE_CXXFLAGS += -g3
 unix { 
     # VARIABLES
-    isEmpty(PREFIX):PREFIX = /usr/local
+    isEmpty(PREFIX):PREFIX = /usr/
     BINDIR = $$PREFIX/bin
     DATADIR = $$PREFIX/share
     DEFINES += DATADIR=\\\"$$DATADIR\\\" \

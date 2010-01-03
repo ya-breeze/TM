@@ -7,13 +7,14 @@
 #include "mainwindow.h"
 #include "TabletWindow.h"
 
+#include "utils.h"
 int main( int argc, char *argv[] )
 {
 	QtSingleApplication app( argc, argv );
 	app.setWindowIcon( QIcon(":/images/MainIcon") );
 	if( app.isRunning() )
 	{
-		QMessageBox::critical(NULL, app.tr("Unable run tm"), app.tr("Another one instance of tm is running"));
+		QMessageBox::critical(NULL, QObject::tr("Unable run tm"), QObject::tr("Another one instance of tm is running"));
 		return 0;
 	}
 
@@ -22,13 +23,13 @@ int main( int argc, char *argv[] )
 	QCoreApplication::setApplicationName( "TM" );
 
 	QTranslator qtTranslator;
-	qtTranslator.load( "qt_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath ) );
+	qtTranslator.load( "qt_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath) );
 	app.installTranslator( &qtTranslator );
 
 	QTranslator myappTranslator;
-	if( !myappTranslator.load( "fly-system-monitor_" + QLocale::system().name(),
-			"/usr/share/fly/translations" ) )
-		myappTranslator.load( "fly-system-monitor_" + QLocale::system().name() );
+	if( !myappTranslator.load( "tm_" + QLocale::system().name(),
+			"/usr/share/translations" ) )
+		myappTranslator.load( "tm_" + QLocale::system().name() );
 	app.installTranslator( &myappTranslator );
 
 #ifdef TABLET
