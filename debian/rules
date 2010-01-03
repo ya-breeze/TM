@@ -46,6 +46,8 @@ install: build
 
 	# Add here commands to install the package into debian/arora.
 	cd builddir && $(MAKE) INSTALL_ROOT=$(CURDIR)/debian/$(APPNAME) install
+	mkdir -p $(CURDIR)/debian/$(APPNAME)/usr/share/qt4/translations
+	cp -f src/tm_ru.qm $(CURDIR)/debian/$(APPNAME)/usr/share/qt4/translations
 
 
 # Build architecture-independent files here.
