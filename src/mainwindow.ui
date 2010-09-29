@@ -189,8 +189,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>323</width>
-          <height>340</height>
+          <width>315</width>
+          <height>357</height>
          </rect>
         </property>
         <attribute name="label">
@@ -314,8 +314,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>308</width>
-          <height>326</height>
+          <width>293</width>
+          <height>292</height>
          </rect>
         </property>
         <attribute name="label">
@@ -444,7 +444,7 @@
      <x>0</x>
      <y>0</y>
      <width>727</width>
-     <height>30</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -466,6 +466,8 @@
     <addaction name="actionDel"/>
     <addaction name="separator"/>
     <addaction name="actionEditCategories"/>
+    <addaction name="separator"/>
+    <addaction name="actionDumpActivitiesForDate"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTasks"/>
@@ -508,6 +510,11 @@
     <string>EditCategories</string>
    </property>
   </action>
+  <action name="actionDumpActivitiesForDate">
+   <property name="text">
+    <string>Dump activities for date...</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>treeView</tabstop>
@@ -521,9 +528,7 @@
   <tabstop>btnToTasks</tabstop>
   <tabstop>lvActivities</tabstop>
  </tabstops>
- <resources>
-  <include location="tm.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>actionExit</sender>

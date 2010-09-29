@@ -6,6 +6,7 @@
 
 #include "utils.h"
 #include "Saver.h"
+#include "dlgcalendar.h"
 
 #include "CategoryEdit.h"
 
@@ -29,6 +30,7 @@ TM::TM(QWidget *parent)
 	connect( ui.actionAdd, SIGNAL(triggered(bool)), this, SLOT(slot_AddItem()) );
 	connect( ui.actionAddChild, SIGNAL(triggered(bool)), this, SLOT(slot_AddSiblingItem()) );
 	connect( ui.actionDel, SIGNAL(triggered(bool)), this, SLOT(slot_DelItem()) );
+	connect( ui.actionDumpActivitiesForDate, SIGNAL(triggered(bool)), this, SLOT(slot_DumpActivitiesForDate() ) );
 	connect( ui.treeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
 			this, SLOT(slot_TaskChanged(const QModelIndex&, const QModelIndex&)) );
 	connect( ui.actionSave, SIGNAL(triggered(bool)), this, SLOT(slot_Save()) );
@@ -348,7 +350,7 @@ void TM::slot_SetFocusAddActivity()
 	ui.rbActivityTask->setFocus();
 }
 
-void TM::closeEvent(QCloseEvent *event)
+void TM::closeEvent(QCloseEvent */*event*/)
 {
 	QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
 	slot_TaskChanged(idx, idx);
@@ -681,4 +683,47 @@ void TM::slot_FastFilter(const QString& _value)
 	p_ProxyHideDone->setFastFilter(_value);
 	ui.treeView->expandAll();
 	ui.treeView->scrollTo(ui.treeView->selectionModel()->currentIndex(), QAbstractItemView::PositionAtCenter);
+}
+
+/// Вызывается для отображения активностей одного дня
+void TM::slot_DumpActivitiesForDate() {
+    DlgCalendar cld;
+    if( cld.exec(QDateTime::currentDateTime())!=QDialog::Accepted )
+        return;    
+    
+    DayActivities acts = m_Activities.getDay( cld.dateTime().date() );
+    if( !acts.count() ) {
+        DEBUG("There are no any activities");
+        return;
+    }
+    
+    
+    DEBUG("There are " << acts.count() << " activities");
+    std::cout << "----------------------------------" << std::endl;
+    for(size_t i=0; i<acts.count(); ++i) {      
+        // Посчитаем длительность. Для последней активности длительность неопределена
+        Activity act = acts.getActivity(i);
+        int condur = -1;
+        if( i!=acts.count()-1 ) {
+            Activity next = acts.getActivity(i+1);
+            condur = act.getStartTime().secsTo( next.getStartTime() );
+        }
+
+        // Получим полное название задачи - включая родителей
+        Task *task = m_Tasks.getItem(act.getAssignedTask());
+        QString fullTaskName;
+        while( task ) {
+            if( !fullTaskName.isEmpty() )
+                fullTaskName = ":" + fullTaskName;
+            fullTaskName = task->getName() + fullTaskName;
+
+            if( !task->getParentId().isNull() )
+                task = m_Tasks.getItem( task->getParentId() );
+            else
+                task = NULL;
+        }
+
+        std::cout << fullTaskName << " - " <<(condur==-1 ? TM::tr("Unknown") : QString::number(condur/60)+" "+TM::tr("min") ) << std::endl;
+    }
+    std::cout << "----------------------------------" << std::endl;
 }
