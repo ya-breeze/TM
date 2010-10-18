@@ -1,6 +1,7 @@
 #include "task.h"
 
 Task::Task()
+    : m_Uuid( QUuid::createUuid() )
 {
 }
 

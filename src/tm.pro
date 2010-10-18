@@ -1,4 +1,4 @@
-DEFINES += TABLET
+#DEFINES += TABLET
 TEMPLATE = app
 TARGET = tm
 QT += core \
@@ -30,7 +30,7 @@ HEADERS += CalendarShower.h \
     TaskTree.h \
     mainwindow.h \
     CategoryTree.h \
-    TabletDlgTask.h \
+    TabletDlgTask.h server.h \
     CategoryEdit.h
 SOURCES += CalendarShower.cpp \
     dlgcalendar.cpp \
@@ -41,7 +41,7 @@ SOURCES += CalendarShower.cpp \
     Category.cpp \
     PlannedTime.cpp \
     TimeScale.cpp \
-    TabletWindow.cpp \
+    TabletWindow.cpp server.cpp \
     qtsingleapp/qtlocalpeer.cpp \
     qtsingleapp/qtlockedfile.cpp \
     qtsingleapp/qtlockedfile_unix.cpp \

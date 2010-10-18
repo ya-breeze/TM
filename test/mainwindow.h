@@ -19,6 +19,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+public slots:
+    void slot_test();
+    
 private:
     Ui::MainWindow *ui;
 };

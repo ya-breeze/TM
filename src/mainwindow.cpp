@@ -10,7 +10,7 @@
 #include "CategoryEdit.h"
 
 TM::TM(QWidget *parent)
-    : QMainWindow(parent), p_LastActs(new LastActs(&m_Tasks, &m_Activities, this))
+    : QMainWindow(parent), p_LastActs(new LastActs(&m_Tasks, &m_Activities, this)), p_Server(new Server(this))
 {
 	ui.setupUi(this);
 
@@ -45,6 +45,10 @@ TM::TM(QWidget *parent)
 			this, SLOT(slot_SelectedLastAct(const QModelIndex&)) );
 	connect( ui.cbHideDone, SIGNAL(stateChanged(int)), this, SLOT(slot_HideDone()) );
 
+	// Syncro
+	connect( p_Server, SIGNAL(startSyncro()), this, SLOT(slot_StartSynchronization()) );
+	connect( p_Server, SIGNAL(stopSyncro()), this, SLOT(slot_StopSynchronization()) );
+	
 
 	// Shortcuts
 	p_ShcFocusTasks		= new QShortcut(QKeySequence("Ctrl+T"), this, SLOT(slot_SetFocusTasks()));
@@ -681,4 +685,18 @@ void TM::slot_FastFilter(const QString& _value)
 	p_ProxyHideDone->setFastFilter(_value);
 	ui.treeView->expandAll();
 	ui.treeView->scrollTo(ui.treeView->selectionModel()->currentIndex(), QAbstractItemView::PositionAtCenter);
+}
+
+/// Вызывается при начале синхронизации, чтобы заблокировать работу GUI
+void TM::slot_StartSynchronization()
+{
+//    QMessageBox::critical(this, tr("Syncronization"), tr("Syncronization is starting! Please wait.")); 
+    slot_Save();
+}
+
+/// Вызывается после окончания синхронизации
+void TM::slot_StopSynchronization()
+{
+//    QMessageBox::critical(this, tr("Syncronization"), tr("Syncronization is finished! Good luck")); 
+    slot_Restore();
 }

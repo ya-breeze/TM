@@ -15,6 +15,8 @@
 #include "CategoryTree.h"
 #include "PlannedTaskList.h"
 
+#include "server.h"
+
 class TM : public QMainWindow
 {
 	Q_OBJECT
@@ -32,6 +34,11 @@ public:
 	};
 
 public slots:
+	/// Вызывается при начале синхронизации, чтобы заблокировать работу GUI
+	void slot_StartSynchronization();
+	/// Вызывается после окончания синхронизации
+	void slot_StopSynchronization();
+	
 	void slot_AddItem();
 	void slot_AddSiblingItem();
 	void slot_DelItem();
@@ -110,6 +117,7 @@ private:
 	QShortcut	*p_ShcMoveRight;
 
 	HideDone	*p_ProxyHideDone;
+	Server		*p_Server;
 };
 
 #endif // MAINWINDOW_H

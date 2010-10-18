@@ -23,6 +23,9 @@ public:
 	typedef std::set<QDate> DateSet;
 	typedef std::map<QUuid, Task> TaskMap;
 
+	Saver() : inTransaction(false ) {};
+	~Saver() { if(inTransaction) rollback(); };
+
 	void	save(TaskTree& _tree);
 	void	restore(TaskTree& _tree, CategoryTree& _cats);
 
@@ -31,6 +34,13 @@ public:
 	bool	canRestore(const QDate& _date);
 	DateSet	getActiveDays();
 	QString	getHome() const;
+	
+	void	startTransaction() {};
+	void	commit() {};
+	void	rollback() {};
+	
+	QString getLocalUuid() { return "dc6a478e-edeb-45ee-a7c7-dc2b258182d8"; };
+	size_t getLastUpdated(const QString& _uuid ) { return 0; };
 
 protected:
 	void		recurseSave(const TaskTree& _tree, const QModelIndex& _idx);
@@ -43,6 +53,8 @@ protected:
 	/// Добавляет задачи в дерево таким образом, что родительский узел для _task добавляется перед _task.
 	/// После добавления, _task из _tasks удаляется
 	void		recurseAddTasks(TaskTree& _tree, Task& _task, TaskMap& _tasks);
+
+	bool		inTransaction;
 };
 
 #endif /* SAVER_H_ */
