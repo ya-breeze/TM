@@ -44,6 +44,8 @@
 
 #include <QtNetwork>
 
+#include "Saver.h"
+
 #define MAX_MESSAGE 1000000
 
 class Server : public QObject
@@ -58,8 +60,16 @@ signals:
     void stopSyncro();
     
 protected:
+    /// Process /get_updates request
+    void processGetUpdates(QTcpSocket *clientConnection, Saver& _saver);
+    /// Process /get_uuid request. Returns remote uuid
+    QString processGetUuid(QTcpSocket *clientConnection, Saver& _saver);
     QString getRemoteUuid(QTcpSocket *clientConnection);
+    /// Returns start of update interval for remote host
+    time_t getRemoteLastUpdated(QTcpSocket *clientConnection);
     QStringList readLines(QTcpSocket *clientConnection);
+    /// does readAll
+    void emptyInputStream(QTcpSocket *clientConnection);
             
 private slots:
     void sendFortune();

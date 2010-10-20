@@ -44,7 +44,6 @@
 #include <stdexcept>
 
 #include "server.h"
-#include "Saver.h"
 #include "utils.h"
 
 Server::Server(QWidget *parent)
@@ -71,44 +70,28 @@ void Server::sendFortune()
         Saver saver;
         saver.startTransaction();
         
+        QString clientUuid = processGetUuid(clientConnection, saver);
+        processGetUpdates(clientConnection, saver);
+        
         connect(clientConnection, SIGNAL(disconnected()),
                 clientConnection, SLOT(deleteLater()));
         
-        QString clientUuid = getRemoteUuid(clientConnection);
-        DEBUG("Remote UUID - " << clientUuid);
-        
-        QString body;
-        {
-            QTextStream out(&body);        
-            out << "{\"uuid\":" << saver.getLocalUuid()
-                << ",\"lastUpdated\":" << saver.getLastUpdated(clientUuid)
-                << "}";
-        }
-        QString data;
-        QTextStream out(&data);
-        out << "HTTP/1.1 200 OK\n"
-            << "Content-length:" << body.length()
-            << "\n"
-            << body
-            << "\n";
-        
-        
-        clientConnection->write(data.toUtf8());
         
         saver.commit();
     } catch (std::runtime_error& _ex) {       
+        DEBUG("ERROR: Sync error " << _ex.what())
         QMessageBox::critical(NULL, tr("Error"), _ex.what());
     }
 
     clientConnection->disconnectFromHost();
+    clientConnection->deleteLater();
     
     emit stopSyncro();
 }
 
+
 QString Server::getRemoteUuid(QTcpSocket *clientConnection)
 {
-    DEBUG("Reading request...");
-    
     QStringList lines = readLines(clientConnection);
 
     if( lines.size()<2 )
@@ -117,7 +100,7 @@ QString Server::getRemoteUuid(QTcpSocket *clientConnection)
     // Req line
     QStringList tokens = lines[0].split(" ");
     if( tokens[1]!="/get_uuid" )
-        throw std::runtime_error("Wrong HTTP request - incorrect sequence");                    
+        throw std::runtime_error("Wrong HTTP request - incorrect sequence - " + tokens[1].toStdString());                    
 
     // Headers
     for(int i=1; i<lines.size(); ++i) {
@@ -134,23 +117,118 @@ QString Server::getRemoteUuid(QTcpSocket *clientConnection)
 }
 
 QStringList Server::readLines(QTcpSocket *clientConnection) {
+    TRACE;
     uint currentSize = 0;
     QStringList result;
     QByteArray req;
     
     do 
     {
-        if( !clientConnection->waitForReadyRead() )
+        Q_ASSERT(QThread::currentThread() == clientConnection->thread());
+        if( clientConnection->bytesAvailable()==0 && !clientConnection->waitForReadyRead() )
             throw std::runtime_error("Timeout on reading");
-        req = clientConnection->readLine(10000);
-        DEBUG("Line is readed, size - " << req.length());
-        DEBUG("Line is readed - " << QString(req));
+        req = clientConnection->readLine(MAX_MESSAGE);
         result << req;
+//        DEBUG("Line is readed, size - " << req.length());
+//        DEBUG("Line is readed - " << QString(req));
         
         currentSize += req.length();
         if( currentSize>MAX_MESSAGE )
             throw std::runtime_error("Client message is too big");
-    } while( req.length() && req.at(0)!='\n' );
+    } while( req.length() && req!="\r\n" );
 
     return result;
+}
+
+/// Process /get_uuid request. Returns remote uuid
+QString Server::processGetUuid(QTcpSocket *clientConnection, Saver& _saver) {
+    TRACE;
+    QString clientUuid = getRemoteUuid(clientConnection);
+    DEBUG("Remote UUID - " << clientUuid);
+    emptyInputStream(clientConnection);
+    
+    QString body;
+    {
+        QTextStream out(&body);        
+        out << "{\"uuid\":" << _saver.getLocalUuid()
+            << ",\"lastUpdated\":" << _saver.getLastUpdated(clientUuid)
+            << "}";
+    }
+    QString data;
+    QTextStream out(&data);
+    out << "HTTP/1.1 200 OK\n"
+        << "Content-length:" << body.length() << "\n"
+        << "Connection: Keep-Alive\n"
+        << "Content-Type: text/plain\n"
+        << "\n"
+        << body
+        << "\n";
+    
+    
+    clientConnection->write(data.toUtf8());
+    
+    return clientUuid;
+}
+
+/// Process /get_updates request
+void Server::processGetUpdates(QTcpSocket *clientConnection, Saver& _saver) {
+    TRACE;
+    time_t fromTime = getRemoteLastUpdated(clientConnection);
+    DEBUG("Will transfer entities from time " << fromTime);
+    emptyInputStream(clientConnection);
+
+    QString body;
+    {
+        QTextStream out(&body);        
+        out << "{\"tasks\":{},"
+            << ",\"activities\":{}"
+            << "}";
+    }
+    QString data;
+    QTextStream out(&data);
+    out << "HTTP/1.1 200 OK\n"
+        << "Content-Length:" << body.length()
+        << "\n"
+        << body
+        << "\n";
+    
+    
+    clientConnection->write(data.toUtf8());
+}
+
+/// Returns start of update interval for remote host
+time_t Server::getRemoteLastUpdated(QTcpSocket *clientConnection) {
+    TRACE;
+    QStringList lines = readLines(clientConnection);
+    TRACE;
+
+    if( lines.size()<2 )
+        throw std::runtime_error("Wrong HTTP request");                    
+
+    // Req line
+    QStringList tokens = lines[0].split(" ");
+    if( tokens[1]!="/get_updates" )
+        throw std::runtime_error("Wrong HTTP request - incorrect sequence - " + tokens[1].toStdString());                    
+
+    // Headers
+    for(int i=1; i<lines.size(); ++i) {
+        QStringList tokens = lines[i].split(":");
+        if( !tokens[0].compare("fromTime", Qt::CaseInsensitive) ) {
+            QString result = tokens[1];
+            if( result.isEmpty() )
+                throw std::runtime_error("'fromTime' is empty");                    
+            
+            time_t tm = 0;
+            bool ok;
+            tm = result.toInt(&ok);
+            return tm;
+        }
+    }
+    
+    throw std::runtime_error("'fromTime' is not specified");
+}
+
+/// does readAll
+void Server::emptyInputStream(QTcpSocket *clientConnection) {
+//    clientConnection->readAll();
 }
