@@ -55,27 +55,48 @@ class Server : public QObject
 public:
     Server(QWidget *parent = 0);
     
-signals:
-    void startSyncro();
-    void stopSyncro();
-    
-protected:
-    /// Process /get_updates request
-    void processGetUpdates(QTcpSocket *clientConnection, Saver& _saver);
-    /// Process /get_uuid request. Returns remote uuid
-    QString processGetUuid(QTcpSocket *clientConnection, Saver& _saver);
-    QString getRemoteUuid(QTcpSocket *clientConnection);
-    /// Returns start of update interval for remote host
-    time_t getRemoteLastUpdated(QTcpSocket *clientConnection);
-    QStringList readLines(QTcpSocket *clientConnection);
-    /// does readAll
-    void emptyInputStream(QTcpSocket *clientConnection);
-            
 private slots:
     void sendFortune();
     
 private:
     QTcpServer *tcpServer;
+    Saver       m_Saver;
+};
+
+class Connection : public QObject
+{
+    Q_OBJECT
+    
+    QTcpSocket *p_ClientConnection;
+    QBuffer     m_Buffer;
+    Saver       &m_Saver;
+    QString     str_ClientUuid;
+    
+    enum States {
+        WAITING_UUID,
+        WAITING_UPLOAD,
+        WAITING_DOWNLOAD,
+        FINISHED
+    };
+    States      m_State;
+
+public:
+    Connection(QObject *_parent, QTcpSocket *_clientConnection, Saver &_saver);
+
+protected slots:
+    void disconnected();
+    void readyRead();
+    void onEmptyLine();
+
+protected:
+    /// Process /get_updates request
+    void processGetUpdates(Saver& _saver);
+    /// Process /get_uuid request. Returns remote uuid
+    QString processGetUuid(Saver& _saver);
+    QString getRemoteUuid();
+    /// Returns start of update interval for remote host
+    time_t getRemoteLastUpdated();
+    QStringList getHeaders();
 };
 
 #endif

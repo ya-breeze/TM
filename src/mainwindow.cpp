@@ -44,10 +44,6 @@ TM::TM(QWidget *parent)
 	connect( ui.lvLastActivities->selectionModel(), SIGNAL(currentChanged ( const QModelIndex &, const QModelIndex &)),
 			this, SLOT(slot_SelectedLastAct(const QModelIndex&)) );
 	connect( ui.cbHideDone, SIGNAL(stateChanged(int)), this, SLOT(slot_HideDone()) );
-
-	// Syncro
-	connect( p_Server, SIGNAL(startSyncro()), this, SLOT(slot_StartSynchronization()) );
-	connect( p_Server, SIGNAL(stopSyncro()), this, SLOT(slot_StopSynchronization()) );
 	
 
 	// Shortcuts
