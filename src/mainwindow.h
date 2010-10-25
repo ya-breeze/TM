@@ -73,6 +73,8 @@ public slots:
 	void slot_SelectShowCats();
 	/// Вызывается при изменении текста в фильтре быстрой фильтрации
 	void slot_FastFilter(const QString& _value);
+	/// Вызывается для отображения активностей одного дня
+	void slot_DumpActivitiesForDate();
 
 	void slot_MoveUp();
 	void slot_MoveDown();
