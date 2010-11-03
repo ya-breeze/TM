@@ -42,11 +42,14 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include <QMap>
 #include <QtNetwork>
 
 #include "Saver.h"
 
 #define MAX_MESSAGE 1000000
+
+typedef QMap<QString, QString> QStringMap;
 
 class Server : public QObject
 {
@@ -68,9 +71,15 @@ class Connection : public QObject
     Q_OBJECT
     
     QTcpSocket *p_ClientConnection;
+    bool        is_WaitingHeaders;
+    QStringList m_Headers;
+    QStringMap  m_RequestHeaders;
     QBuffer     m_Buffer;
     Saver       &m_Saver;
     QString     str_ClientUuid;
+    int         m_BodyLength;
+    int         m_Timer;
+    bool        was_NetData;
     
     enum States {
         WAITING_UUID,
@@ -82,13 +91,16 @@ class Connection : public QObject
 
 public:
     Connection(QObject *_parent, QTcpSocket *_clientConnection, Saver &_saver);
+    ~Connection();
 
 protected slots:
     void disconnected();
     void readyRead();
-    void onEmptyLine();
+    bool onEmptyLine();
 
 protected:
+    void timerEvent( QTimerEvent * event );
+    
     /// Process /get_updates request
     void processGetUpdates(Saver& _saver);
     /// Process /get_uuid request. Returns remote uuid
@@ -96,7 +108,14 @@ protected:
     QString getRemoteUuid();
     /// Returns start of update interval for remote host
     time_t getRemoteLastUpdated();
-    QStringList getHeaders();
+    QStringMap getHeaders(const QStringList& _headers);
+    
+    /// \return true on empty line - i.e. false mean that not all headers were readed
+    bool readHeaders(QTcpSocket *_sock, QStringList& _headers);
+    /// \return bytes to read for body
+    int readBody(QTcpSocket *_sock, QBuffer& _body, int _length);
+    /// Clear request data
+    void clear();
 };
 
 #endif

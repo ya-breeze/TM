@@ -25,85 +25,138 @@ void Server::sendFortune()
 {
     DEBUG("Accepted new connection");
     QTcpSocket *clientConnection = tcpServer->nextPendingConnection();
-    Connection *connection = new Connection(this, clientConnection, m_Saver);
+//    Connection *connection = 
+    new Connection(this, clientConnection, m_Saver);
 }
 
 Connection::Connection(QObject *_parent, QTcpSocket *_clientConnection, Saver &_saver) 
-    : QObject(_parent), p_ClientConnection(_clientConnection), m_State(WAITING_UUID), m_Saver(_saver) {
-
+    : QObject(_parent), p_ClientConnection(_clientConnection), m_State(WAITING_UUID), m_Saver(_saver),
+    is_WaitingHeaders(true) {
+    
     TRACE;
-    m_Buffer.open(QBuffer::ReadWrite);
     connect(p_ClientConnection, SIGNAL(readyRead()), this, SLOT(readyRead()));
     connect(p_ClientConnection, SIGNAL(disconnected()), this, SLOT(disconnected()));
 
     m_Saver.startTransaction();
+
+    m_Timer = startTimer(5000);
+    was_NetData = false;
+}
+Connection::~Connection() {
+    p_ClientConnection->deleteLater();
 }
 
 void Connection::disconnected() {
     DEBUG("Connection is closed");
-    if( m_State!=FINISHED )
-        m_Saver.rollback();
-    
+    m_Saver.rollback();   
     this->deleteLater();
+}
+
+bool Connection::readHeaders(QTcpSocket *_sock, QStringList& _headers) {
+    QByteArray data;
+    while( !(data = _sock->readLine()).isEmpty() ) {
+//        DEBUG("readed header '" << data.data() << "', size " << data.size());
+        if( (data.size()==2 && data.contains("\r\n")) || (data.size()==1 && data.contains("\n")) ) {
+            return true;
+        } else
+            _headers << data;            
+    }
+
+    return false;    
+}
+
+int Connection::readBody(QTcpSocket *_sock, QBuffer& _body, int _length) {
+//    DEBUG("need read body with len " << _length);
+    if( !_length )
+        return 0;
+    
+    QByteArray data = _sock->read(_length);
+    _body.write(data);
+    _length -= data.size();    
+//    DEBUG("readed body '" << data.data() << "', size " << data.size() << ", need read " << _length);
+
+    return _length;
 }
 
 void Connection::readyRead() {
     TRACE;
-    QByteArray data = p_ClientConnection->readAll();
-    m_Buffer.write(data);
-//    DEBUG("readed " << data.size() << " bytes");
-//    DEBUG(data.data());
+    was_NetData = true;
+
+    if( is_WaitingHeaders ) {
+        is_WaitingHeaders = ! readHeaders(p_ClientConnection, m_Headers);
+        
+        if( !is_WaitingHeaders ) {
+            // parse headers
+            m_RequestHeaders = getHeaders(m_Headers);
+            
+            // prepare for reading body
+            m_Buffer.close();
+            m_Buffer.open(QBuffer::ReadWrite);        
+            QString len = m_RequestHeaders["content-length"];
+            bool ok;
+            m_BodyLength = len.toInt(&ok);
+            m_BodyLength = readBody(p_ClientConnection, m_Buffer, m_BodyLength);
+        }
+    } else {
+        m_BodyLength = readBody(p_ClientConnection, m_Buffer, m_BodyLength);
+    }
     
-    if( data.contains("\r\n\r\n") )
-        onEmptyLine();    
+    if( is_WaitingHeaders==false && m_BodyLength==0 )
+        if( !onEmptyLine() )
+            p_ClientConnection->close();
 }
 
-void Connection::onEmptyLine() {
-    DEBUG("Empty line detected. Current state - " << m_State);
+bool Connection::onEmptyLine() {
+    Q_ASSERT(!m_Headers.isEmpty());
+
+    bool res = false;
+    DEBUG("Processing request " << m_Headers[0]);
+    killTimer(m_Timer);
 
     try
     {
-        switch(m_State) {
-            case WAITING_UUID :
-                str_ClientUuid = processGetUuid(m_Saver);
-                m_State = WAITING_DOWNLOAD;
-                DEBUG("Current state - " << m_State);
-            break;
-            case WAITING_DOWNLOAD :
-                processGetUpdates(m_Saver);
-                m_State = WAITING_UPLOAD;
-                DEBUG("Current state - " << m_State);
-            break;
-            case WAITING_UPLOAD :
-                m_State = FINISHED;
-                m_Saver.commit();
-                DEBUG("Current state - " << m_State);
-            break;
-        }
+        // Determine request type
+        QStringList tokens = m_Headers[0].split(" ", QString::SkipEmptyParts);
+        if( tokens.size()<3 )
+            throw std::runtime_error( "Incorrect request line - " + m_Headers[0].toStdString() );
+        
+        if( tokens[1]=="/get_uuid" )
+            str_ClientUuid = processGetUuid(m_Saver);
+        else if( tokens[1]=="/get_updates" )
+            processGetUpdates(m_Saver);
+        else
+            throw std::runtime_error( "Unknown request - " + m_Headers[0].toStdString() );
+            
+        // TODO else if( tokens[1]=="/send_updates" )
+        
+        // Reading another request
+        DEBUG("Request is processed successfully");
+        res = true;
     } catch (std::runtime_error& _ex) {       
-        m_Saver.rollback();
         DEBUG("ERROR: Sync error " << _ex.what())
         QMessageBox::critical(NULL, tr("Error"), _ex.what());
-        deleteLater();
     }
+    clear();            
+    
+    return res;
+}
+
+void Connection::clear() {
+    m_Timer = startTimer(5000);
+    is_WaitingHeaders = true;
+    m_Headers.clear();
+    m_RequestHeaders.clear();
+    // May be some bytes are in buffer already
+    readyRead();    
 }
 
 
 QString Connection::getRemoteUuid()
 {
-    QStringList lines = getHeaders();
-
-    if( lines.size()<2 )
-        throw std::runtime_error("Wrong HTTP request");                    
-
-    // Req line
-    QStringList tokens = lines[0].split(" ");
-    if( tokens[1]!="/get_uuid" )
-        throw std::runtime_error("Wrong HTTP request - incorrect sequence - " + tokens[1].toStdString());                    
-
-    // Headers
-    for(int i=1; i<lines.size(); ++i) {
-        QStringList tokens = lines[i].split(":");
+    TRACE;
+    for(int i=1; i<m_Headers.size(); ++i) {
+        DEBUG(m_Headers[i]);
+        QStringList tokens = m_Headers[i].split(":");
         if( !tokens[0].compare("uuid", Qt::CaseInsensitive) ) {
             QString result = tokens[1];
             if( result.isEmpty() )
@@ -148,70 +201,69 @@ QString Connection::processGetUuid(Saver& _saver) {
 /// Process /get_updates request
 void Connection::processGetUpdates(Saver& _saver) {
     TRACE;
-//    time_t fromTime = getRemoteLastUpdated(clientConnection);
-//    DEBUG("Will transfer entities from time " << fromTime);
+    time_t fromTime = getRemoteLastUpdated();
+    DEBUG("Will transfer entities from time " << fromTime);
 //    emptyInputStream(clientConnection);
 
-//    QString body;
-//    {
-//        QTextStream out(&body);        
-//        out << "{\"tasks\":{},"
-//            << ",\"activities\":{}"
-//            << "}";
-//    }
-//    QString data;
-//    QTextStream out(&data);
-//    out << "HTTP/1.1 200 OK\n"
-//        << "Content-Length:" << body.length()
-//        << "\n"
-//        << body
-//        << "\n";
+    QString body;
+    {
+        QTextStream out(&body);        
+        out << "{\"tasks\":{},"
+            << "\"activities\":{}"
+            << "}";
+    }
+    QString data;
+    QTextStream out(&data);
+    out << "HTTP/1.1 200 OK\r\n"
+        << "Content-Length:" << body.length() << "\r\n\r\n"
+        << body;
     
     
-//    clientConnection->write(data.toUtf8());
+    p_ClientConnection->write(data.toUtf8());
 }
 
 /// Returns start of update interval for remote host
 time_t Connection::getRemoteLastUpdated() {
     TRACE;
-//    QStringList lines = readLines(clientConnection);
-//    TRACE;
 
-//    if( lines.size()<2 )
-//        throw std::runtime_error("Wrong HTTP request");                    
-
-//    // Req line
-//    QStringList tokens = lines[0].split(" ");
-//    if( tokens[1]!="/get_updates" )
-//        throw std::runtime_error("Wrong HTTP request - incorrect sequence - " + tokens[1].toStdString());                    
-
-//    // Headers
-//    for(int i=1; i<lines.size(); ++i) {
-//        QStringList tokens = lines[i].split(":");
-//        if( !tokens[0].compare("fromTime", Qt::CaseInsensitive) ) {
-//            QString result = tokens[1];
-//            if( result.isEmpty() )
-//                throw std::runtime_error("'fromTime' is empty");                    
-            
-//            time_t tm = 0;
-//            bool ok;
-//            tm = result.toInt(&ok);
-//            return tm;
-//        }
-//    }
+    QString result = m_RequestHeaders["fromtime"];
+    if( result.isEmpty() )
+        throw std::runtime_error("'fromTime' is empty or not specified");                    
     
-    throw std::runtime_error("'fromTime' is not specified");
+    time_t tm = 0;
+    bool ok;
+    tm = result.toInt(&ok);
+    return tm;
 }
 
-QStringList Connection::getHeaders() {
-    TRACE;
-    QString str = m_Buffer.data();
-    m_Buffer.close();
-    m_Buffer.open(QBuffer::ReadWrite);
-
-    QStringList result = str.split("\r\n", QString::SkipEmptyParts, Qt::CaseInsensitive);
-    for(int i=0; i<result.size(); ++i)
-        DEBUG(result[i]);
+QStringMap Connection::getHeaders(const QStringList& _headers) {
+    QStringMap res;
     
-    return result;
+    for( int i=1; i<_headers.size(); ++i ) {
+        int idx = _headers[i].indexOf(":");
+        if( idx!=-1 ) {
+            QString value = _headers[i].mid(idx + 1);
+            int cut = value.length()-1;
+            if( value.length()>=2 && value[value.length()-2]=='\r')
+                --cut;
+            res[ _headers[i].left(idx).toLower() ] = value.left(cut);
+        } else
+            res[ _headers[i].toLower() ] = "";
+    }
+
+//    QMapIterator<QString, QString> i(res);
+//    while (i.hasNext()) {
+//        i.next();
+//        DEBUG( "header '" << i.key() << "' : '" << i.value() << "'");
+//    }
+    
+    return res;
+}
+
+void Connection::timerEvent( QTimerEvent * ) {
+    if( was_NetData==false ) {
+        DEBUG("Network timeout - closing connection");
+        p_ClientConnection->close();
+    }
+    was_NetData = false;
 }
