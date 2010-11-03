@@ -56,14 +56,14 @@ class Server : public QObject
     Q_OBJECT
     
 public:
-    Server(QWidget *parent = 0);
+    Server(Saver &_saver, QWidget *parent = 0);
     
 private slots:
     void sendFortune();
     
 private:
     QTcpServer *tcpServer;
-    Saver       m_Saver;
+    Saver       &m_Saver;
 };
 
 class Connection : public QObject
@@ -116,6 +116,9 @@ protected:
     int readBody(QTcpSocket *_sock, QBuffer& _body, int _length);
     /// Clear request data
     void clear();
+    
+    QString getTasks() const;
+    QString getActivities() const;
 };
 
 #endif

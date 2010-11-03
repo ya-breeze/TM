@@ -11,7 +11,7 @@
 #include "CategoryEdit.h"
 
 TM::TM(QWidget *parent)
-    : QMainWindow(parent), p_LastActs(new LastActs(&m_Tasks, &m_Activities, this)), p_Server(new Server(this))
+    : QMainWindow(parent), p_LastActs(new LastActs(&m_Tasks, &m_Activities, this)), p_Server(new Server(m_Saver, this))
 {
 	ui.setupUi(this);
 
@@ -71,7 +71,8 @@ TM::TM(QWidget *parent)
 
 	slot_Restore();
 	slot_BtnUpdateTime();
-
+	
+	m_Saver.setTaskTree(m_Tasks);
 }
 
 TM::~TM()

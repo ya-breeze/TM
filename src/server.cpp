@@ -7,8 +7,8 @@
 #include "server.h"
 #include "utils.h"
 
-Server::Server(QWidget *parent)
-    : QObject(parent)
+Server::Server(Saver &_saver, QWidget *parent)
+    : QObject(parent), m_Saver(_saver)
 {
     tcpServer = new QTcpServer(this);
     if (!tcpServer->listen( QHostAddress::Any, 9090) ) {
@@ -202,14 +202,12 @@ QString Connection::processGetUuid(Saver& _saver) {
 void Connection::processGetUpdates(Saver& _saver) {
     TRACE;
     time_t fromTime = getRemoteLastUpdated();
-    DEBUG("Will transfer entities from time " << fromTime);
-//    emptyInputStream(clientConnection);
 
     QString body;
     {
         QTextStream out(&body);        
-        out << "{\"tasks\":{},"
-            << "\"activities\":{}"
+        out << "{\"tasks\":[" << getTasks() << "],"
+            << "\"activities\":[" << getActivities() << "]"
             << "}";
     }
     QString data;
@@ -218,7 +216,8 @@ void Connection::processGetUpdates(Saver& _saver) {
         << "Content-Length:" << body.length() << "\r\n\r\n"
         << body;
     
-    
+    DEBUG("Will transfer entities from time " << fromTime << ", body size " << body.length());
+    DEBUG(getTasks());
     p_ClientConnection->write(data.toUtf8());
 }
 
@@ -266,4 +265,41 @@ void Connection::timerEvent( QTimerEvent * ) {
         p_ClientConnection->close();
     }
     was_NetData = false;
+}
+
+QString Connection::getTasks() const {
+    QString result;
+    QTextStream ss(&result);
+    
+    Saver::TaskList tasks = m_Saver.getTasks();
+    if( !tasks.empty()) {
+        for(Saver::TaskList::iterator it=tasks.begin();;) {
+            ss << "{";
+            
+            QString id = (*it)->getId().toString();
+            QString parentId = (*it)->getParentId().toString();
+            id = id.mid(1, id.length()-2);
+            parentId = parentId.mid(1, parentId.length()-2);
+            
+            ss  << "\"uuid\":\"" << id << "\", "
+                << "\"localUpdated\":1287384070856, "
+                << "\"globalUpdated\":1287384070856, "
+                << "\"parentUuid\":\"" << parentId << "\", "
+//                << "\"title\":\"" << (*it)->getName().replace("\"", "\\\"") << "\", "
+//                << "\"notes\":\"" << (*it)->getNotes() << "\"";
+                << "\"title\":\"\", "
+                << "\"notes\":\"\"";
+            ss << "}";
+
+            ++it;
+            if( it==tasks.end() )
+                break;
+            ss << ", ";
+        }
+    }
+    return result;
+}
+QString Connection::getActivities() const {
+    QString result;
+    return result;
 }

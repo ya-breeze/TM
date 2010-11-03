@@ -119,6 +119,7 @@ private:
 	QShortcut	*p_ShcMoveRight;
 
 	HideDone	*p_ProxyHideDone;
+	Saver		m_Saver;
 	Server		*p_Server;
 };
 
