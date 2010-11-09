@@ -94,6 +94,8 @@ private:
 	/// Возвращает индекс задачи, соседней по заданному направлению
 	bool getNeighbourIndex(const QModelIndex& _idx, Directions _dir, QModelIndex &_parent, int &_row);
 	void moveTask(Directions _dir);
+	// Возвращает строку из пробелов. Длина строки равна глубине вложенности задачи
+	QString deep2Spaces(Task *task);
 
 	Ui::TMClass	ui;
 	TaskTree	m_Tasks;

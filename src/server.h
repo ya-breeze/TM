@@ -42,10 +42,10 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <QMap>
 #include <QtNetwork>
 
 #include "Saver.h"
+#include "utils.h"
 
 #define MAX_MESSAGE 1000000
 

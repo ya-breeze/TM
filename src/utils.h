@@ -14,12 +14,15 @@
 #include <stdexcept>
 #include <sstream>
 #include <QDateTime>
+#include <QMap>
 
 
 //#include <map>
 
 #define DT_FORMAT	"yyyy.MM.dd hh:mm"
 
+
+typedef QMap<QString, QString> QStringMap;
 
 inline std::ostream& operator<<(std::ostream& _os, const QString& _s)
 {

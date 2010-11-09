@@ -699,6 +699,27 @@ void TM::slot_StopSynchronization()
 //    QMessageBox::critical(this, tr("Syncronization"), tr("Syncronization is finished! Good luck")); 
 }
 
+// Возвращает строку из пробелов. Длина строки равна глубине вложенности задачи
+QString TM::deep2Spaces(Task *task) {
+        QString result;
+        
+        QString fullTaskName;
+        while( task ) {
+            if( !fullTaskName.isEmpty() )
+                fullTaskName = ":" + fullTaskName;
+            fullTaskName = task->getName() + fullTaskName;
+
+            if( !task->getParentId().isNull() ) {
+                task = m_Tasks.getItem( task->getParentId() );
+//                result += "\t";
+            }
+            else
+                task = NULL;
+        }
+        
+        return result + fullTaskName;
+}
+
 /// Вызывается для отображения активностей одного дня
 void TM::slot_DumpActivitiesForDate() {
     DlgCalendar cld;
@@ -713,6 +734,8 @@ void TM::slot_DumpActivitiesForDate() {
     
     
     DEBUG("There are " << acts.count() << " activities");
+    int total = 0;
+    QMap<QString, int> times;
     std::cout << "----------------------------------" << std::endl;
     for(size_t i=0; i<acts.count(); ++i) {      
         // Посчитаем длительность. Для последней активности длительность неопределена
@@ -731,6 +754,14 @@ void TM::slot_DumpActivitiesForDate() {
                 fullTaskName = ":" + fullTaskName;
             fullTaskName = task->getName() + fullTaskName;
 
+    	    // Длительность родительских задач
+    	    //QString name = deep2Spaces(task) + task->getName();
+    	    QString name = deep2Spaces(task);// + fullTaskName;
+    	    if( !times.contains(name) ) 
+    		times[ name ] = 0;
+    	    if( condur!=-1 )
+    		times[name] += condur;  		
+
             if( !task->getParentId().isNull() )
                 task = m_Tasks.getItem( task->getParentId() );
             else
@@ -738,6 +769,13 @@ void TM::slot_DumpActivitiesForDate() {
         }
 
         std::cout << fullTaskName << " - " <<(condur==-1 ? TM::tr("Unknown") : QString::number(condur/60)+" "+TM::tr("min") ) << std::endl;
+        total += condur;
     }
     std::cout << "----------------------------------" << std::endl;
+    std::cout << "Total: " << total/60 << " min" << std::endl;
+    QMapIterator<QString, int> i(times);
+    while (i.hasNext()) {
+	i.next();
+	std::cout << "\t" << i.key() << ": " << i.value()/60 << " min" << std::endl;
+    }
 }
