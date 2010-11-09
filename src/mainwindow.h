@@ -96,6 +96,8 @@ private:
 	void moveTask(Directions _dir);
 	// Возвращает строку из пробелов. Длина строки равна глубине вложенности задачи
 	QString deep2Spaces(Task *task);
+	// Возвращает полное имя задачи
+	QString fullName(Task *task);
 
 	Ui::TMClass	ui;
 	TaskTree	m_Tasks;

@@ -3,6 +3,7 @@
 
 #include <QMessageBox>
 #include <QProcess>
+#include <QPair>
 
 #include "utils.h"
 #include "Saver.h"
@@ -703,6 +704,21 @@ void TM::slot_StopSynchronization()
 QString TM::deep2Spaces(Task *task) {
         QString result;
         
+        while( task ) {
+            if( !task->getParentId().isNull() ) {
+                task = m_Tasks.getItem( task->getParentId() );
+                result += "\t";
+            }
+            else
+                task = NULL;
+        }
+        
+        return result;
+}
+
+QString TM::fullName(Task *task) {
+        QString result;
+        
         QString fullTaskName;
         while( task ) {
             if( !fullTaskName.isEmpty() )
@@ -711,7 +727,7 @@ QString TM::deep2Spaces(Task *task) {
 
             if( !task->getParentId().isNull() ) {
                 task = m_Tasks.getItem( task->getParentId() );
-//                result += "\t";
+                //result += "\t";
             }
             else
                 task = NULL;
@@ -735,8 +751,8 @@ void TM::slot_DumpActivitiesForDate() {
     
     DEBUG("There are " << acts.count() << " activities");
     int total = 0;
-    QMap<QString, int> times;
-    std::cout << "----------------------------------" << std::endl;
+    QMap< QPair<QString, QString/*deep*/>, int/*condur*/ > times;
+    std::cout << "---------------- " << cld.dateTime().date().toString("yyyy.MM.dd") << " ------------------" << std::endl;
     for(size_t i=0; i<acts.count(); ++i) {      
         // Посчитаем длительность. Для последней активности длительность неопределена
         Activity act = acts.getActivity(i);
@@ -755,12 +771,13 @@ void TM::slot_DumpActivitiesForDate() {
             fullTaskName = task->getName() + fullTaskName;
 
     	    // Длительность родительских задач
+    	    QPair<QString, QString> key = qMakePair(fullName(task), deep2Spaces(task));
     	    //QString name = deep2Spaces(task) + task->getName();
-    	    QString name = deep2Spaces(task);// + fullTaskName;
-    	    if( !times.contains(name) ) 
-    		times[ name ] = 0;
+    	    //QString name = deep2Spaces(task);// + fullTaskName;
+    	    if( !times.contains(key) ) 
+    		times[ key ] = 0;
     	    if( condur!=-1 )
-    		times[name] += condur;  		
+    		times[key] += condur;  		
 
             if( !task->getParentId().isNull() )
                 task = m_Tasks.getItem( task->getParentId() );
@@ -768,14 +785,14 @@ void TM::slot_DumpActivitiesForDate() {
                 task = NULL;
         }
 
-        std::cout << fullTaskName << " - " <<(condur==-1 ? TM::tr("Unknown") : QString::number(condur/60)+" "+TM::tr("min") ) << std::endl;
+        //std::cout << fullTaskName << " - " <<(condur==-1 ? TM::tr("Unknown") : QString::number(condur/60)+" "+TM::tr("min") ) << std::endl;
         total += condur;
     }
-    std::cout << "----------------------------------" << std::endl;
     std::cout << "Total: " << total/60 << " min" << std::endl;
-    QMapIterator<QString, int> i(times);
+    QMapIterator< QPair<QString, QString>, int> i(times);
     while (i.hasNext()) {
 	i.next();
-	std::cout << "\t" << i.key() << ": " << i.value()/60 << " min" << std::endl;
+	std::cout << "\t" << i.key().second << i.key().first << ": " << i.value()/60 << " min" << std::endl;
     }
+    std::cout << "----------------------------------" << std::endl;
 }
