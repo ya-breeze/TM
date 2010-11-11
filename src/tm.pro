@@ -4,6 +4,8 @@ TARGET = tm
 QT += core \
     gui \
     network
+CONFIG += qxt
+QXT += core gui
 INCLUDEPATH += qtsingleapp
 HEADERS += CalendarShower.h \
     dlgcalendar.h \

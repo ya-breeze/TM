@@ -4,6 +4,7 @@
 #include <QMessageBox>
 #include <QProcess>
 #include <QPair>
+#include <QxtGlobalShortcut>
 
 #include "utils.h"
 #include "Saver.h"
@@ -78,7 +79,13 @@ TM::TM(QWidget *parent)
 	
 	m_Saver.setTaskTree(m_Tasks);
 	
+	// Focus on tasks
 	ui.treeView->setFocus();
+
+        // popup on global shortcut
+        QxtGlobalShortcut* shortcut = new QxtGlobalShortcut(this);
+        connect(shortcut, SIGNAL(activated()), this, SLOT(toggleVisibility()));
+        shortcut->setShortcut(QKeySequence("F12"));
 }
 
 TM::~TM()
@@ -805,4 +812,8 @@ void TM::slot_DumpActivitiesForDate() {
 	std::cout << "\t" << i.key().second << i.key().first << ": " << i.value()/60 << " min" << std::endl;
     }
     std::cout << "----------------------------------" << std::endl;
+}
+
+void TM::toggleVisibility() {
+    setVisible( ! isVisible() );
 }

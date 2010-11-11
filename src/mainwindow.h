@@ -39,6 +39,7 @@ public slots:
 	/// Вызывается после окончания синхронизации
 	void slot_StopSynchronization();
 	
+	void toggleVisibility();
 	void slot_AddItem();
 	void slot_AddSiblingItem();
 	void slot_DelItem();
