@@ -55,6 +55,9 @@ TM::TM(QWidget *parent)
 	p_ShcFocusAddActivity	= new QShortcut(QKeySequence("Ctrl+A"), this, SLOT(slot_SetFocusAddActivity()));
 	p_ShcFocusActivities	= new QShortcut(QKeySequence("Ctrl+L"), this, SLOT(slot_SetFocusActivities()));
 
+	new QShortcut(QKeySequence("Ctrl+F"), this, SLOT(slot_SetFFFocus()));
+	new QShortcut(QKeySequence("Esc"), ui.leFastFilter, SLOT(clear()));
+	
 
 	p_ShcAddChildTask	= new QShortcut(QKeySequence("Ins"), this, SLOT(slot_AddItem()));
 	p_ShcAddSiblingTask	= new QShortcut(QKeySequence("Shift+Ins"), this, SLOT(slot_AddSiblingItem()));
@@ -337,6 +340,11 @@ void TM::slot_SetFocusActivities()
 {
 	ui.tabMain->setCurrentIndex(1);
 //	ui.treeView->setFocus();
+}
+
+void TM::slot_SetFFFocus()
+{
+	ui.leFastFilter->setFocus();
 }
 
 void TM::slot_SetFocusNotes()

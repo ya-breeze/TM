@@ -50,6 +50,7 @@ public slots:
 	void slot_SetFocusNotes();
 	void slot_SetFocusAddActivity();
 	void slot_SetFocusActivities();
+	void slot_SetFFFocus();
 	void slot_AddActivity();
 	/// Слот вызываемый при изменении типа добавляемой активности - чтобы делать enabled/disabled имя
 	void slot_ActivityType();
