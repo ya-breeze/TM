@@ -7,6 +7,7 @@
 
 #include <QShortcut>
 #include <QCloseEvent>
+#include <QSystemTrayIcon>
 
 #include "TaskTree.h"
 #include "Activities.h"
@@ -40,6 +41,8 @@ public slots:
 	void slot_StopSynchronization();
 	
 	void toggleVisibility();
+	void slotTray(QSystemTrayIcon::ActivationReason _reason);
+	
 	void slot_AddItem();
 	void slot_AddSiblingItem();
 	void slot_DelItem();
@@ -127,6 +130,8 @@ private:
 	HideDone	*p_ProxyHideDone;
 	Saver		m_Saver;
 	Server		*p_Server;
+	
+	QSystemTrayIcon *p_Tray;
 };
 
 #endif // MAINWINDOW_H

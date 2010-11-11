@@ -86,6 +86,12 @@ TM::TM(QWidget *parent)
         QxtGlobalShortcut* shortcut = new QxtGlobalShortcut(this);
         connect(shortcut, SIGNAL(activated()), this, SLOT(toggleVisibility()));
         shortcut->setShortcut(QKeySequence("F12"));
+        
+        // tray
+        p_Tray = new QSystemTrayIcon(this);
+        p_Tray->setIcon( QIcon(":/images/MainIcon") );
+        p_Tray->show();
+        QObject::connect(p_Tray, SIGNAL(activated( QSystemTrayIcon::ActivationReason )), this, SLOT(slotTray( QSystemTrayIcon::ActivationReason )));
 }
 
 TM::~TM()
@@ -816,4 +822,22 @@ void TM::slot_DumpActivitiesForDate() {
 
 void TM::toggleVisibility() {
     setVisible( ! isVisible() );
+}
+
+void TM::slotTray(QSystemTrayIcon::ActivationReason _reason)
+{
+    if( _reason==QSystemTrayIcon::Trigger )
+    {
+        toggleVisibility();
+    }
+    else if( _reason==QSystemTrayIcon::Context )
+    {
+        DEBUG("Context menu");
+//        QMenu menu(this);
+//        menu.addAction(p_mw->actionStart);
+//        menu.addAction(p_mw->actionStop);
+//        menu.addAction(p_mw->actionSettings);
+//        menu.addAction(p_mw->actionExit);
+//        menu.exec( QCursor::pos() );
+    }
 }
