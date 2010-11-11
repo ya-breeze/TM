@@ -182,15 +182,15 @@
       </widget>
       <widget class="QToolBox" name="toolBox">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="page">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>315</width>
-          <height>357</height>
+          <width>334</width>
+          <height>326</height>
          </rect>
         </property>
         <attribute name="label">
@@ -204,6 +204,12 @@
           <layout class="QGridLayout" name="gridLayout_2">
            <item row="0" column="0">
             <widget class="QLabel" name="label_12">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="text">
               <string>Create time</string>
              </property>
@@ -314,8 +320,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>293</width>
-          <height>292</height>
+          <width>332</width>
+          <height>326</height>
          </rect>
         </property>
         <attribute name="label">
@@ -326,6 +332,12 @@
           <layout class="QGridLayout" name="gridLayout">
            <item row="0" column="0">
             <widget class="QLabel" name="label_3">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="text">
               <string>Start time</string>
              </property>
@@ -444,7 +456,7 @@
      <x>0</x>
      <y>0</y>
      <width>727</width>
-     <height>23</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

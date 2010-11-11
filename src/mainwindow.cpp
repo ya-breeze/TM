@@ -74,6 +74,8 @@ TM::TM(QWidget *parent)
 	slot_BtnUpdateTime();
 	
 	m_Saver.setTaskTree(m_Tasks);
+	
+	ui.treeView->setFocus();
 }
 
 TM::~TM()
