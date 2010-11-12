@@ -11,6 +11,7 @@
 #include <fstream>
 #include <QModelIndex>
 #include <QDate>
+#include <QSqlDatabase>
 
 #include "TaskTree.h"
 #include "DayActivities.h"
@@ -23,8 +24,8 @@ public:
 	typedef std::set<QDate> DateSet;
 	typedef std::map<QUuid, Task> TaskMap;
 
-	Saver() : inTransaction(false ) {}
-	~Saver() { if(inTransaction) rollback(); }
+	Saver();
+	~Saver();
 	
 	// Заглушка, пока задачи хранятся в TaskTree, а не в Saver	
 	TaskTree *tree;
@@ -62,6 +63,8 @@ protected:
 	void		recurseAddTasks(TaskTree& _tree, Task& _task, TaskMap& _tasks);
 
 	bool		inTransaction;
+	
+	QSqlDatabase	m_Db;
 };
 
 #endif /* SAVER_H_ */

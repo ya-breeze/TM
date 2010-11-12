@@ -10,12 +10,33 @@
 #include <stdlib.h>
 #include <QFile>
 #include <QDir>
+#include <QApplication>
 
 #include "utils.h"
 
 
 #define FNAME_TASKS	"Tasks"
 #define FNAME_ACTS	"Activities."
+
+Saver::Saver()
+    : inTransaction(false ) {
+    m_Db = QSqlDatabase::addDatabase("QSQLITE");
+    QString home = ::getenv("HOME");
+    m_Db.setDatabaseName(home + "/.tm.sqlite");
+    if (!m_Db.open())
+        throw std::runtime_error( ("Cannot open database") );
+//            qApp->tr("Unable to establish a database connection.\n"
+//                     "This example needs SQLite support. Please read "
+//                     "the Qt SQL driver documentation for information how "
+//                     "to build it.\n\n"
+//                     "Click Cancel to exit."), QMessageBox::Cancel);
+}
+
+Saver::~Saver() {
+    if(inTransaction) rollback();
+    m_Db.close();
+}
+
 
 QString	Saver::getHome() const
 {

@@ -3,7 +3,7 @@ TEMPLATE = app
 TARGET = tm
 QT += core \
     gui \
-    network
+    network sql
 CONFIG += qxt
 QXT += core gui
 INCLUDEPATH += qtsingleapp
