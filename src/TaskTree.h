@@ -55,6 +55,8 @@ public:
 private:
 	TaskItemVec		childItems;
 	TaskItem		*parentItem;
+	/// Значение наибольшего ParentIndex у детей
+	int			m_MaxChildIndex;
 };
 typedef shared_ptr<TaskItem>	PtrTaskItem;
 

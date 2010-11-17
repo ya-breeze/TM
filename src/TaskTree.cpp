@@ -15,12 +15,13 @@
 #include "utils.h"
 
 TaskItem::TaskItem( TaskItem *parent )
+    : m_MaxChildIndex(0)
 {
 	setItemParent(parent);
 }
 
 TaskItem::TaskItem( const Task& _task, TaskItem *parent )
-	: Task(_task)
+	: Task(_task), m_MaxChildIndex(0)
 {
 	setItemParent(parent);
 }
@@ -38,6 +39,15 @@ void TaskItem::appendChild(TaskItem *item)
 	childItems.push_back(item);
 	item->setItemParent(this);
 	item->setParentId(this->getId());
+
+	if( item->getParentIndex() ) {
+	    if( item->getParentIndex()>m_MaxChildIndex )
+		m_MaxChildIndex = item->getParentIndex();
+	} else {
+	    ++m_MaxChildIndex;
+	    item->setParentIndex(m_MaxChildIndex);
+	}
+
 }
 
 void TaskItem::insertChild(int _index, TaskItem *_child)
@@ -45,6 +55,10 @@ void TaskItem::insertChild(int _index, TaskItem *_child)
 	Q_ASSERT(_index>=0);
 //	DEBUG("index - " << _index << " for " << _child->getName() << ". Child count - " << childCount());
 	_child->setParentId(this->getId());
+
+	if( _child->getParentIndex() )
+	    if( _child->getParentIndex()>m_MaxChildIndex )
+		m_MaxChildIndex = _child->getParentIndex();
 
 	if( _index>=childCount() )
 	{

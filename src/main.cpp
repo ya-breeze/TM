@@ -32,13 +32,19 @@ int main( int argc, char *argv[] )
 		myappTranslator.load( "tm_" + QLocale::system().name() );
 	app.installTranslator( &myappTranslator );
 
+	try {
 #ifdef TABLET
-	TabletWindow w;
-	w.show();
+	    TabletWindow w;
+	    w.show();
 #else
-	TM w;
-	w.show();
+	    TM w;
+	    w.show();
 #endif
 
-	return app.exec();
+	    return app.exec();
+	} catch (std::exception& _ex) {
+	    ERROR("ERROR: " << _ex.what())
+	}
+
+	return -1;
 }

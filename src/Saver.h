@@ -51,6 +51,9 @@ public:
 	size_t getLastUpdated(const QString& _uuid ) { return 0; };
 
 protected:
+	void		saveDb(TaskTree& _tree);
+	void		saveDbRecurse(TaskTree& _tree, const QModelIndex& _idx);
+	void		saveDbTask(const Task& _task);
 	void		recurseSave(const TaskTree& _tree, const QModelIndex& _idx);
 	void		saveTask(const Task& _task);
 	void		saveActivity(std::ofstream& _file, const Activity& _act);

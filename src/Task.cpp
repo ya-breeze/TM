@@ -11,7 +11,8 @@
 
 
 Task::Task(const QString& _name)
-	: m_Created( QDateTime::currentDateTime() )
+	: m_Created( QDateTime::currentDateTime() ), m_ParentIndex(0),
+	  m_LocalUpdated( m_Created ), m_GlobalUpdated(m_LocalUpdated)
 {
 	str_Name = _name;
 	if( str_Name.isEmpty() )

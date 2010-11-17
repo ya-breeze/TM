@@ -11,6 +11,10 @@
 #include <QFile>
 #include <QDir>
 #include <QApplication>
+#include <QProcessEnvironment>
+#include <QVariant>
+#include <QSqlError>
+#include <QSqlQuery>
 
 #include "utils.h"
 
@@ -21,15 +25,27 @@
 Saver::Saver()
     : inTransaction(false ) {
     m_Db = QSqlDatabase::addDatabase("QSQLITE");
-    QString home = ::getenv("HOME");
-    m_Db.setDatabaseName(home + "/.tm.sqlite");
-    if (!m_Db.open())
-        throw std::runtime_error( ("Cannot open database") );
-//            qApp->tr("Unable to establish a database connection.\n"
-//                     "This example needs SQLite support. Please read "
-//                     "the Qt SQL driver documentation for information how "
-//                     "to build it.\n\n"
-//                     "Click Cancel to exit."), QMessageBox::Cancel);
+    m_Db.setDatabaseName( QProcessEnvironment::systemEnvironment().value("HOME", "/tmp") + "/.tm.sqlite" );
+    if( !m_Db.open() )
+	throw std::runtime_error(m_Db.lastError().text().toStdString());
+
+    QSqlQuery query;
+    if( !query.exec("CREATE TABLE IF NOT EXISTS Tasks(uuid text, parentUuid text, name text,"
+		    "notes text, created integer, localUpdated integer, globalUpdated integer,"
+		    "started integer, finished integer, planned text, parentIndex integer);") )
+	throw std::runtime_error(m_Db.lastError().text().toStdString());
+
+    if( !query.exec("CREATE TABLE IF NOT EXISTS Activities(uuid text, taskUuid text, name text,"
+		    "startTime integer, localUpdated integer, globalUpdated integer);") )
+	throw std::runtime_error(m_Db.lastError().text().toStdString());
+
+    if( !query.exec("CREATE TABLE IF NOT EXISTS Hosts(uuid text, lastUpdated integer);") )
+	throw std::runtime_error(m_Db.lastError().text().toStdString());
+
+    if( !query.exec("CREATE TABLE IF NOT EXISTS Categories(uuid text, parentUuid text, name text,"
+		    "notes text, created integer, localUpdated integer, globalUpdated integer,"
+		    "started integer, finished integer, planned text);") )
+	throw std::runtime_error(m_Db.lastError().text().toStdString());
 }
 
 Saver::~Saver() {
@@ -91,6 +107,43 @@ void Saver::saveTask(const Task& _task)
 		<< "END:VTODO" << std::endl;
 }
 
+void Saver::saveDbTask(const Task& _task)
+{
+//	DEBUG(_task.getName());
+
+	QSqlQuery query;
+	query.prepare("INSERT INTO Tasks(uuid, parentUuid, name, notes, created, localUpdated, globalUpdated, started, finished, planned, parentIndex)"
+		      "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+	query.addBindValue(_task.getId().toString());
+	query.addBindValue(_task.getParentId().toString());
+	query.addBindValue(_task.getName());
+	query.addBindValue(_task.getNotes());
+	query.addBindValue(_task.getCreated().toTime_t());
+	query.addBindValue(_task.getLocalUpdated().toTime_t());
+	query.addBindValue(_task.getGlobalUpdated().toTime_t());
+	query.addBindValue(_task.getStarted().toTime_t());
+	query.addBindValue(_task.getFinished().toTime_t());
+	query.addBindValue(_task.getPlannedTime());
+	query.addBindValue(_task.getParentIndex());
+
+	if( !query.exec() )
+	    throw std::runtime_error(m_Db.lastError().text().toStdString());
+}
+
+void Saver::saveDbRecurse(TaskTree& _tree, const QModelIndex& _idx) {
+    size_t sz = _tree.rowCount(_idx);
+    for(size_t i=0;i<sz;++i)
+    {
+	    QModelIndex idx = _tree.index(i, 0, _idx);
+	    const TaskItem *item = _tree.getItem(idx);
+	    Q_ASSERT(item);
+	    saveDbTask(*item);
+
+	    if( _tree.columnCount(idx) )
+		saveDbRecurse(_tree, idx);
+    }
+}
+
 void Saver::recurseSave(const TaskTree& _tree, const QModelIndex& _idx)
 {
 	size_t sz = _tree.rowCount(_idx);
@@ -108,17 +161,29 @@ void Saver::recurseSave(const TaskTree& _tree, const QModelIndex& _idx)
 
 Saver::TaskList Saver::getTasks(const QModelIndex& _idx) {
     TaskList result;
-    
+
     size_t sz = tree->rowCount(_idx);
     for(size_t i=0;i<sz;++i)
     {
-            QModelIndex idx = tree->index(i, 0, _idx);
-            const TaskItem *item = tree->getItem(idx);
-            Q_ASSERT(item);
-            result.push_back(item);
+	    QModelIndex idx = tree->index(i, 0, _idx);
+	    const TaskItem *item = tree->getItem(idx);
+	    Q_ASSERT(item);
+	    result.push_back(item);
     }
-    
+
     return result;
+}
+
+void Saver::saveDb(TaskTree& _tree) {
+    startTransaction();
+
+    QSqlQuery query;
+    if( !query.exec("DELETE FROM Tasks;") )
+	throw std::runtime_error(m_Db.lastError().text().toStdString());
+
+    saveDbRecurse(_tree, QModelIndex());
+
+    commit();
 }
 
 void Saver::save(TaskTree& _tree)
@@ -139,6 +204,8 @@ void Saver::save(TaskTree& _tree)
 
 	// Сохраним
 	recurseSave(_tree, QModelIndex());
+
+	saveDb(_tree);
 }
 
 void Saver::restore(TaskTree& _tree, CategoryTree& _cats)

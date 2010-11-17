@@ -31,6 +31,11 @@ class Task
 	QDateTime	m_Finished;
 	/// Планируемое время выполнения
 	QString		m_PlannedTime;
+	/// Индекс в родителе - фактически поле для сортировки задач внутри родителя
+	int		m_ParentIndex;
+
+	QDateTime	m_LocalUpdated;
+	QDateTime	m_GlobalUpdated;
 
 	/// Список категорий
 	QStringList	m_Categories;
@@ -123,14 +128,34 @@ public:
 		this->str_Name = str_Name;
 	}
 
+	int getParentIndex() const {
+	    return m_ParentIndex;
+	}
+	void setParentIndex(int _idx) {
+	    m_ParentIndex = _idx;
+	}
+
+	QDateTime getLocalUpdated() const {
+		return m_LocalUpdated;
+	}
+	void setLocalUpdated( const QDateTime& _LocalUpdated ) {
+		m_LocalUpdated = _LocalUpdated;
+	}
+
+	QDateTime getGlobalUpdated() const {
+		return m_GlobalUpdated;
+	}
+	void setGlobalUpdated( const QDateTime& _GlobalUpdated ) {
+		m_GlobalUpdated = _GlobalUpdated;
+	}
     const QStringList& getCategories() const
     {
-        return m_Categories;
+	return m_Categories;
     }
 
     void setCategories(const QStringList& m_Categories)
     {
-        this->m_Categories = m_Categories;
+	this->m_Categories = m_Categories;
     }
 
     void addCategory(const QString& _cat)
