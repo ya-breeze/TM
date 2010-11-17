@@ -15,6 +15,8 @@
 #include <sstream>
 #include <QDateTime>
 #include <QMap>
+#include <sys/time.h>
+#include <errno.h>
 
 
 //#include <map>
@@ -53,5 +55,38 @@ bool createDirFromFile( const QString& );
 /// Выводит дату _date относительно переданной даты _now в более простом для человека виде.
 /// Например: "завтра", "послезавтра", "на неделе" и т.д.
 QString prettyDate( const QDateTime& _now, const QDateTime& _date);
+
+
+/// Класс для подсчёта времени выполнения участков кода. Результат в миллисекундах
+class TimeItem {
+    timeval m_Start;
+    timeval m_End;
+
+public:
+    TimeItem() {
+	start();
+    }
+
+    void start() {
+	if( ::gettimeofday(&m_Start, NULL) )
+	    throw std::runtime_error(std::string("Can't get localtime - ") + ::strerror(errno));
+    }
+
+    long end() {
+	if( ::gettimeofday(&m_End, NULL) )
+	    throw std::runtime_error(std::string("Can't get localtime - ") + ::strerror(errno));
+
+//	DEBUG("Start " << m_Start.tv_sec << "." << m_Start.tv_usec);
+//	DEBUG("End   " << m_End.tv_sec << "." << m_End.tv_usec);
+	long result = (m_End.tv_sec - m_Start.tv_sec)*1000 + (m_End.tv_usec - m_Start.tv_usec)/1000;
+	return result;
+    }
+
+    long update() {
+	long result = end();
+	m_Start = m_End;
+	return result;
+    }
+};
 
 #endif /* UTILS_H_ */

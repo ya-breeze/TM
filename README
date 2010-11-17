@@ -28,3 +28,8 @@ LocalUpdated & GlobalUpdated
 Поэтому и нужно две метки времени. Глобальная - время изменения задачи,
 локальная - время попадания задачи на этот узел. При локальной правке задачи
 меняются обе метки.
+
+
+---
+Запрос для выборки количества детей у задач
+select uuid, children from Tasks LEFT JOIN (Select parentUuid, count(*) as children from Tasks group BY parentUuid) as t ON Tasks.uuid=t.parentUuid;

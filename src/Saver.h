@@ -26,13 +26,13 @@ public:
 
 	Saver();
 	~Saver();
-	
-	// Заглушка, пока задачи хранятся в TaskTree, а не в Saver	
+
+	// Заглушка, пока задачи хранятся в TaskTree, а не в Saver
 	TaskTree *tree;
 	void	setTaskTree(TaskTree& _tree) { tree = &_tree; }
 	typedef std::list<const Task*> TaskList;
 	TaskList getTasks(const QModelIndex& _idx = QModelIndex());
-	
+
 
 	void	save(TaskTree& _tree);
 	void	restore(TaskTree& _tree, CategoryTree& _cats);
@@ -42,16 +42,19 @@ public:
 	bool	canRestore(const QDate& _date);
 	DateSet	getActiveDays();
 	QString	getHome() const;
-	
-	void	startTransaction() {};
-	void	commit() {};
-	void	rollback() {};
-	
+
+	void	startTransaction();
+	void	commit();
+	void	rollback();
+
 	QString getLocalUuid() { return "dc6a478e-edeb-45ee-a7c7-dc2b258182d8"; };
 	size_t getLastUpdated(const QString& _uuid ) { return 0; };
 
 protected:
 	void		saveDb(TaskTree& _tree);
+	TaskMap		restoreDbTasks();
+	QStringList	restoreDbCategories(TaskMap& _tasks);
+	void		saveDbActivities(const DayActivities& _tree);
 	void		saveDbRecurse(TaskTree& _tree, const QModelIndex& _idx);
 	void		saveDbTask(const Task& _task);
 	void		recurseSave(const TaskTree& _tree, const QModelIndex& _idx);
@@ -66,7 +69,7 @@ protected:
 	void		recurseAddTasks(TaskTree& _tree, Task& _task, TaskMap& _tasks);
 
 	bool		inTransaction;
-	
+
 	QSqlDatabase	m_Db;
 };
 
