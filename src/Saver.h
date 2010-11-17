@@ -17,6 +17,27 @@
 #include "DayActivities.h"
 #include "CategoryTree.h"
 
+template<class T>
+class Transaction {
+    bool in_Transaction;
+    T&	 m_Saver;
+public:
+    Transaction(T &_saver)
+	: m_Saver(_saver) {
+	m_Saver.startTransaction();
+	in_Transaction = true;
+    }
+    ~Transaction() {
+	if( in_Transaction )
+	    m_Saver.rollback();
+    }
+    void commit() {
+	if( in_Transaction )
+	    m_Saver.commit();
+	in_Transaction = false;
+    }
+};
+
 /// Класс инкапсулирующий формат хранения всех данных программы
 class Saver
 {
@@ -26,6 +47,8 @@ public:
 
 	Saver();
 	~Saver();
+
+	void init();
 
 	// Заглушка, пока задачи хранятся в TaskTree, а не в Saver
 	TaskTree *tree;
@@ -50,9 +73,10 @@ public:
 	QString getLocalUuid() { return "dc6a478e-edeb-45ee-a7c7-dc2b258182d8"; };
 	size_t getLastUpdated(const QString& _uuid ) { return 0; };
 
+	TaskMap		restoreDbTasks();
+
 protected:
 	void		saveDb(TaskTree& _tree);
-	TaskMap		restoreDbTasks();
 	QStringList	restoreDbCategories(TaskMap& _tasks);
 	void		saveDbActivities(const DayActivities& _tree);
 	void		saveDbRecurse(TaskTree& _tree, const QModelIndex& _idx);

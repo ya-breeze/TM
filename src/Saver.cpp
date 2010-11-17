@@ -24,12 +24,18 @@
 
 Saver::Saver()
     : inTransaction(false ) {
-    m_Db = QSqlDatabase::addDatabase("QSQLITE");
+}
+
+void Saver::init() {
+    QSqlDatabase::removeDatabase("tmDatabase");
+    m_Db = QSqlDatabase::addDatabase("QSQLITE", "tmDatabase");
     m_Db.setDatabaseName( QProcessEnvironment::systemEnvironment().value("HOME", "/tmp") + "/.tm.sqlite" );
     if( !m_Db.open() )
 	throw std::runtime_error(m_Db.lastError().text().toStdString());
 
-    QSqlQuery query;
+    Transaction<Saver> t(*this);
+
+    QSqlQuery query(m_Db);
     if( !query.exec("CREATE TABLE IF NOT EXISTS Tasks(uuid text primary key, parentUuid text, name text,"
 		    "notes text, created integer, localUpdated integer, globalUpdated integer,"
 		    "started integer, finished integer, planned text, parentIndex integer);") )
@@ -47,7 +53,11 @@ Saver::Saver()
 	throw std::runtime_error(m_Db.lastError().text().toStdString());
     if( !query.exec("CREATE INDEX IF NOT EXISTS CategoriesIdxTask ON Categories(taskUuid);") )
 	throw std::runtime_error(m_Db.lastError().text().toStdString());
+    query.finish();
+
+    t.commit();
 }
+
 
 Saver::~Saver() {
     if(inTransaction) rollback();
@@ -115,7 +125,7 @@ void Saver::saveDbTask(const Task& _task)
 	ti.start();
 
 	// TODO Вынести prepare в конструктор
-	QSqlQuery query;
+	QSqlQuery query(m_Db);
 	query.prepare("REPLACE INTO Tasks(uuid, parentUuid, name, notes, created, localUpdated, globalUpdated, started, finished, planned, parentIndex)"
 		      "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
 //	DEBUG("SQL prepare time " << ti.update());
@@ -135,8 +145,9 @@ void Saver::saveDbTask(const Task& _task)
 	if( !query.exec() )
 	    throw std::runtime_error(m_Db.lastError().text().toStdString());
 //	DEBUG("SQL exec time " << ti.update());
+	query.finish();
 
-	QSqlQuery queryCategory;
+	QSqlQuery queryCategory(m_Db);
 	queryCategory.prepare("REPLACE INTO Categories(taskUuid, name) VALUES(?, ?);");
 	const QStringList& cats = _task.getCategories();
 	for(int i=0; i<cats.size(); ++i) {
@@ -146,6 +157,7 @@ void Saver::saveDbTask(const Task& _task)
 	    if( !query.exec() )
 		throw std::runtime_error(m_Db.lastError().text().toStdString());
 	}
+	query.finish();
 }
 
 void Saver::saveDbRecurse(TaskTree& _tree, const QModelIndex& _idx) {
@@ -196,20 +208,21 @@ void Saver::saveDb(TaskTree& _tree) {
     TimeItem ti;
     ti.start();
     DEBUG("Saving tasks in db...");
-    startTransaction();
+    Transaction<Saver> t(*this);
 
     DEBUG("Deleting...");
-    QSqlQuery query;
+    QSqlQuery query(m_Db);
     if( !query.exec("DELETE FROM Tasks;") )
 	throw std::runtime_error(m_Db.lastError().text().toStdString());
     if( !query.exec("DELETE FROM Categories;") )
 	throw std::runtime_error(m_Db.lastError().text().toStdString());
+    query.finish();
 
     DEBUG("Saving...");
     saveDbRecurse(_tree, QModelIndex());
 
     DEBUG("Commiting...");
-    commit();
+    t.commit();
     DEBUG("Tasks are saved db in " << ti.end());
 }
 
@@ -240,7 +253,8 @@ Saver::TaskMap Saver::restoreDbTasks() {
     TimeItem ti;
     DEBUG("Restoring tasks from db...");
 
-    QSqlQuery query("SELECT uuid, parentUuid, name, notes, created, localUpdated, globalUpdated, started, finished, planned, parentIndex FROM Tasks;");
+    QSqlQuery query(m_Db);
+    query.exec("SELECT uuid, parentUuid, name, notes, created, localUpdated, globalUpdated, started, finished, planned, parentIndex FROM Tasks;");
     while (query.next()) {
 	Task task;
 	int dt;
@@ -261,6 +275,7 @@ Saver::TaskMap Saver::restoreDbTasks() {
 	tasks[ task.getId() ] = task;
 //	DEBUG("Restored task " << task.getName());
     }
+    query.finish();
 
     DEBUG("Tasks are restored from db in " << ti.end());
 
@@ -272,12 +287,14 @@ QStringList Saver::restoreDbCategories(TaskMap& _tasks) {
     TimeItem ti;
     DEBUG("Restoring categories from db...");
 
-    QSqlQuery query("SELECT taskUuid, name FROM Categories;");
+    QSqlQuery query(m_Db);
+    query.exec("SELECT taskUuid, name FROM Categories;");
     while (query.next()) {
 	QString name = QUuid(query.value(1).toString());
 	_tasks[ QUuid(query.value(0).toString()) ].addCategory(name);
 	result.append(name);
     }
+    query.finish();
 
     DEBUG("Categories are restored from db in " << ti.end());
 
@@ -384,10 +401,12 @@ void Saver::restore(TaskTree& _tree, CategoryTree& _cats)
 		tasks[task.getId()] = task;
 	}
 #else
+	Transaction<Saver> t(*this);
 	tasks = restoreDbTasks();
 	QStringList cats = restoreDbCategories(tasks);
 	for(int i=0; i<cats.size(); ++i)
 	    _cats.addCategory( cats[i] );
+	t.commit();
 #endif
 
 	// Добавим задачи в дерево
@@ -580,14 +599,20 @@ void Saver::recurseAddTasks(TaskTree& _tree, Task& _task, TaskMap& _tasks)
 }
 
 void Saver::startTransaction() {
+    TRACE;
     if( !m_Db.transaction() )
 	throw std::runtime_error(m_Db.lastError().text().toStdString());
+    inTransaction = true;
 }
 void Saver::commit() {
+    TRACE;
     if( !m_Db.commit() )
 	throw std::runtime_error(m_Db.lastError().text().toStdString());
+    inTransaction = false;
 }
 void Saver::rollback() {
+    TRACE;
     if( !m_Db.rollback() )
 	throw std::runtime_error(m_Db.lastError().text().toStdString());
+    inTransaction = false;
 }

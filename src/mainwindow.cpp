@@ -13,8 +13,9 @@
 #include "CategoryEdit.h"
 
 TM::TM(QWidget *parent)
-    : QMainWindow(parent), p_LastActs(new LastActs(&m_Tasks, &m_Activities, this)), p_Server(new Server(m_Saver, this))
+    : QMainWindow(parent), p_LastActs(new LastActs(&m_Tasks, &m_Activities, this)), m_Saver(), p_Server(new Server(m_Saver, this))
 {
+    m_Saver.init();
 	ui.setupUi(this);
 
 	// Задачи
@@ -48,7 +49,7 @@ TM::TM(QWidget *parent)
 	connect( ui.lvLastActivities->selectionModel(), SIGNAL(currentChanged ( const QModelIndex &, const QModelIndex &)),
 			this, SLOT(slot_SelectedLastAct(const QModelIndex&)) );
 	connect( ui.cbHideDone, SIGNAL(stateChanged(int)), this, SLOT(slot_HideDone()) );
-	
+
 
 	// Shortcuts
 	p_ShcFocusTasks		= new QShortcut(QKeySequence("Ctrl+T"), this, SLOT(slot_SetFocusTasks()));
@@ -58,7 +59,7 @@ TM::TM(QWidget *parent)
 
 	new QShortcut(QKeySequence("Ctrl+F"), this, SLOT(slot_SetFFFocus()));
 	new QShortcut(QKeySequence("Esc"), ui.leFastFilter, SLOT(clear()));
-	
+
 
 	p_ShcAddChildTask	= new QShortcut(QKeySequence("Ins"), this, SLOT(slot_AddItem()));
 	p_ShcAddSiblingTask	= new QShortcut(QKeySequence("Shift+Ins"), this, SLOT(slot_AddSiblingItem()));
@@ -76,22 +77,22 @@ TM::TM(QWidget *parent)
 
 	slot_Restore();
 	slot_BtnUpdateTime();
-	
+
 	m_Saver.setTaskTree(m_Tasks);
-	
+
 	// Focus on tasks
 	ui.treeView->setFocus();
 
-        // popup on global shortcut
-        QxtGlobalShortcut* shortcut = new QxtGlobalShortcut(this);
-        connect(shortcut, SIGNAL(activated()), this, SLOT(toggleVisibility()));
-        shortcut->setShortcut(QKeySequence("F12"));
-        
-        // tray
-        p_Tray = new QSystemTrayIcon(this);
-        p_Tray->setIcon( QIcon(":/images/MainIcon") );
-        p_Tray->show();
-        QObject::connect(p_Tray, SIGNAL(activated( QSystemTrayIcon::ActivationReason )), this, SLOT(slotTray( QSystemTrayIcon::ActivationReason )));
+	// popup on global shortcut
+	QxtGlobalShortcut* shortcut = new QxtGlobalShortcut(this);
+	connect(shortcut, SIGNAL(activated()), this, SLOT(toggleVisibility()));
+	shortcut->setShortcut(QKeySequence("F12"));
+
+	// tray
+	p_Tray = new QSystemTrayIcon(this);
+	p_Tray->setIcon( QIcon(":/images/MainIcon") );
+	p_Tray->show();
+	QObject::connect(p_Tray, SIGNAL(activated( QSystemTrayIcon::ActivationReason )), this, SLOT(slotTray( QSystemTrayIcon::ActivationReason )));
 }
 
 TM::~TM()
@@ -311,8 +312,7 @@ void TM::slot_Save()
 		QModelIndex idx = ui.treeView->selectionModel()->currentIndex();
 		slot_TaskChanged(idx, idx);
 
-		Saver saver;
-		saver.save(m_Tasks);
+		m_Saver.save(m_Tasks);
 //		m_Tasks.setChanged(false);
 		if( m_Activities.hasChanged() )
 			m_Activities.save();
@@ -328,8 +328,7 @@ void TM::slot_Restore()
 	try
 	{
 		m_Tasks.clear();
-		Saver saver;
-		saver.restore(m_Tasks, m_Cats);
+		m_Saver.restore(m_Tasks, m_Cats);
 		m_Activities.setToday();
 		ui.treeView->reset();
 		ui.treeView->expandAll();
@@ -713,103 +712,103 @@ void TM::slot_FastFilter(const QString& _value)
 /// Вызывается при начале синхронизации, чтобы заблокировать работу GUI
 void TM::slot_StartSynchronization()
 {
-//    QMessageBox::critical(this, tr("Syncronization"), tr("Syncronization is starting! Please wait.")); 
+//    QMessageBox::critical(this, tr("Syncronization"), tr("Syncronization is starting! Please wait."));
     slot_Save();
 }
 
 /// Вызывается после окончания синхронизации
 void TM::slot_StopSynchronization()
 {
-//    QMessageBox::critical(this, tr("Syncronization"), tr("Syncronization is finished! Good luck")); 
+//    QMessageBox::critical(this, tr("Syncronization"), tr("Syncronization is finished! Good luck"));
 }
 
 // Возвращает строку из пробелов. Длина строки равна глубине вложенности задачи
 QString TM::deep2Spaces(Task *task) {
-        QString result;
-        
-        while( task ) {
-            if( !task->getParentId().isNull() ) {
-                task = m_Tasks.getItem( task->getParentId() );
-                result += "\t";
-            }
-            else
-                task = NULL;
-        }
-        
-        return result;
+	QString result;
+
+	while( task ) {
+	    if( !task->getParentId().isNull() ) {
+		task = m_Tasks.getItem( task->getParentId() );
+		result += "\t";
+	    }
+	    else
+		task = NULL;
+	}
+
+	return result;
 }
 
 QString TM::fullName(Task *task) {
-        QString result;
-        
-        QString fullTaskName;
-        while( task ) {
-            if( !fullTaskName.isEmpty() )
-                fullTaskName = ":" + fullTaskName;
-            fullTaskName = task->getName() + fullTaskName;
+	QString result;
 
-            if( !task->getParentId().isNull() ) {
-                task = m_Tasks.getItem( task->getParentId() );
-                //result += "\t";
-            }
-            else
-                task = NULL;
-        }
-        
-        return result + fullTaskName;
+	QString fullTaskName;
+	while( task ) {
+	    if( !fullTaskName.isEmpty() )
+		fullTaskName = ":" + fullTaskName;
+	    fullTaskName = task->getName() + fullTaskName;
+
+	    if( !task->getParentId().isNull() ) {
+		task = m_Tasks.getItem( task->getParentId() );
+		//result += "\t";
+	    }
+	    else
+		task = NULL;
+	}
+
+	return result + fullTaskName;
 }
 
 /// Вызывается для отображения активностей одного дня
 void TM::slot_DumpActivitiesForDate() {
     DlgCalendar cld;
     if( cld.exec(QDateTime::currentDateTime())!=QDialog::Accepted )
-        return;    
-    
+	return;
+
     DayActivities acts = m_Activities.getDay( cld.dateTime().date() );
     if( !acts.count() ) {
-        DEBUG("There are no any activities");
-        return;
+	DEBUG("There are no any activities");
+	return;
     }
-    
-    
+
+
     DEBUG("There are " << acts.count() << " activities");
     int total = 0;
     QMap< QPair<QString, QString/*deep*/>, int/*condur*/ > times;
     std::cout << "---------------- " << cld.dateTime().date().toString("yyyy.MM.dd") << " ------------------" << std::endl;
-    for(size_t i=0; i<acts.count(); ++i) {      
-        // Посчитаем длительность. Для последней активности длительность неопределена
-        Activity act = acts.getActivity(i);
-        int condur = -1;
-        if( i!=acts.count()-1 ) {
-            Activity next = acts.getActivity(i+1);
-            condur = act.getStartTime().secsTo( next.getStartTime() );
-        }
+    for(size_t i=0; i<acts.count(); ++i) {
+	// Посчитаем длительность. Для последней активности длительность неопределена
+	Activity act = acts.getActivity(i);
+	int condur = -1;
+	if( i!=acts.count()-1 ) {
+	    Activity next = acts.getActivity(i+1);
+	    condur = act.getStartTime().secsTo( next.getStartTime() );
+	}
 
-        // Получим полное название задачи - включая родителей
-        Task *task = m_Tasks.getItem(act.getAssignedTask());
-        QString fullTaskName;
-        while( task ) {
-            if( !fullTaskName.isEmpty() )
-                fullTaskName = ":" + fullTaskName;
-            fullTaskName = task->getName() + fullTaskName;
+	// Получим полное название задачи - включая родителей
+	Task *task = m_Tasks.getItem(act.getAssignedTask());
+	QString fullTaskName;
+	while( task ) {
+	    if( !fullTaskName.isEmpty() )
+		fullTaskName = ":" + fullTaskName;
+	    fullTaskName = task->getName() + fullTaskName;
 
     	    // Длительность родительских задач
     	    QPair<QString, QString> key = qMakePair(fullName(task), deep2Spaces(task));
     	    //QString name = deep2Spaces(task) + task->getName();
     	    //QString name = deep2Spaces(task);// + fullTaskName;
-    	    if( !times.contains(key) ) 
-    		times[ key ] = 0;
+    	    if( !times.contains(key) )
+		times[ key ] = 0;
     	    if( condur!=-1 )
-    		times[key] += condur;  		
+		times[key] += condur;
 
-            if( !task->getParentId().isNull() )
-                task = m_Tasks.getItem( task->getParentId() );
-            else
-                task = NULL;
-        }
+	    if( !task->getParentId().isNull() )
+		task = m_Tasks.getItem( task->getParentId() );
+	    else
+		task = NULL;
+	}
 
-        //std::cout << fullTaskName << " - " <<(condur==-1 ? TM::tr("Unknown") : QString::number(condur/60)+" "+TM::tr("min") ) << std::endl;
-        total += condur;
+	//std::cout << fullTaskName << " - " <<(condur==-1 ? TM::tr("Unknown") : QString::number(condur/60)+" "+TM::tr("min") ) << std::endl;
+	total += condur;
     }
     std::cout << "Total: " << total/60 << " min" << std::endl;
     QMapIterator< QPair<QString, QString>, int> i(times);
@@ -828,11 +827,11 @@ void TM::slotTray(QSystemTrayIcon::ActivationReason _reason)
 {
     if( _reason==QSystemTrayIcon::Trigger )
     {
-        toggleVisibility();
+	toggleVisibility();
     }
     else if( _reason==QSystemTrayIcon::Context )
     {
-        DEBUG("Context menu");
+	DEBUG("Context menu");
 //        QMenu menu(this);
 //        menu.addAction(p_mw->actionStart);
 //        menu.addAction(p_mw->actionStop);

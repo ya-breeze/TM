@@ -54,13 +54,13 @@ typedef QMap<QString, QString> QStringMap;
 class Server : public QObject
 {
     Q_OBJECT
-    
+
 public:
     Server(Saver &_saver, QWidget *parent = 0);
-    
+
 private slots:
     void sendFortune();
-    
+
 private:
     QTcpServer *tcpServer;
     Saver       &m_Saver;
@@ -69,7 +69,7 @@ private:
 class Connection : public QObject
 {
     Q_OBJECT
-    
+
     QTcpSocket *p_ClientConnection;
     bool        is_WaitingHeaders;
     QStringList m_Headers;
@@ -80,12 +80,12 @@ class Connection : public QObject
     int         m_BodyLength;
     int         m_Timer;
     bool        was_NetData;
-    
+
     enum States {
-        WAITING_UUID,
-        WAITING_UPLOAD,
-        WAITING_DOWNLOAD,
-        FINISHED
+	WAITING_UUID,
+	WAITING_UPLOAD,
+	WAITING_DOWNLOAD,
+	FINISHED
     };
     States      m_State;
 
@@ -100,23 +100,25 @@ protected slots:
 
 protected:
     void timerEvent( QTimerEvent * event );
-    
+
     /// Process /get_updates request
     void processGetUpdates(Saver& _saver);
+    /// Process /send_updates request
+    void processSendUpdates(Saver& _saver);
     /// Process /get_uuid request. Returns remote uuid
     QString processGetUuid(Saver& _saver);
     QString getRemoteUuid();
     /// Returns start of update interval for remote host
     time_t getRemoteLastUpdated();
     QStringMap getHeaders(const QStringList& _headers);
-    
+
     /// \return true on empty line - i.e. false mean that not all headers were readed
     bool readHeaders(QTcpSocket *_sock, QStringList& _headers);
     /// \return bytes to read for body
     int readBody(QTcpSocket *_sock, QBuffer& _body, int _length);
     /// Clear request data
     void clear();
-    
+
     QString getTasks() const;
     QString getActivities() const;
 };
