@@ -42,9 +42,7 @@ Saver::Saver()
     if( !query.exec("CREATE TABLE IF NOT EXISTS Hosts(uuid text, lastUpdated integer);") )
 	throw std::runtime_error(m_Db.lastError().text().toStdString());
 
-    if( !query.exec("CREATE TABLE IF NOT EXISTS Categories(uuid text, parentUuid text, name text,"
-		    "notes text, created integer, localUpdated integer, globalUpdated integer,"
-		    "started integer, finished integer, planned text);") )
+    if( !query.exec("CREATE TABLE IF NOT EXISTS Categories(taskUuid text, name text);") )
 	throw std::runtime_error(m_Db.lastError().text().toStdString());
 }
 
@@ -112,7 +110,7 @@ void Saver::saveDbTask(const Task& _task)
 //	DEBUG(_task.getName());
 
 	QSqlQuery query;
-	query.prepare("INSERT INTO Tasks(uuid, parentUuid, name, notes, created, localUpdated, globalUpdated, started, finished, planned, parentIndex)"
+	query.prepare("REPLACE INTO Tasks(uuid, parentUuid, name, notes, created, localUpdated, globalUpdated, started, finished, planned, parentIndex)"
 		      "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
 	query.addBindValue(_task.getId().toString());
 	query.addBindValue(_task.getParentId().toString());
@@ -128,6 +126,17 @@ void Saver::saveDbTask(const Task& _task)
 
 	if( !query.exec() )
 	    throw std::runtime_error(m_Db.lastError().text().toStdString());
+
+	QSqlQuery queryCategory;
+	queryCategory.prepare("REPLACE INTO Categories(taskUuid, name) VALUES(?, ?);");
+	const QStringList& cats = _task.getCategories();
+	for(int i=0; i<cats.size(); ++i) {
+	    queryCategory.addBindValue(_task.getId().toString());
+	    queryCategory.addBindValue(cats[i]);
+
+	    if( !query.exec() )
+		throw std::runtime_error(m_Db.lastError().text().toStdString());
+	}
 }
 
 void Saver::saveDbRecurse(TaskTree& _tree, const QModelIndex& _idx) {
@@ -175,15 +184,20 @@ Saver::TaskList Saver::getTasks(const QModelIndex& _idx) {
 }
 
 void Saver::saveDb(TaskTree& _tree) {
+    DEBUG("Saving tasks in db...");
     startTransaction();
 
     QSqlQuery query;
     if( !query.exec("DELETE FROM Tasks;") )
 	throw std::runtime_error(m_Db.lastError().text().toStdString());
+    if( !query.exec("DELETE FROM Categories;") )
+	throw std::runtime_error(m_Db.lastError().text().toStdString());
 
     saveDbRecurse(_tree, QModelIndex());
 
+    DEBUG("Commiting...");
     commit();
+    DEBUG("Tasks are saved db");
 }
 
 void Saver::save(TaskTree& _tree)
