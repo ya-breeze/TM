@@ -411,7 +411,7 @@ void Saver::restore(TaskTree& _tree, CategoryTree& _cats)
 
 	// Добавим задачи в дерево
 	while( !tasks.empty() )
-		recurseAddTasks(_tree, tasks.begin()->second, tasks);
+		recurseAddTasks(_tree, tasks.begin().value(), tasks);
 
 //	_tree.setChanged( false );
 }
@@ -588,14 +588,14 @@ void Saver::recurseAddTasks(TaskTree& _tree, Task& _task, TaskMap& _tasks)
 		TaskMap::iterator it=_tasks.find(_task.getParentId());
 		if( it==_tasks.end() )
 			ERROR("There is no task with id " << _task.getParentId());
-		recurseAddTasks(_tree, it->second, _tasks);
+		recurseAddTasks(_tree, it.value(), _tasks);
 	}
 
 	// Родитель уже в дереве - смело добавляем потомка
 	_tree.addChild( _task.getParentId(), _task );
 
 	// Теперь можно удалить добавленную задачу
-	_tasks.erase(_task.getId());
+	_tasks.remove(_task.getId());
 }
 
 void Saver::startTransaction() {
@@ -615,4 +615,15 @@ void Saver::rollback() {
     if( !m_Db.rollback() )
 	throw std::runtime_error(m_Db.lastError().text().toStdString());
     inTransaction = false;
+}
+
+void Saver::replaceTask(const Task& _task) {
+    TRACE;
+    // TODO Проверять что переданная задача новее, чем в хранилище и заменяет её
+    saveDbTask(_task);
+}
+
+void Saver::removeTask(const Task& _task) {
+    TRACE;
+    throw std::runtime_error(__PRETTY_FUNCTION__ + std::string("Not implemented"));
 }

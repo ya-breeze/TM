@@ -43,7 +43,7 @@ class Saver
 {
 public:
 	typedef std::set<QDate> DateSet;
-	typedef std::map<QUuid, Task> TaskMap;
+	typedef QMap<QUuid, Task> TaskMap;
 
 	Saver();
 	~Saver();
@@ -59,6 +59,10 @@ public:
 
 	void	save(TaskTree& _tree);
 	void	restore(TaskTree& _tree, CategoryTree& _cats);
+
+	/// Проверяет, что переданная задача новее, чем в хранилище и заменяет её
+	void	replaceTask(const Task& _task);
+	void	removeTask(const Task& _task);
 
 	void	save(const QDate& _date, const DayActivities& _tree);
 	void	restore(const QDate& _date, DayActivities& _tree);

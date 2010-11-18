@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 #include <qjson/parser.h>
+#include <qjson/serializer.h>
 
 HttpProcessor::HttpProcessor(Saver &_saver)
     : m_Saver(_saver)
@@ -89,10 +90,19 @@ void HttpProcessor::processSendUpdates(const QStringMap& _headers, const QBuffer
 	    DEBUG("Object - " << type << ":" << status);
 
 	    if( type=="task" ) {
+		QVariantMap data = obj["data"].toMap();
+		Task task;
+		task.setId( QUuid(data["uuid"].toString()) );
 		if( status=="deleted") {
-
+		    m_Saver.removeTask(task);
 		} else if( status=="updated" ) {
-
+		    task.setParentId( QUuid(data["parentUuid"].toString()) );
+		    task.setName(data["title"].toString());
+		    task.setNotes(data["notes"].toString());
+		    task.setCreated( QDateTime::fromTime_t(data["created"].toInt()) );
+		    task.setLocalUpdated( QDateTime::fromTime_t(data["localUpdated"].toInt()) );
+		    task.setGlobalUpdated( QDateTime::fromTime_t(data["globalUpdated"].toInt()) );
+		    m_Saver.replaceTask(task);
 		} else {
 		    DEBUG("Unknown status: " << status << " for " << type);
 		}
@@ -121,7 +131,7 @@ void HttpProcessor::processGetUpdates(const QStringMap& _headers, const QBuffer&
     QString body;
     {
 	QTextStream out(&body);
-	out << "{\"tasks\":[" << getTasks() << "],"
+	out << "{\"tasks\":" << getTasks() << ","
 	    << "\"activities\":[" << getActivities() << "]"
 	    << "}";
     }
@@ -132,7 +142,7 @@ void HttpProcessor::processGetUpdates(const QStringMap& _headers, const QBuffer&
 	<< body;
 
     DEBUG("Will transfer entities from time " << fromTime << ", body size " << body.length());
-//    DEBUG(getTasks());
+    DEBUG(getTasks());
     _clientConnection->write(data.toUtf8());
 }
 
@@ -152,36 +162,32 @@ time_t HttpProcessor::getRemoteLastUpdated(const QStringMap& _headers) {
 
 
 QString HttpProcessor::getTasks() const {
-    QString result;
-    QTextStream ss(&result);
-
+    QVariantList list;
     Saver::TaskMap tasks = m_Saver.restoreDbTasks();
     if( !tasks.empty()) {
-	for(Saver::TaskMap::iterator it=tasks.begin();;) {
-	    ss << "{";
+	foreach(Task task, tasks.values()) {
+	    QVariantMap data;
 
-	    QString id = it->second.getId().toString();
-	    QString parentId = it->second.getParentId().toString();
+	    QString id = task.getId().toString();
+	    QString parentId = task.getParentId().toString();
 	    id = id.mid(1, id.length()-2);
 	    parentId = parentId.mid(1, parentId.length()-2);
+	    data["uuid"] = id;
+	    data["parentUuid"] = parentId;
+	    data["localUpdated"] = task.getLocalUpdated().toTime_t();
+	    data["globalUpdated"] = task.getGlobalUpdated().toTime_t();
+	    data["title"] = task.getName().toLatin1(); // FIXME
+	    data["notes"] = task.getNotes().toLatin1();// FIXME
+	    data["created"] = task.getCreated().toTime_t();
 
-	    ss  << "\"uuid\":\"" << id << "\", "
-		<< "\"localUpdated\":1287384070856, "
-		<< "\"globalUpdated\":1287384070856, "
-		<< "\"parentUuid\":\"" << parentId << "\", "
-//                << "\"title\":\"" << (*it)->getName().replace("\"", "\\\"") << "\", "
-//                << "\"notes\":\"" << (*it)->getNotes() << "\"";
-		<< "\"title\":\"\", "
-		<< "\"notes\":\"\"";
-	    ss << "}";
-
-	    ++it;
-	    if( it==tasks.end() )
-		break;
-	    ss << ", ";
+	    list << data;
 	}
     }
-    return result;
+
+    QJson::Serializer serializer;
+    QByteArray json = serializer.serialize(list);
+
+    return QString(json);
 }
 QString HttpProcessor::getActivities() const {
     QString result;
