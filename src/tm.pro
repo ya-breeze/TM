@@ -4,8 +4,9 @@ TARGET = tm
 QT += core \
     gui \
     network sql
-CONFIG += qxt
+CONFIG += qxt link_pkgconfig
 QXT += core gui
+PKGCONFIG = QJson
 INCLUDEPATH += qtsingleapp
 HEADERS += CalendarShower.h \
     dlgcalendar.h \
@@ -33,7 +34,8 @@ HEADERS += CalendarShower.h \
     mainwindow.h \
     CategoryTree.h \
     TabletDlgTask.h server.h \
-    CategoryEdit.h
+    CategoryEdit.h \
+    httpprocessor.h
 SOURCES += CalendarShower.cpp \
     dlgcalendar.cpp \
     PlannedTasks.cpp \
@@ -60,7 +62,8 @@ SOURCES += CalendarShower.cpp \
     mainwindow.cpp \
     CategoryTree.cpp \
     TabletDlgTask.cpp \
-    CategoryEdit.cpp
+    CategoryEdit.cpp \
+    httpprocessor.cpp
 FORMS += dlgcalendar.ui \
     PlannedTasks.ui \
     tabletmain.ui \

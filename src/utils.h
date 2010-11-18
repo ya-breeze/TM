@@ -36,8 +36,8 @@ inline std::ostream& operator<<(std::ostream& _os, const QString& _s)
 #define TRACE
 #define DEBUG(x)
 #else
-#define TRACE		{std::cout << __FILE__ << ":" << __LINE__ << std::endl;}
-#define DEBUG(x)	{std::cout << __FILE__ << ":" << __LINE__ << " - " << x << std::endl;}
+#define TRACE		std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+#define DEBUG(x)	std::cout << __FILE__ << ":" << __LINE__ << " - " << x << std::endl;
 #endif
 
 #define ERROR(TEXT) {std::stringstream s; s << TEXT; throw std::runtime_error(s.str());}

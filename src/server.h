@@ -46,6 +46,7 @@
 
 #include "Saver.h"
 #include "utils.h"
+#include "httpprocessor.h"
 
 #define MAX_MESSAGE 1000000
 
@@ -76,10 +77,10 @@ class Connection : public QObject
     QStringMap  m_RequestHeaders;
     QBuffer     m_Buffer;
     Saver       &m_Saver;
-    QString     str_ClientUuid;
     int         m_BodyLength;
     int         m_Timer;
     bool        was_NetData;
+    HttpProcessor m_Handler;
 
     enum States {
 	WAITING_UUID,
@@ -100,16 +101,6 @@ protected slots:
 
 protected:
     void timerEvent( QTimerEvent * event );
-
-    /// Process /get_updates request
-    void processGetUpdates(Saver& _saver);
-    /// Process /send_updates request
-    void processSendUpdates(Saver& _saver);
-    /// Process /get_uuid request. Returns remote uuid
-    QString processGetUuid(Saver& _saver);
-    QString getRemoteUuid();
-    /// Returns start of update interval for remote host
-    time_t getRemoteLastUpdated();
     QStringMap getHeaders(const QStringList& _headers);
 
     /// \return true on empty line - i.e. false mean that not all headers were readed
@@ -118,9 +109,6 @@ protected:
     int readBody(QTcpSocket *_sock, QBuffer& _body, int _length);
     /// Clear request data
     void clear();
-
-    QString getTasks() const;
-    QString getActivities() const;
 };
 
 #endif

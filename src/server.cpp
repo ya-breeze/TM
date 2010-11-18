@@ -31,7 +31,7 @@ void Server::sendFortune()
 
 Connection::Connection(QObject *_parent, QTcpSocket *_clientConnection, Saver &_saver)
     : QObject(_parent), p_ClientConnection(_clientConnection), m_State(WAITING_UUID), m_Saver(_saver),
-    is_WaitingHeaders(true) {
+    is_WaitingHeaders(true), m_Handler(m_Saver) {
 
     TRACE;
     connect(p_ClientConnection, SIGNAL(readyRead()), this, SLOT(readyRead()));
@@ -117,23 +117,8 @@ bool Connection::onEmptyLine() {
 	if( tokens.size()<3 )
 	    throw std::runtime_error( "Incorrect request line - " + m_Headers[0].toStdString() );
 
-	Saver::TaskMap tasks = m_Saver.restoreDbTasks();
-	DEBUG("!!!" << tasks.size());
-	Transaction<Saver> t(m_Saver);
+	m_Handler.process(tokens[1], m_RequestHeaders, m_Buffer, p_ClientConnection);
 
-	if( tokens[1]=="/get_uuid" )
-	    str_ClientUuid = processGetUuid(m_Saver);
-	else if( tokens[1]=="/get_updates" )
-	    processGetUpdates(m_Saver);
-	else if( tokens[1]=="/send_updates" )
-	    processSendUpdates(m_Saver);
-	else
-	    throw std::runtime_error( "Unknown request - " + m_Headers[0].toStdString() );
-
-	t.commit();
-
-	// Reading another request
-	DEBUG("Request is processed successfully");
 	res = true;
     } catch (std::runtime_error& _ex) {
 	DEBUG("ERROR: Sync error " << _ex.what())
@@ -151,95 +136,6 @@ void Connection::clear() {
     m_RequestHeaders.clear();
     // May be some bytes are in buffer already
     readyRead();
-}
-
-
-QString Connection::getRemoteUuid()
-{
-    TRACE;
-    for(int i=1; i<m_Headers.size(); ++i) {
-	DEBUG(m_Headers[i]);
-	QStringList tokens = m_Headers[i].split(":");
-	if( !tokens[0].compare("uuid", Qt::CaseInsensitive) ) {
-	    QString result = tokens[1];
-	    if( result.isEmpty() )
-		throw std::runtime_error("Client UUID is empty");
-	    return result;
-	}
-    }
-
-    throw std::runtime_error("Client UUID is not specified");
-}
-
-/// Process /get_uuid request. Returns remote uuid
-QString Connection::processGetUuid(Saver& _saver) {
-    TRACE;
-    QString clientUuid = getRemoteUuid();
-    DEBUG("Remote UUID - " << clientUuid);
-
-    QString body;
-    {
-	QTextStream out(&body);
-	out << "{\"uuid\":" << _saver.getLocalUuid()
-	    << ",\"lastUpdated\":" << _saver.getLastUpdated(clientUuid)
-	    << "}";
-    }
-    QString data;
-    QTextStream out(&data);
-    out << "HTTP/1.1 200 OK\r\n"
-	<< "Host: 10.0.2.2:9090\r\n"
-	<< "Content-length:" << body.length() << "\r\n"
-	<< "Connection: Keep-Alive\r\n"
-	<< "Content-Type: text/plain\r\n"
-	<< "\r\n"
-	<< body
-	<< "\r\n";
-
-
-    p_ClientConnection->write(data.toUtf8());
-
-    return clientUuid;
-}
-
-void Connection::processSendUpdates(Saver& _saver) {
-    DEBUG(__PRETTY_FUNCTION__ << " is not implemented");
-}
-
-/// Process /get_updates request
-void Connection::processGetUpdates(Saver& _saver) {
-    TRACE;
-    time_t fromTime = getRemoteLastUpdated();
-
-    QString body;
-    {
-	QTextStream out(&body);
-	out << "{\"tasks\":[" << getTasks() << "],"
-	    << "\"activities\":[" << getActivities() << "]"
-	    << "}";
-    }
-    QString data;
-    QTextStream out(&data);
-    out << "HTTP/1.1 200 OK\r\n"
-	<< "Content-Length:" << body.length() << "\r\n\r\n"
-	<< body;
-
-    DEBUG("Will transfer entities from time " << fromTime << ", body size " << body.length());
-    DEBUG(getTasks());
-    p_ClientConnection->write(data.toUtf8());
-}
-
-/// Returns start of update interval for remote host
-time_t Connection::getRemoteLastUpdated() {
-    TRACE;
-
-    QString result = m_RequestHeaders["fromtime"];
-    if( result.isEmpty() )
-	throw std::runtime_error("'fromTime' is empty or not specified");
-
-    time_t tm = 0;
-    bool ok;
-    tm = result.toInt(&ok);
-    return tm;
 }
 
 QStringMap Connection::getHeaders(const QStringList& _headers) {
@@ -272,41 +168,4 @@ void Connection::timerEvent( QTimerEvent * ) {
 	p_ClientConnection->close();
     }
     was_NetData = false;
-}
-
-QString Connection::getTasks() const {
-    QString result;
-    QTextStream ss(&result);
-
-    Saver::TaskList tasks = m_Saver.getTasks();
-    if( !tasks.empty()) {
-	for(Saver::TaskList::iterator it=tasks.begin();;) {
-	    ss << "{";
-
-	    QString id = (*it)->getId().toString();
-	    QString parentId = (*it)->getParentId().toString();
-	    id = id.mid(1, id.length()-2);
-	    parentId = parentId.mid(1, parentId.length()-2);
-
-	    ss  << "\"uuid\":\"" << id << "\", "
-		<< "\"localUpdated\":1287384070856, "
-		<< "\"globalUpdated\":1287384070856, "
-		<< "\"parentUuid\":\"" << parentId << "\", "
-//                << "\"title\":\"" << (*it)->getName().replace("\"", "\\\"") << "\", "
-//                << "\"notes\":\"" << (*it)->getNotes() << "\"";
-		<< "\"title\":\"\", "
-		<< "\"notes\":\"\"";
-	    ss << "}";
-
-	    ++it;
-	    if( it==tasks.end() )
-		break;
-	    ss << ", ";
-	}
-    }
-    return result;
-}
-QString Connection::getActivities() const {
-    QString result;
-    return result;
 }
