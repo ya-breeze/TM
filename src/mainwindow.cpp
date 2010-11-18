@@ -50,6 +50,9 @@ TM::TM(QWidget *parent)
 			this, SLOT(slot_SelectedLastAct(const QModelIndex&)) );
 	connect( ui.cbHideDone, SIGNAL(stateChanged(int)), this, SLOT(slot_HideDone()) );
 
+	// Net syncs
+	// TODO Нужен сигнал о начале синхронизации, чтобы сохранить текущие правки
+	connect( p_Server, SIGNAL(updated()), this, SLOT(slot_Restore()));
 
 	// Shortcuts
 	p_ShcFocusTasks		= new QShortcut(QKeySequence("Ctrl+T"), this, SLOT(slot_SetFocusTasks()));

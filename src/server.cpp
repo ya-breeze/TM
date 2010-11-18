@@ -25,8 +25,8 @@ void Server::sendFortune()
 {
     DEBUG("Accepted new connection");
     QTcpSocket *clientConnection = tcpServer->nextPendingConnection();
-//    Connection *connection =
-    new Connection(this, clientConnection, m_Saver);
+    Connection *connection = new Connection(this, clientConnection, m_Saver);
+    connect(connection, SIGNAL(updated()), this, SIGNAL(updated()));
 }
 
 Connection::Connection(QObject *_parent, QTcpSocket *_clientConnection, Saver &_saver)
@@ -46,6 +46,7 @@ Connection::~Connection() {
 
 void Connection::disconnected() {
     DEBUG("Connection is closed");
+    emit updated();
     this->deleteLater();
 }
 

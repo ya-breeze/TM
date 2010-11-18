@@ -89,6 +89,13 @@ void HttpProcessor::processSendUpdates(const QStringMap& _headers, const QBuffer
 	    DEBUG("Object - " << type << ":" << status);
 
 	    if( type=="task" ) {
+		if( status=="deleted") {
+
+		} else if( status=="updated" ) {
+
+		} else {
+		    DEBUG("Unknown status: " << status << " for " << type);
+		}
 
 	    } else if( type=="activity" ) {
 

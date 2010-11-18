@@ -59,6 +59,9 @@ class Server : public QObject
 public:
     Server(Saver &_saver, QWidget *parent = 0);
 
+signals:
+    void updated();
+
 private slots:
     void sendFortune();
 
@@ -93,6 +96,9 @@ class Connection : public QObject
 public:
     Connection(QObject *_parent, QTcpSocket *_clientConnection, Saver &_saver);
     ~Connection();
+
+signals:
+    void updated();
 
 protected slots:
     void disconnected();
