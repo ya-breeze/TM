@@ -33,6 +33,8 @@ class Task
 	QString		m_PlannedTime;
 	/// Индекс в родителе - фактически поле для сортировки задач внутри родителя
 	int		m_ParentIndex;
+	/// Название файла иконки
+	QString		str_IconName;
 
 	QDateTime	m_LocalUpdated;
 	QDateTime	m_GlobalUpdated;
@@ -161,6 +163,16 @@ public:
     void addCategory(const QString& _cat)
     {
     	m_Categories << _cat;
+    }
+
+    QString getIconName() const
+    {
+	    return str_IconName;
+    }
+
+    void setIconName( QString str_IconName )
+    {
+	    this->str_IconName = str_IconName;
     }
 };
 

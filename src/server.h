@@ -74,7 +74,15 @@ class Connection : public QObject
 {
     Q_OBJECT
 
+    enum States {
+	WAITING_UUID,
+	WAITING_UPLOAD,
+	WAITING_DOWNLOAD,
+	FINISHED
+    };
+
     QTcpSocket *p_ClientConnection;
+    States      m_State;
     bool        is_WaitingHeaders;
     QStringList m_Headers;
     QStringMap  m_RequestHeaders;
@@ -84,14 +92,6 @@ class Connection : public QObject
     int         m_Timer;
     bool        was_NetData;
     HttpProcessor m_Handler;
-
-    enum States {
-	WAITING_UUID,
-	WAITING_UPLOAD,
-	WAITING_DOWNLOAD,
-	FINISHED
-    };
-    States      m_State;
 
 public:
     Connection(QObject *_parent, QTcpSocket *_clientConnection, Saver &_saver);

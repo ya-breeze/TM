@@ -9,11 +9,13 @@
 #include "utils.h"
 #include "Saver.h"
 #include "dlgcalendar.h"
+#include "dlgiconchoose.h"
 
 #include "CategoryEdit.h"
 
 TM::TM(QWidget *parent)
-    : QMainWindow(parent), p_LastActs(new LastActs(&m_Tasks, &m_Activities, this)), m_Saver(), p_Server(new Server(m_Saver, this))
+    : QMainWindow(parent), p_LastActs(new LastActs(&m_Tasks, &m_Activities, this)), m_Saver(), p_Server(new Server(m_Saver, this)),
+      m_IconCache(m_Saver), m_Tasks(m_IconCache)
 {
     m_Saver.init();
 	ui.setupUi(this);
@@ -49,6 +51,7 @@ TM::TM(QWidget *parent)
 	connect( ui.lvLastActivities->selectionModel(), SIGNAL(currentChanged ( const QModelIndex &, const QModelIndex &)),
 			this, SLOT(slot_SelectedLastAct(const QModelIndex&)) );
 	connect( ui.cbHideDone, SIGNAL(stateChanged(int)), this, SLOT(slot_HideDone()) );
+	connect( ui.btn_Icon, SIGNAL(clicked()), this, SLOT(slot_EditTaskIcon()) );
 
 	// Net syncs
 	// TODO Нужен сигнал о начале синхронизации, чтобы сохранить текущие правки
@@ -80,8 +83,6 @@ TM::TM(QWidget *parent)
 
 	slot_Restore();
 	slot_BtnUpdateTime();
-
-	m_Saver.setTaskTree(m_Tasks);
 
 	// Focus on tasks
 	ui.treeView->setFocus();
@@ -230,6 +231,7 @@ void TM::updateTaskProperties( const Task& _task )
 	ui.cbStartedTime->setChecked( !_task.getStarted().isNull() );
 	ui.lePlannedTime->setText(_task.getPlannedTime());
 	ui.lblRealTimeBrutto->setForegroundRole(QPalette::NoRole);
+	ui.btn_Icon->setIcon( m_IconCache.restoreIcon(_task.getIconName()) );
 
 	bool needHightLight = false;
 
@@ -841,5 +843,34 @@ void TM::slotTray(QSystemTrayIcon::ActivationReason _reason)
 //        menu.addAction(p_mw->actionSettings);
 //        menu.addAction(p_mw->actionExit);
 //        menu.exec( QCursor::pos() );
+    }
+}
+
+/// Вызывается для редактирования текущей задачи
+void TM::slot_EditTask() {
+    TRACE;
+}
+
+/// Вызывается для редактирования иконки текущей задачи
+void TM::slot_EditTaskIcon() {
+    try
+    {
+	QModelIndex proxyidx = ui.treeView->selectionModel()->currentIndex();
+	QModelIndex idx = p_ProxyHideDone->mapToSource(proxyidx);
+
+	TaskItem *item = m_Tasks.getItem(idx);
+	if( !item )
+		ERROR("No one task is specified");
+
+	DlgIconChoose dlg(m_IconCache);
+	QString name = dlg.choose(item->getIconName());
+	if( !name.isEmpty() ) {
+	    item->setIconName(name);
+	    // FIXME Задача обновилась - нужно обновить отображение
+	}
+    }
+    catch(std::exception& _ex)
+    {
+	    QMessageBox::critical(this, tr("Can't change icon"), _ex.what());
     }
 }

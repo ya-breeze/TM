@@ -30,8 +30,8 @@ void Server::sendFortune()
 }
 
 Connection::Connection(QObject *_parent, QTcpSocket *_clientConnection, Saver &_saver)
-    : QObject(_parent), p_ClientConnection(_clientConnection), m_State(WAITING_UUID), m_Saver(_saver),
-    is_WaitingHeaders(true), m_Handler(m_Saver) {
+    : QObject(_parent), p_ClientConnection(_clientConnection), m_State(WAITING_UUID),
+      is_WaitingHeaders(true), m_Saver(_saver), m_Handler(m_Saver) {
 
     TRACE;
     connect(p_ClientConnection, SIGNAL(readyRead()), this, SLOT(readyRead()));

@@ -13,7 +13,7 @@
 #include <QDate>
 #include <QSqlDatabase>
 
-#include "TaskTree.h"
+#include "Task.h"
 #include "DayActivities.h"
 #include "CategoryTree.h"
 
@@ -38,6 +38,8 @@ public:
     }
 };
 
+class TaskTree;
+
 /// Класс инкапсулирующий формат хранения всех данных программы
 class Saver
 {
@@ -51,14 +53,18 @@ public:
 	void init();
 
 	// Заглушка, пока задачи хранятся в TaskTree, а не в Saver
-	TaskTree *tree;
-	void	setTaskTree(TaskTree& _tree) { tree = &_tree; }
-	typedef std::list<const Task*> TaskList;
-	TaskList getTasks(const QModelIndex& _idx = QModelIndex());
+//	TaskTree *tree;
+//	void	setTaskTree(TaskTree& _tree) { tree = &_tree; }
+//	typedef std::list<const Task*> TaskList;
+//	TaskList getTasks(const QModelIndex& _idx = QModelIndex());
 
 
 	void	save(TaskTree& _tree);
 	void	restore(TaskTree& _tree, CategoryTree& _cats);
+
+	QStringList getIconList();
+	void	saveIcon(const QString& _name, const QIcon& _icon);
+	QIcon	restoreIcon(const QString& _name);
 
 	/// Проверяет, что переданная задача новее, чем в хранилище и заменяет её
 	void	replaceTask(const Task& _task);
@@ -75,13 +81,13 @@ public:
 	void	rollback();
 
 	QString getLocalUuid() { return "dc6a478e-edeb-45ee-a7c7-dc2b258182d8"; };
-	size_t getLastUpdated(const QString& _uuid ) { return 0; };
+	size_t getLastUpdated(const QString& /*_uuid*/ ) { return 0; };
 
 	TaskMap		restoreDbTasks();
 
 protected:
 	void		saveDb(TaskTree& _tree);
-	QStringList	restoreDbCategories(TaskMap& _tasks);
+	QStringList	restoreDbCategories();
 	void		saveDbActivities(const DayActivities& _tree);
 	void		saveDbRecurse(TaskTree& _tree, const QModelIndex& _idx);
 	void		saveDbTask(const Task& _task);

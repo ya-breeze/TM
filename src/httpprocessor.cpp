@@ -37,7 +37,7 @@ QString HttpProcessor::getRemoteUuid(const QStringMap& _headers)
 }
 
 /// Process /get_uuid request. Returns remote uuid
-QString HttpProcessor::processGetUuid(const QStringMap& _headers, const QBuffer& _body, QTcpSocket *_clientConnection) {
+QString HttpProcessor::processGetUuid(const QStringMap& _headers, const QBuffer&, QTcpSocket *_clientConnection) {
     TRACE;
     QString clientUuid = getRemoteUuid(_headers);
     DEBUG("Remote UUID - " << clientUuid);
@@ -65,10 +65,10 @@ QString HttpProcessor::processGetUuid(const QStringMap& _headers, const QBuffer&
     return clientUuid;
 }
 
-void HttpProcessor::processSendUpdates(const QStringMap& _headers, const QBuffer& _body, QTcpSocket *_clientConnection) {
+void HttpProcessor::processSendUpdates(const QStringMap&, const QBuffer& _body, QTcpSocket *_clientConnection) {
     DEBUG(__PRETTY_FUNCTION__);
     bool ok;
-    int sz = _headers["content-length"].toInt(&ok);
+//    int sz = _headers["content-length"].toInt(&ok);
 
     // Парсим
     {
@@ -124,7 +124,7 @@ void HttpProcessor::processSendUpdates(const QStringMap& _headers, const QBuffer
 }
 
 /// Process /get_updates request
-void HttpProcessor::processGetUpdates(const QStringMap& _headers, const QBuffer& _body, QTcpSocket *_clientConnection) {
+void HttpProcessor::processGetUpdates(const QStringMap& _headers, const QBuffer&, QTcpSocket *_clientConnection) {
     TRACE;
     time_t fromTime = getRemoteLastUpdated(_headers);
 

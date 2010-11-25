@@ -168,8 +168,8 @@ TaskItem *TaskItem::parent()
 
 
 
-TaskTree::TaskTree( QObject *parent )
-	: QAbstractItemModel(parent)//, ChangableObject()
+TaskTree::TaskTree( IconCache &_ic, QObject *parent )
+	: QAbstractItemModel(parent), m_IconCache(_ic)//, ChangableObject()
 {
 	rootItem = PtrTaskItem( new TaskItem(NULL) );
 	rootItem->setId("{00000000-0000-0000-0000-000000000000}");
@@ -217,6 +217,26 @@ QVariant TaskTree::data( const QModelIndex &index, int role ) const
 			}
 			break;
 		}
+	}
+	if( role==Qt::DecorationRole ) {
+	    switch( index.column() )
+	    {
+		    case 0 :
+		    {
+			    if( !item->getIconName().isEmpty() ) {
+				QIcon res = QIcon(item->getIconName());
+				return res;
+			    }
+		    }
+		    break;
+		    case 1 :
+		    {
+			QIcon res = QIcon(":/images/MainIcon");
+			return res;
+		    }
+		    break;
+	    }
+
 	}
 
 	return QVariant();

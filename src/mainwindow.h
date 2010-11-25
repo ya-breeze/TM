@@ -39,10 +39,10 @@ public slots:
 	void slot_StartSynchronization();
 	/// Вызывается после окончания синхронизации
 	void slot_StopSynchronization();
-	
+
 	void toggleVisibility();
 	void slotTray(QSystemTrayIcon::ActivationReason _reason);
-	
+
 	void slot_AddItem();
 	void slot_AddSiblingItem();
 	void slot_DelItem();
@@ -92,6 +92,10 @@ public slots:
 	void slot_TotalCategories();
 	/// Вызывает диалог для правки привязанных категорий
 	void slot_Categories();
+	/// Вызывается для редактирования текущей задачи
+	void slot_EditTask();
+	/// Вызывается для редактирования иконки текущей задачи
+	void slot_EditTaskIcon();
 
 private:
 	void updateTaskProperties( const Task& _task );
@@ -105,7 +109,6 @@ private:
 	QString fullName(Task *task);
 
 	Ui::TMClass	ui;
-	TaskTree	m_Tasks;
 	CategoryTree m_Cats;
 	PlannedTaskList	*p_PlannedTasks;
 
@@ -130,8 +133,10 @@ private:
 	HideDone	*p_ProxyHideDone;
 	Saver		m_Saver;
 	Server		*p_Server;
-	
+
 	QSystemTrayIcon *p_Tray;
+	IconCache	m_IconCache;
+	TaskTree	m_Tasks;
 };
 
 #endif // MAINWINDOW_H

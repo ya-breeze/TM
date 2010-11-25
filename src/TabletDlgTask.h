@@ -19,7 +19,7 @@ class TabletDlgTask : public QDialog
 	Q_OBJECT
 
 public:
-	TabletDlgTask( QWidget *parent = NULL );
+	TabletDlgTask( IconCache& _icons, QWidget *parent = NULL );
 	/// Отображает диалог редактирования задачи. При accept возвращает true
 	bool edit(TaskItem *_item, CategoryTree *_cats);
 
@@ -36,8 +36,9 @@ protected slots:
 
 protected:
 	Ui::TabletDlgTask	ui;
-	TaskItem			*m_Task;
+	TaskItem		*m_Task;
 	CategoryTree		*m_Cats;
+	IconCache		&m_Icons;
 };
 
 #endif /* TABLETDLGTASK_H_ */

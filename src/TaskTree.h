@@ -20,6 +20,7 @@
 #include "smart.h"
 #include "Task.h"
 #include "ChangableObject.h"
+#include "iconcache.h"
 
 
 /// \brief Класс, хранящий данные о одной задаче
@@ -67,7 +68,7 @@ class TaskTree : public QAbstractItemModel
 
 	typedef std::map<QUuid, PtrTaskItem> TaskMap;
 public:
-	TaskTree( QObject *parent = NULL );
+	TaskTree( IconCache &_ic, QObject *parent = NULL );
 	virtual ~TaskTree();
 
 	QVariant data( const QModelIndex &index, int role ) const;
@@ -118,6 +119,7 @@ public slots:
 protected:
 	TaskMap		m_Tasks;
 	PtrTaskItem	rootItem;
+	IconCache	&m_IconCache;
 };
 
 #endif /* TASKTREE_H_ */

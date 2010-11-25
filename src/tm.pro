@@ -1,4 +1,3 @@
-#DEFINES += TABLET
 TEMPLATE = app
 TARGET = tm
 QT += core \
@@ -17,7 +16,6 @@ HEADERS += CalendarShower.h \
     PlannedTime.h \
     TimeScale.h \
     HideDone.h \
-    TabletWindow.h \
     qtsingleapp/qtlocalpeer.h \
     qtsingleapp/qtlockedfile.h \
     qtsingleapp/qtsingleapplication.h \
@@ -33,10 +31,12 @@ HEADERS += CalendarShower.h \
     TaskTree.h \
     mainwindow.h \
     CategoryTree.h \
-    TabletDlgTask.h server.h \
+    server.h \
     CategoryEdit.h \
-    httpprocessor.h
-SOURCES += CalendarShower.cpp \
+    httpprocessor.h \
+    iconcache.h TabletDlgTask.h \
+    dlgiconchoose.h
+SOURCES += CalendarShower.cpp TabletDlgTask.cpp\
     dlgcalendar.cpp \
     PlannedTasks.cpp \
     PlannedTaskList.cpp \
@@ -45,7 +45,7 @@ SOURCES += CalendarShower.cpp \
     Category.cpp \
     PlannedTime.cpp \
     TimeScale.cpp \
-    TabletWindow.cpp server.cpp \
+    server.cpp \
     qtsingleapp/qtlocalpeer.cpp \
     qtsingleapp/qtlockedfile.cpp \
     qtsingleapp/qtlockedfile_unix.cpp \
@@ -61,15 +61,15 @@ SOURCES += CalendarShower.cpp \
     main.cpp \
     mainwindow.cpp \
     CategoryTree.cpp \
-    TabletDlgTask.cpp \
     CategoryEdit.cpp \
-    httpprocessor.cpp
+    httpprocessor.cpp \
+    iconcache.cpp \
+    dlgiconchoose.cpp
 FORMS += dlgcalendar.ui \
     PlannedTasks.ui \
-    tabletmain.ui \
     mainwindow.ui \
-    TabletDlgTask.ui \
-    CatEdit.ui
+    CatEdit.ui TabletDlgTask.ui \
+    dlgiconchoose.ui
 RESOURCES += tm.qrc
 TRANSLATIONS = tm_ru.ts
 QMAKE_CXXFLAGS += -g3

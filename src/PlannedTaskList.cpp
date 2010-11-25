@@ -38,7 +38,7 @@ PlannedTaskList::~PlannedTaskList()
 	// TODO Auto-generated destructor stub
 }
 
-int PlannedTaskList::rowCount( const QModelIndex& _parent ) const
+int PlannedTaskList::rowCount( const QModelIndex& ) const
 {
 	return 24;
 }
@@ -183,7 +183,7 @@ PlannedTaskList::Point PlannedTaskList::getPoint( const QDateTime& _dt ) const
 	return Point( column, row );
 }
 
-void PlannedTaskList::on_rowsRemoved( const QModelIndex& _parent, int _start, int _end )
+void PlannedTaskList::on_rowsRemoved( const QModelIndex&, int, int )
 {
 	DEBUG(__PRETTY_FUNCTION__);
 }

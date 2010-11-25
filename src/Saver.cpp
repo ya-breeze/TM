@@ -15,8 +15,10 @@
 #include <QVariant>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QBuffer>
 
 #include "utils.h"
+#include "TaskTree.h"
 
 
 #define FNAME_TASKS	"Tasks"
@@ -38,7 +40,8 @@ void Saver::init() {
     QSqlQuery query(m_Db);
     if( !query.exec("CREATE TABLE IF NOT EXISTS Tasks(uuid text primary key, parentUuid text, name text,"
 		    "notes text, created integer, localUpdated integer, globalUpdated integer,"
-		    "started integer, finished integer, planned text, parentIndex integer);") )
+		    "started integer, finished integer, planned text, parentIndex integer, categories text"
+		    "iconName text);") )
 	throw std::runtime_error(m_Db.lastError().text().toStdString());
 
 
@@ -49,10 +52,9 @@ void Saver::init() {
     if( !query.exec("CREATE TABLE IF NOT EXISTS Hosts(uuid text primary key, lastUpdated integer);") )
 	throw std::runtime_error(m_Db.lastError().text().toStdString());
 
-    if( !query.exec("CREATE TABLE IF NOT EXISTS Categories(id INTEGER PRIMARY KEY AUTOINCREMENT, taskUuid text, name text);") )
+    if( !query.exec("CREATE TABLE IF NOT EXISTS Icons(name text primary key, body blob);") )
 	throw std::runtime_error(m_Db.lastError().text().toStdString());
-    if( !query.exec("CREATE INDEX IF NOT EXISTS CategoriesIdxTask ON Categories(taskUuid);") )
-	throw std::runtime_error(m_Db.lastError().text().toStdString());
+
     query.finish();
 
     t.commit();
@@ -126,8 +128,9 @@ void Saver::saveDbTask(const Task& _task)
 
 	// TODO Вынести prepare в конструктор
 	QSqlQuery query(m_Db);
-	query.prepare("REPLACE INTO Tasks(uuid, parentUuid, name, notes, created, localUpdated, globalUpdated, started, finished, planned, parentIndex)"
-		      "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+	query.prepare("REPLACE INTO Tasks(uuid, parentUuid, name, notes, created, localUpdated,"
+		      "globalUpdated, started, finished, planned, parentIndex, categories, iconName)"
+		      "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
 //	DEBUG("SQL prepare time " << ti.update());
 	query.addBindValue(_task.getId().toString());
 	query.addBindValue(_task.getParentId().toString());
@@ -140,23 +143,14 @@ void Saver::saveDbTask(const Task& _task)
 	query.addBindValue(_task.getFinished().isNull() ? 0 : _task.getFinished().toTime_t());
 	query.addBindValue(_task.getPlannedTime());
 	query.addBindValue(_task.getParentIndex());
+	query.addBindValue(_task.getCategories().join(";"));
+	query.addBindValue(_task.getIconName());
+
 //	DEBUG("SQL add binds time " << ti.update());
 
 	if( !query.exec() )
 	    throw std::runtime_error(m_Db.lastError().text().toStdString());
 //	DEBUG("SQL exec time " << ti.update());
-	query.finish();
-
-	QSqlQuery queryCategory(m_Db);
-	queryCategory.prepare("REPLACE INTO Categories(taskUuid, name) VALUES(?, ?);");
-	const QStringList& cats = _task.getCategories();
-	for(int i=0; i<cats.size(); ++i) {
-	    queryCategory.addBindValue(_task.getId().toString());
-	    queryCategory.addBindValue(cats[i]);
-
-	    if( !query.exec() )
-		throw std::runtime_error(m_Db.lastError().text().toStdString());
-	}
 	query.finish();
 }
 
@@ -189,20 +183,20 @@ void Saver::recurseSave(const TaskTree& _tree, const QModelIndex& _idx)
 	}
 }
 
-Saver::TaskList Saver::getTasks(const QModelIndex& _idx) {
-    TaskList result;
+//Saver::TaskList Saver::getTasks(const QModelIndex& _idx) {
+//    TaskList result;
 
-    size_t sz = tree->rowCount(_idx);
-    for(size_t i=0;i<sz;++i)
-    {
-	    QModelIndex idx = tree->index(i, 0, _idx);
-	    const TaskItem *item = tree->getItem(idx);
-	    Q_ASSERT(item);
-	    result.push_back(item);
-    }
+//    size_t sz = tree->rowCount(_idx);
+//    for(size_t i=0;i<sz;++i)
+//    {
+//	    QModelIndex idx = tree->index(i, 0, _idx);
+//	    const TaskItem *item = tree->getItem(idx);
+//	    Q_ASSERT(item);
+//	    result.push_back(item);
+//    }
 
-    return result;
-}
+//    return result;
+//}
 
 void Saver::saveDb(TaskTree& _tree) {
     TimeItem ti;
@@ -254,7 +248,8 @@ Saver::TaskMap Saver::restoreDbTasks() {
     DEBUG("Restoring tasks from db...");
 
     QSqlQuery query(m_Db);
-    query.exec("SELECT uuid, parentUuid, name, notes, created, localUpdated, globalUpdated, started, finished, planned, parentIndex FROM Tasks;");
+    query.exec("SELECT uuid, parentUuid, name, notes, created, localUpdated, globalUpdated,"
+	       "started, finished, planned, parentIndex, categories, iconName FROM Tasks;");
     while (query.next()) {
 	Task task;
 	int dt;
@@ -272,6 +267,11 @@ Saver::TaskMap Saver::restoreDbTasks() {
 	task.setPlannedTime( query.value(9).toString() );
 	task.setParentIndex( query.value(10).toInt() );
 
+	QStringList lst = query.value(11).toString().split( ";" );
+	task.setCategories( lst );
+
+	task.setIconName( query.value(12).toString() );
+
 	tasks[ task.getId() ] = task;
 //	DEBUG("Restored task " << task.getName());
     }
@@ -282,17 +282,18 @@ Saver::TaskMap Saver::restoreDbTasks() {
     return tasks;
 }
 
-QStringList Saver::restoreDbCategories(TaskMap& _tasks) {
+QStringList Saver::restoreDbCategories() {
     QStringList result;
     TimeItem ti;
     DEBUG("Restoring categories from db...");
 
     QSqlQuery query(m_Db);
-    query.exec("SELECT taskUuid, name FROM Categories;");
+    query.exec("SELECT categories from Tasks;");
     while (query.next()) {
-	QString name = QUuid(query.value(1).toString());
-	_tasks[ QUuid(query.value(0).toString()) ].addCategory(name);
-	result.append(name);
+	QStringList lst = query.value(0).toString().split( ";" );
+	for( int i = 0; i < lst.size(); ++i )
+		if( !lst[i].isEmpty() )
+			result << lst[i];
     }
     query.finish();
 
@@ -403,7 +404,7 @@ void Saver::restore(TaskTree& _tree, CategoryTree& _cats)
 #else
 	Transaction<Saver> t(*this);
 	tasks = restoreDbTasks();
-	QStringList cats = restoreDbCategories(tasks);
+	QStringList cats = restoreDbCategories();
 	for(int i=0; i<cats.size(); ++i)
 	    _cats.addCategory( cats[i] );
 	t.commit();
@@ -415,7 +416,7 @@ void Saver::restore(TaskTree& _tree, CategoryTree& _cats)
 
 //	_tree.setChanged( false );
 }
-void Saver::saveDbActivities(const DayActivities& _tree) {
+void Saver::saveDbActivities(const DayActivities&) {
 //    size_t sz = _tree.count();
 //    for(size_t i=0;i<sz;++i)
 //	    saveActivity(file, _tree.getActivity(i));
@@ -623,7 +624,67 @@ void Saver::replaceTask(const Task& _task) {
     saveDbTask(_task);
 }
 
-void Saver::removeTask(const Task& _task) {
+void Saver::removeTask(const Task&) {
     TRACE;
     throw std::runtime_error(__PRETTY_FUNCTION__ + std::string("Not implemented"));
+}
+
+void Saver::saveIcon(const QString& _name, const QIcon& _icon) {
+    TRACE;
+    QByteArray data;
+    QDataStream s(&data, QIODevice::ReadWrite);
+    s << _icon;
+
+    QSqlQuery query(m_Db);
+    query.prepare("REPLACE INTO Icons(name, body) VALUES (?, ?);");
+    query.addBindValue(_name);
+    query.addBindValue(data);
+    if( !query.exec() )
+	throw std::runtime_error(m_Db.lastError().text().toStdString());
+    query.finish();
+}
+
+QIcon Saver::restoreIcon(const QString& _name) {
+    TRACE;
+    QIcon result;
+
+//    TimeItem ti;
+
+    QSqlQuery query(m_Db);
+    query.prepare("SELECT body from Icons where name like ?;");
+    query.addBindValue(_name);
+    if( !query.exec() )
+	throw std::runtime_error(m_Db.lastError().text().toStdString());
+    if( query.first() ) {
+	DEBUG("Storage has " << _name << " icon");
+	QByteArray data;// = query.value(0).toByteArray();
+	QDataStream s(&data, QIODevice::ReadWrite);
+	data = query.value(0).toByteArray();
+	DEBUG(data.data());
+	s >> result;
+	DEBUG(":" << result.isNull());
+    }
+    query.finish();
+
+//    DEBUG("Icon was restored from db in " << ti.end());
+
+    return result;
+}
+
+QStringList Saver::getIconList() {
+    TRACE;
+    QStringList res;
+
+    QSqlQuery query(m_Db);
+    query.prepare("SELECT name from Icons;");
+    if( !query.exec() )
+	throw std::runtime_error(m_Db.lastError().text().toStdString());
+    while( query.next() ) {
+	QString name = query.value(0).toString();
+	res << name;
+    }
+    query.finish();
+    DEBUG("Will work with " << res.size() << " icons in storage");
+
+    return res;
 }

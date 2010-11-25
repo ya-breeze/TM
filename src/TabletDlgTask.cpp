@@ -14,8 +14,8 @@
 #include "dlgcalendar.h"
 #include "utils.h"
 
-TabletDlgTask::TabletDlgTask( QWidget *parent )
-	: QDialog(parent)
+TabletDlgTask::TabletDlgTask( IconCache& _icons, QWidget *parent )
+	: QDialog(parent), m_Icons(_icons)
 {
 	ui.setupUi(this);
 }
@@ -47,6 +47,9 @@ bool TabletDlgTask::edit(TaskItem *_item, CategoryTree *_cats)
 		ui.lblFinishTime->setText(tr("<not finished yet>"));
 	}
 	ui.lePlannedTime->setText(m_Task->getPlannedTime());
+
+	// Картинка
+	ui.btn_Icon->setIcon( m_Icons.restoreIcon(m_Task->getIconName()) );
 
 	if( exec()==QDialog::Rejected )
 		return false;
