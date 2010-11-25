@@ -24,22 +24,36 @@ DlgIconChoose::~DlgIconChoose()
 }
 
 /// Вызывает диалог для выбора иконки. Если нажат Cancel - возвращает пустую строку
-QString DlgIconChoose::choose(const QString& _current) {
-    QString res;
+QPair<bool, QString> DlgIconChoose::choose(const QString& _current) {
+    QPair<bool, QString> res = qMakePair(false, QString());
+
+    // Добавим пустую картинку
+    ui->lw_Icons->addItem( new QListWidgetItem(tr("<Empty>")) );
 
     // Заполним список картинками
     QStringList icons = m_Icons.getIconList();
     QListIterator<QString> i(icons);
     while (i.hasNext()) {
 	QString name = i.next();
-	ui->lw_Icons->addItem( new QListWidgetItem(m_Icons.restoreIcon(name), name) );
-    }
+	QIcon icon = m_Icons.restoreIcon(name);
+	if( icon.isNull() )
+	    continue;
 
-    // Выберем текущую
+	ui->lw_Icons->addItem( new QListWidgetItem(icon, name) );
+	// Выберем текущую
+	if( name==_current ) {
+	    ui->lw_Icons->setCurrentRow(ui->lw_Icons->count()-1);
+	}
+    }
 
     // Покажем диалог
     if( exec()==QDialog::Accepted ) {
+	res.first = true;
 
+	QListWidgetItem *curr = ui->lw_Icons->currentItem();
+	if( !curr->icon().isNull() ) {
+	    res.second = curr->text();
+	}
     }
 
     return res;

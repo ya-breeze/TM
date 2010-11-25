@@ -26,7 +26,7 @@ TM::TM(QWidget *parent)
 	p_ProxyHideDone->setDynamicSortFilter(true);
 	ui.treeView->setModel(p_ProxyHideDone);
 
-	p_PlannedTasks = new PlannedTaskList(&m_Tasks, this);
+//	p_PlannedTasks = new PlannedTaskList(&m_Tasks, this);
 
 	// Активности
 	ui.lvLastActivities->setModel( p_LastActs );
@@ -863,10 +863,12 @@ void TM::slot_EditTaskIcon() {
 		ERROR("No one task is specified");
 
 	DlgIconChoose dlg(m_IconCache);
-	QString name = dlg.choose(item->getIconName());
-	if( !name.isEmpty() ) {
-	    item->setIconName(name);
-	    // FIXME Задача обновилась - нужно обновить отображение
+	QPair<bool, QString> name = dlg.choose(item->getIconName());
+	if( name.first ) {
+	    item->setIconName(name.second);
+	    // Задача обновилась - нужно обновить отображение
+	    m_Tasks.setDataChanged(item);
+	    updateTaskProperties(*item);
 	}
     }
     catch(std::exception& _ex)

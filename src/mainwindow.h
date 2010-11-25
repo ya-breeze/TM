@@ -110,7 +110,7 @@ private:
 
 	Ui::TMClass	ui;
 	CategoryTree m_Cats;
-	PlannedTaskList	*p_PlannedTasks;
+//	PlannedTaskList	*p_PlannedTasks;
 
 	Activities	m_Activities;
 	LastActs	*p_LastActs;

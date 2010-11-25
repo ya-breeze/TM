@@ -2,6 +2,7 @@
 #define DLGICONCHOOSE_H
 
 #include <QDialog>
+#include <QPair>
 
 #include "iconcache.h"
 namespace Ui {
@@ -17,7 +18,7 @@ public:
     ~DlgIconChoose();
 
     /// Вызывает диалог для выбора иконки. Если нажат Cancel - возвращает пустую строку
-    QString choose(const QString& _current);
+    QPair<bool, QString> choose(const QString& _current);
 
 protected slots:
     void slot_AddIcon();

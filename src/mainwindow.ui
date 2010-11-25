@@ -40,6 +40,12 @@
            <property name="selectionBehavior">
             <enum>QAbstractItemView::SelectRows</enum>
            </property>
+           <property name="iconSize">
+            <size>
+             <width>26</width>
+             <height>26</height>
+            </size>
+           </property>
            <property name="animated">
             <bool>true</bool>
            </property>
@@ -182,15 +188,15 @@
       </widget>
       <widget class="QToolBox" name="toolBox">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="page">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>343</width>
-          <height>444</height>
+          <width>351</width>
+          <height>457</height>
          </rect>
         </property>
         <attribute name="label">
@@ -334,8 +340,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>429</width>
-          <height>485</height>
+          <width>351</width>
+          <height>457</height>
          </rect>
         </property>
         <attribute name="label">
@@ -395,17 +401,8 @@
            <property name="flat">
             <bool>false</bool>
            </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <property name="leftMargin">
-             <number>5</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>5</number>
-            </property>
-            <item>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="0" column="0">
              <widget class="QRadioButton" name="rbActivityTask">
               <property name="text">
                <string>Task activity</string>
@@ -415,7 +412,20 @@
               </property>
              </widget>
             </item>
-            <item>
+            <item row="0" column="1" rowspan="2">
+             <widget class="QPushButton" name="btnNewActivity">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>New activity</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
              <widget class="QRadioButton" name="rbActivityOther">
               <property name="text">
                <string>Separate activity</string>
@@ -423,20 +433,6 @@
              </widget>
             </item>
            </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="btnNewActivity">
-           <property name="text">
-            <string>New activity</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="Line" name="line">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
           </widget>
          </item>
          <item>

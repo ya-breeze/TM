@@ -224,15 +224,15 @@ QVariant TaskTree::data( const QModelIndex &index, int role ) const
 		    case 0 :
 		    {
 			    if( !item->getIconName().isEmpty() ) {
-				QIcon res = QIcon(item->getIconName());
+				QIcon res = m_IconCache.restoreIcon(item->getIconName());
 				return res;
 			    }
 		    }
 		    break;
 		    case 1 :
 		    {
-			QIcon res = QIcon(":/images/MainIcon");
-			return res;
+//			QIcon res = QIcon(":/images/MainIcon");
+//			return res;
 		    }
 		    break;
 	    }
