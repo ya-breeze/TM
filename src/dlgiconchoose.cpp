@@ -60,27 +60,32 @@ QPair<bool, QString> DlgIconChoose::choose(const QString& _current) {
 }
 
 void DlgIconChoose::slot_AddIcon() {
-    QString fileName = QFileDialog::getOpenFileName(this,
+    QStringList fileNames = QFileDialog::getOpenFileNames(this,
 	tr("Open image"), ".", tr("Image Files (*.png)"));
-    // Что-то выбрали?
-    if( fileName.isEmpty() )
-	return;
-    // Нормальная картинка?
-    QIcon tmp(fileName);
-    if( tmp.isNull() )
-	return;
 
-    // Как назовём?
-    bool ok;
-    QFileInfo fi(fileName);
-    QString text = QInputDialog::getText(this, tr("What should be icon name?"),
-					 tr("Icon name:"), QLineEdit::Normal,
-					 fi.baseName(), &ok);
-    if( !ok || text.isEmpty())
-	return;
+    QListIterator<QString> i(fileNames);
+    while( i.hasNext() ) {
+	QString fileName = i.next();
+	// Что-то выбрали?
+	if( fileName.isEmpty() )
+	    continue;
+	// Нормальная картинка?
+	QIcon tmp(fileName);
+	if( tmp.isNull() )
+	    continue;
 
-    // Добавим в список
-    DEBUG("Icon is ok, will add to storage");
-    m_Icons.saveIcon(text, tmp);
-    ui->lw_Icons->addItem( new QListWidgetItem(tmp, text) );
+	// Как назовём?
+	QFileInfo fi(fileName);
+//	bool ok;
+//	QString text = QInputDialog::getText(this, tr("What should be icon name?"),
+//					     tr("Icon name:"), QLineEdit::Normal,
+//					     fi.baseName(), &ok);
+//	if( !ok || text.isEmpty())
+//	    continue;
+
+	// Добавим в список
+	DEBUG("Icon is ok, will add to storage");
+	m_Icons.saveIcon(fi.baseName(), tmp);
+	ui->lw_Icons->addItem( new QListWidgetItem(tmp, fi.baseName()) );
+    }
 }
