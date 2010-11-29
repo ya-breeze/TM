@@ -13,6 +13,8 @@ class DlgIconChoose : public QDialog
 {
     Q_OBJECT
 
+    static const int ROLE_UUID = 1000;
+
 public:
     explicit DlgIconChoose(IconCache &_icons, QWidget *parent = 0);
     ~DlgIconChoose();

@@ -12,9 +12,9 @@ class IconCache
 
 public:
     IconCache(Saver& _saver);
-    QStringList	getIconList();
-    void	saveIcon(const QString& _name, const QIcon& _icon);
-    QIcon	restoreIcon(const QString& _name);
+    QStringMap	getIconList();
+    void	saveIcon(const QString& _uuid, const QString& _name, const QIcon& _icon);
+    QIcon	restoreIcon(const QString& _uuid);
 };
 
 #endif // ICONCACHE_H

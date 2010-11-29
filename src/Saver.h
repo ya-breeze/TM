@@ -13,6 +13,7 @@
 #include <QDate>
 #include <QSqlDatabase>
 
+#include "utils.h"
 #include "Task.h"
 #include "DayActivities.h"
 #include "CategoryTree.h"
@@ -62,9 +63,9 @@ public:
 	void	save(TaskTree& _tree);
 	void	restore(TaskTree& _tree, CategoryTree& _cats);
 
-	QStringList getIconList();
-	void	saveIcon(const QString& _name, const QIcon& _icon);
-	QIcon	restoreIcon(const QString& _name);
+	QStringMap getIconList();
+	void	saveIcon(const QString& _uuid, const QString& _name, const QIcon& _icon);
+	QIcon	restoreIcon(const QString& _uuid);
 
 	/// Проверяет, что переданная задача новее, чем в хранилище и заменяет её
 	void	replaceTask(const Task& _task);

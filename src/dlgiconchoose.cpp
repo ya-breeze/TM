@@ -31,15 +31,19 @@ QPair<bool, QString> DlgIconChoose::choose(const QString& _current) {
     ui->lw_Icons->addItem( new QListWidgetItem(tr("<Empty>")) );
 
     // Заполним список картинками
-    QStringList icons = m_Icons.getIconList();
-    QListIterator<QString> i(icons);
+    QStringMap icons = m_Icons.getIconList();
+    QMapIterator<QString, QString> i(icons);
     while (i.hasNext()) {
-	QString name = i.next();
-	QIcon icon = m_Icons.restoreIcon(name);
+	i.next();
+	QString uuid = i.key();
+	QString name = i.value();
+	QIcon icon = m_Icons.restoreIcon(uuid);
 	if( icon.isNull() )
 	    continue;
 
-	ui->lw_Icons->addItem( new QListWidgetItem(icon, name) );
+	QListWidgetItem *item = new QListWidgetItem(icon, name);
+	item->setData( ROLE_UUID, uuid );
+	ui->lw_Icons->addItem( item );
 	// Выберем текущую
 	if( name==_current ) {
 	    ui->lw_Icons->setCurrentRow(ui->lw_Icons->count()-1);
@@ -52,7 +56,7 @@ QPair<bool, QString> DlgIconChoose::choose(const QString& _current) {
 
 	QListWidgetItem *curr = ui->lw_Icons->currentItem();
 	if( !curr->icon().isNull() ) {
-	    res.second = curr->text();
+	    res.second = curr->data(ROLE_UUID).toString();
 	}
     }
 
@@ -85,7 +89,11 @@ void DlgIconChoose::slot_AddIcon() {
 
 	// Добавим в список
 	DEBUG("Icon is ok, will add to storage");
-	m_Icons.saveIcon(fi.baseName(), tmp);
-	ui->lw_Icons->addItem( new QListWidgetItem(tmp, fi.baseName()) );
+	QString id = QUuid::createUuid();
+	id = id.mid(1, id.length()-2);
+	m_Icons.saveIcon(id, fi.baseName(), tmp);
+	QListWidgetItem *item = new QListWidgetItem(tmp, fi.baseName());
+	item->setData( ROLE_UUID, id );
+	ui->lw_Icons->addItem( item );
     }
 }
