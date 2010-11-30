@@ -307,108 +307,12 @@ void Saver::restore(TaskTree& _tree, CategoryTree& _cats)
 
 	TaskMap tasks;
 	// Читаем из файла или из базы
-#if 0
-	QStringList files = getTaskList();
-	for(int i=0;i<files.size();i++)
-	{
-//		DEBUG(files[i]);
-		QString fname = getHome() + files[i];
-		std::ifstream file(fname.toUtf8().data());
-		if( file.fail() )
-			ERROR("Unable to open file '" << fname << "'");
-
-		Task task;
-		int line = 0;
-		bool someLines = false;
-
-		while( !file.eof() )
-		{
-			std::string s;
-			std::getline( file, s );
-			++line;
-			if( s.empty() )
-				continue;
-
-			if( someLines && s[0] == ' ' )
-			{
-				task.setNotes( task.getNotes() + '\n' + QString::fromUtf8( s.c_str() ).mid( 1 ) );
-			}
-			else
-			{
-				QStringList lst = QString::fromUtf8( s.c_str() ).split( ":" );
-				if( lst.size() == 1 )
-				{
-					DEBUG("Line without specifier on line " << line);
-					continue;
-				}
-				QString id = lst[0];
-				lst.removeFirst();
-				QString value = lst.join( ":" );
-
-				if( id == "ID" )
-				{
-					task.setId( value );
-					someLines = false;
-				}
-				else if( id.compare( "NAME", Qt::CaseInsensitive ) == 0 )
-				{
-					task.setName( value );
-					someLines = false;
-				}
-				else if( id.compare( "Parent", Qt::CaseInsensitive ) == 0 )
-				{
-					task.setParentId( value );
-					someLines = false;
-				}
-				else if( id.compare( "Notes", Qt::CaseInsensitive ) == 0 )
-				{
-					task.setNotes( value );
-					someLines = true;
-				}
-				else if( id.compare( "DateCreated", Qt::CaseInsensitive ) == 0 )
-				{
-					task.setCreated( QDateTime::fromString( value, Qt::ISODate ) );
-					someLines = false;
-				}
-				else if( id.compare( "DateStarted", Qt::CaseInsensitive ) == 0 )
-				{
-					task.setStarted( QDateTime::fromString( value, Qt::ISODate ) );
-					someLines = false;
-				}
-				else if( id.compare( "DateFinished", Qt::CaseInsensitive ) == 0 )
-				{
-					task.setFinished( QDateTime::fromString( value, Qt::ISODate ) );
-					someLines = false;
-				}
-				else if( id.compare( "PlannedTime", Qt::CaseInsensitive ) == 0 )
-				{
-					task.setPlannedTime( value );
-					someLines = false;
-				}
-				else if( id.compare( "Categories", Qt::CaseInsensitive ) == 0 )
-				{
-					QStringList lst = value.split( ";" );
-					task.setCategories( lst );
-					someLines = false;
-
-					// Проверим, что такие категории есть
-					for( int i = 0; i < lst.size(); ++i )
-						if( !lst[i].isEmpty() )
-							_cats.addCategory( Category( lst[i] ) );
-				}
-			}
-		}
-
-		tasks[task.getId()] = task;
-	}
-#else
 	Transaction<Saver> t(*this);
 	tasks = restoreDbTasks();
 	QStringList cats = restoreDbCategories();
 	for(int i=0; i<cats.size(); ++i)
 	    _cats.addCategory( cats[i] );
 	t.commit();
-#endif
 
 	// Добавим задачи в дерево
 	while( !tasks.empty() )

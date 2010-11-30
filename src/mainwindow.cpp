@@ -10,12 +10,13 @@
 #include "Saver.h"
 #include "dlgcalendar.h"
 #include "dlgiconchoose.h"
+#include "constants.h"
 
 #include "CategoryEdit.h"
 
 TM::TM(QWidget *parent)
     : QMainWindow(parent), p_LastActs(new LastActs(&m_Tasks, &m_Activities, this)), m_Saver(), p_Server(new Server(m_Saver, this)),
-      m_IconCache(m_Saver), m_Tasks(m_IconCache)
+      m_IconCache(m_Saver), m_Tasks(m_IconCache), is_UnknownActivity(false)
 {
     m_Saver.init();
 	ui.setupUi(this);
@@ -88,9 +89,17 @@ TM::TM(QWidget *parent)
 	ui.treeView->setFocus();
 
 	// popup on global shortcut
-	QxtGlobalShortcut* shortcut = new QxtGlobalShortcut(this);
-	connect(shortcut, SIGNAL(activated()), this, SLOT(toggleVisibility()));
-	shortcut->setShortcut(QKeySequence("F12"));
+	{
+	    QxtGlobalShortcut* shortcut = new QxtGlobalShortcut(this);
+	    connect(shortcut, SIGNAL(activated()), this, SLOT(toggleVisibility()));
+	    shortcut->setShortcut(QKeySequence("F12"));
+	}
+	// start/stop 'unknown' activity
+	{
+	    QxtGlobalShortcut* shortcut = new QxtGlobalShortcut(this);
+	    connect(shortcut, SIGNAL(activated()), this, SLOT(slot_ToggleUnknownActivity()));
+	    shortcut->setShortcut(QKeySequence("F11"));
+	}
 
 	// tray
 	p_Tray = new QSystemTrayIcon(this);
@@ -334,6 +343,18 @@ void TM::slot_Restore()
 	{
 		m_Tasks.clear();
 		m_Saver.restore(m_Tasks, m_Cats);
+
+		// Нужно добавить задачу для "прочих" активностей
+		if( !m_Tasks.getItem(QString(ACTIVITY_EMPTY)) ) {
+		    Task task;
+		    task.setId(QString(ACTIVITY_EMPTY));
+		    task.setParentId(QString(EMPTY_UUID));
+		    task.setName( tr("Unknown activity") );
+
+		    m_Tasks.addChild(QString(EMPTY_UUID), task);
+		}
+
+
 		m_Activities.setToday();
 		ui.treeView->reset();
 		ui.treeView->expandAll();
@@ -874,5 +895,58 @@ void TM::slot_EditTaskIcon() {
     catch(std::exception& _ex)
     {
 	    QMessageBox::critical(this, tr("Can't change icon"), _ex.what());
+    }
+}
+
+/// Включает/выключает активность "прочее"
+void TM::slot_ToggleUnknownActivity() {
+    TRACE;
+
+    try
+    {
+	is_UnknownActivity = !is_UnknownActivity;
+
+	Activity act( ui.teActivityStartTime->dateTime() );
+	if( is_UnknownActivity ) {
+	    // Нужно начать активность "прочее"
+
+	    // Проверим, что мы ещё не начали эту активность
+	    DayActivities &acts = m_Activities.getTodayActs();
+	    if( acts.count() ) {
+		const Activity &lastact = acts.getActivity(acts.count()-1);
+		if( lastact.getAssignedTask()==QString(ACTIVITY_EMPTY) ) {
+		    DEBUG("'Unknown' activity is already started");
+		    return;
+		}
+	    }
+
+
+	    TaskItem *item = m_Tasks.getItem( QString(ACTIVITY_EMPTY) );
+	    if( !item )
+		    ERROR("There are no 'unknown activity' task");
+	    act.setAssignedTask(item->getId());
+	    act.setName( item->getName() );
+	} else {
+	    // Нужно завершить активность "прочее"
+	    DayActivities &acts = m_Activities.getTodayActs();
+	    if( acts.count()>1 ) {
+		const Activity &lastact = acts.getActivity(acts.count()-2);
+		act.setAssignedTask(lastact.getAssignedTask());
+		act.setName(lastact.getName());
+	    } else
+		return;
+	}
+
+	bool setCurrent = true;
+	if( m_Activities.hasCurActivity() && m_Activities.getCurrentActivity().getStartTime()>act.getStartTime() )
+		setCurrent = false;
+	m_Activities.addActivity(act, setCurrent);
+
+	ui.tabMain->setCurrentIndex(1);
+	slot_CurrentActivity();
+    }
+    catch(std::exception& _ex)
+    {
+	    QMessageBox::critical(this, tr("Can't add activity"), _ex.what());
     }
 }

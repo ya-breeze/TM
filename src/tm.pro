@@ -35,7 +35,8 @@ HEADERS += CalendarShower.h \
     CategoryEdit.h \
     httpprocessor.h \
     iconcache.h TabletDlgTask.h \
-    dlgiconchoose.h
+    dlgiconchoose.h \
+    constants.h
 SOURCES += CalendarShower.cpp TabletDlgTask.cpp\
     dlgcalendar.cpp \
     PlannedTasks.cpp \

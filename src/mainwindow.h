@@ -81,6 +81,9 @@ public slots:
 	/// Вызывается для отображения активностей одного дня
 	void slot_DumpActivitiesForDate();
 
+	/// Включает/выключает активность "прочее"
+	void slot_ToggleUnknownActivity();
+
 	void slot_MoveUp();
 	void slot_MoveDown();
 	void slot_MoveLeft();
@@ -137,6 +140,9 @@ private:
 	QSystemTrayIcon *p_Tray;
 	IconCache	m_IconCache;
 	TaskTree	m_Tasks;
+
+	/// Выполняется ли в текущий момент активность "прочее"
+	bool		is_UnknownActivity;
 };
 
 #endif // MAINWINDOW_H
