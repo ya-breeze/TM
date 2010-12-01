@@ -836,11 +836,11 @@ void TM::slot_DumpActivitiesForDate() {
 	//std::cout << fullTaskName << " - " <<(condur==-1 ? TM::tr("Unknown") : QString::number(condur/60)+" "+TM::tr("min") ) << std::endl;
 	total += condur;
     }
-    std::cout << "Total: " << total/60 << " min" << std::endl;
+    std::cout << "Total: " << sec2str(total) << " min" << std::endl;
     QMapIterator< QPair<QString, QString>, int> i(times);
     while (i.hasNext()) {
 	i.next();
-	std::cout << "\t" << i.key().second << i.key().first << ": " << i.value()/60 << " min" << std::endl;
+	std::cout << "\t" << i.key().second << i.key().first << ": " << sec2str(i.value()) << std::endl;
     }
     std::cout << "----------------------------------" << std::endl;
 }
@@ -906,7 +906,7 @@ void TM::slot_ToggleUnknownActivity() {
     {
 	is_UnknownActivity = !is_UnknownActivity;
 
-	Activity act( ui.teActivityStartTime->dateTime() );
+	Activity act;
 	if( is_UnknownActivity ) {
 	    // Нужно начать активность "прочее"
 
@@ -937,11 +937,7 @@ void TM::slot_ToggleUnknownActivity() {
 		return;
 	}
 
-	bool setCurrent = true;
-	if( m_Activities.hasCurActivity() && m_Activities.getCurrentActivity().getStartTime()>act.getStartTime() )
-		setCurrent = false;
-	m_Activities.addActivity(act, setCurrent);
-
+	m_Activities.addActivity(act, true);
 	ui.tabMain->setCurrentIndex(1);
 	slot_CurrentActivity();
     }

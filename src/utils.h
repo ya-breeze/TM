@@ -89,4 +89,7 @@ public:
     }
 };
 
+/// Переводит секунды в вид часы:минуты
+QString sec2str(int _secs);
+
 #endif /* UTILS_H_ */

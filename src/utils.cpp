@@ -2,6 +2,7 @@
 
 #include <QString>
 #include <QDir>
+#include <QTextStream>
 
 bool createDirFromFile( const char *_fname )
 {
@@ -62,4 +63,20 @@ QString prettyDate( const QDateTime& _now, const QDateTime& _date)
 	}
 
 	return res;
+}
+
+/// Переводит секунды в вид часы:минуты
+QString sec2str(int _secs) {
+    QString res;
+
+    QTextStream s(&res);
+    int hours = _secs / 3600;
+    int mins = (_secs-hours*3600)/60;
+
+    s << hours << ":";
+    s.setFieldWidth(2);
+    s.setPadChar('0');
+    s << mins;
+
+    return res;
 }
