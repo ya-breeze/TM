@@ -5,7 +5,6 @@ QT += core \
     network sql
 CONFIG += qxt link_pkgconfig
 QXT += core gui
-PKGCONFIG = QJson
 INCLUDEPATH += qtsingleapp
 HEADERS += CalendarShower.h \
     dlgcalendar.h \

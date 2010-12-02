@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 
+#include <QxtJSON>
 #include <qjson/parser.h>
 #include <qjson/serializer.h>
 
@@ -12,6 +13,12 @@ HttpProcessor::HttpProcessor(Saver &_saver)
 
 void HttpProcessor::process(const QString& _url, const QStringMap& _headers, const QBuffer& _body, QTcpSocket *_clientConnection) {
     Transaction<Saver> t(m_Saver);
+
+    QMapIterator<QString, QString> i(_headers);
+    while( i.hasNext() ) {
+	i.next();
+	DEBUG("header - " << i.key() << ":" << i.value());
+    }
 
     if( _url=="/get_uuid" )
 	str_ClientUuid = processGetUuid(_headers, _body, _clientConnection);
@@ -67,18 +74,12 @@ QString HttpProcessor::processGetUuid(const QStringMap& _headers, const QBuffer&
 
 void HttpProcessor::processSendUpdates(const QStringMap&, const QBuffer& _body, QTcpSocket *_clientConnection) {
     DEBUG(__PRETTY_FUNCTION__);
-    bool ok;
-//    int sz = _headers["content-length"].toInt(&ok);
 
     // Парсим
     {
-	DEBUG(QString::fromUtf8(_body.data()));
-	QJson::Parser parser;
-	QByteArray in;
-	in.append(QString::fromUtf8(_body.data()));
-	QVariantList json = parser.parse(in, &ok).toList();
-	if (!ok)
-	    throw std::runtime_error("error occured during parsing JSON");
+	QString body = QString::fromUtf8(_body.data());
+	DEBUG(body);
+	QVariantList json = QxtJSON::parse(body).toList();
 	DEBUG("Received updated objects: "<< json.size());
 
 	// Обрабаываем
@@ -133,16 +134,17 @@ void HttpProcessor::processGetUpdates(const QStringMap& _headers, const QBuffer&
 	QTextStream out(&body);
 	out << "{\"tasks\":" << getTasks() << ","
 	    << "\"activities\":[" << getActivities() << "]"
-	    << "}";
+	    << "} ";
     }
     QString data;
     QTextStream out(&data);
     out << "HTTP/1.1 200 OK\r\n"
+	<< "content-type: text/plain; charset=UTF8\r\n"
 	<< "Content-Length:" << body.length() << "\r\n\r\n"
 	<< body;
 
     DEBUG("Will transfer entities from time " << fromTime << ", body size " << body.length());
-    DEBUG(getTasks());
+    DEBUG(body);
     _clientConnection->write(data.toUtf8());
 }
 
@@ -160,7 +162,6 @@ time_t HttpProcessor::getRemoteLastUpdated(const QStringMap& _headers) {
     return tm;
 }
 
-
 QString HttpProcessor::getTasks() const {
     QVariantList list;
     Saver::TaskMap tasks = m_Saver.restoreDbTasks();
@@ -174,20 +175,20 @@ QString HttpProcessor::getTasks() const {
 	    parentId = parentId.mid(1, parentId.length()-2);
 	    data["uuid"] = id;
 	    data["parentUuid"] = parentId;
-	    data["localUpdated"] = task.getLocalUpdated().toTime_t();
-	    data["globalUpdated"] = task.getGlobalUpdated().toTime_t();
-	    data["title"] = task.getName().toLatin1(); // FIXME
-	    data["notes"] = task.getNotes().toLatin1();// FIXME
-	    data["created"] = task.getCreated().toTime_t();
+	    data["localUpdated"] = (int)task.getLocalUpdated().toTime_t();
+	    data["globalUpdated"] = (int)task.getGlobalUpdated().toTime_t();
+	    data["title"] = task.getName();
+	    data["notes"] = task.getNotes().isEmpty() ? QString(" ") : task.getNotes();
+	    data["created"] = (int)task.getCreated().toTime_t();
 
 	    list << data;
 	}
     }
 
-    QJson::Serializer serializer;
-    QByteArray json = serializer.serialize(list);
+    QString res = QxtJSON::stringify(list);
+//    DEBUG("Local tasks - " << res);
 
-    return QString(json);
+    return res;
 }
 QString HttpProcessor::getActivities() const {
     QString result;

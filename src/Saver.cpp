@@ -122,7 +122,7 @@ void Saver::saveTask(const Task& _task)
 
 void Saver::saveDbTask(const Task& _task)
 {
-//	DEBUG(_task.getName());
+	DEBUG(_task.getName());
 	TimeItem ti;
 	ti.start();
 
@@ -131,7 +131,7 @@ void Saver::saveDbTask(const Task& _task)
 	query.prepare("REPLACE INTO Tasks(uuid, parentUuid, name, notes, created, localUpdated,"
 		      "globalUpdated, started, finished, planned, parentIndex, categories, iconName)"
 		      "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
-//	DEBUG("SQL prepare time " << ti.update());
+	DEBUG("SQL prepare time " << ti.update());
 	query.addBindValue(_task.getId().toString());
 	query.addBindValue(_task.getParentId().toString());
 	query.addBindValue(_task.getName());
@@ -146,11 +146,13 @@ void Saver::saveDbTask(const Task& _task)
 	query.addBindValue(_task.getCategories().join(";"));
 	query.addBindValue(_task.getIconName());
 
-//	DEBUG("SQL add binds time " << ti.update());
+	DEBUG("SQL add binds time " << ti.update());
 
-	if( !query.exec() )
+	if( !query.exec() ) {
+	    DEBUG("ERROR: " << query.lastError().text());
 	    throw std::runtime_error(query.lastError().text().toStdString());
-//	DEBUG("SQL exec time " << ti.update());
+	}
+	DEBUG("SQL exec time " << ti.update());
 	query.finish();
 }
 
@@ -207,8 +209,6 @@ void Saver::saveDb(TaskTree& _tree) {
     DEBUG("Deleting...");
     QSqlQuery query(m_Db);
     if( !query.exec("DELETE FROM Tasks;") )
-	throw std::runtime_error(query.lastError().text().toStdString());
-    if( !query.exec("DELETE FROM Categories;") )
 	throw std::runtime_error(query.lastError().text().toStdString());
     query.finish();
 
