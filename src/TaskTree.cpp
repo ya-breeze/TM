@@ -236,7 +236,18 @@ QVariant TaskTree::data( const QModelIndex &index, int role ) const
 		    }
 		    break;
 	    }
+	}
 
+	if( role==Qt::FontRole ) {
+	    switch( index.column() ) {
+		    case 0 :  {
+			    if( !item->getFinished().isNull() ) {
+				QFont font;
+				font.setStrikeOut(true);
+				return font;
+			    }
+		    } break;
+	    }
 	}
 
 	return QVariant();
