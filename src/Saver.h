@@ -41,9 +41,17 @@ public:
 
 class TaskTree;
 
-/// Класс инкапсулирующий формат хранения всех данных программы
+/// \brief Класс инкапсулирующий формат хранения всех данных программы
+///
+/// Saver incapsulates all DB operations and saves changelog for all
+/// saving data.
 class Saver
 {
+    enum Status {
+	ST_UPDATED = 0,
+	ST_DELETED = 1
+    };
+
 public:
 	typedef std::set<QDate> DateSet;
 	typedef QMap<QUuid, Task> TaskMap;
@@ -102,6 +110,9 @@ protected:
 	/// Добавляет задачи в дерево таким образом, что родительский узел для _task добавляется перед _task.
 	/// После добавления, _task из _tasks удаляется
 	void		recurseAddTasks(TaskTree& _tree, Task& _task, TaskMap& _tasks);
+
+	/// Add record into ChangeLog table
+	void	addChangeLog(const QString& _uuid, const QString& _type, Status _status);
 
 	bool		inTransaction;
 

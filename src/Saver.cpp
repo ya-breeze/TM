@@ -38,21 +38,26 @@ void Saver::init() {
     Transaction<Saver> t(*this);
 
     QSqlQuery query(m_Db);
+    if( !query.exec("CREATE TABLE IF NOT EXISTS ChangeLog(uuid text primary key, type text, status integer, timestamp integer);") )
+	throw std::runtime_error(query.lastError().text().toStdString());
+    if( !query.exec("CREATE INDEX IF NOT EXISTS ChangeLogIdx ON ChangeLog(timestamp);") )
+	throw std::runtime_error(query.lastError().text().toStdString());
+
     if( !query.exec("CREATE TABLE IF NOT EXISTS Tasks(uuid text primary key, parentUuid text, name text,"
-		    "notes text, created integer, localUpdated integer, globalUpdated integer,"
+		    "notes text, created integer, updated integer"
 		    "started integer, finished integer, planned text, parentIndex integer, categories text"
 		    "iconName text);") )
 	throw std::runtime_error(query.lastError().text().toStdString());
 
 
     if( !query.exec("CREATE TABLE IF NOT EXISTS Activities(uuid text primary key, taskUuid text, name text,"
-		    "startTime integer, localUpdated integer, globalUpdated integer);") )
+		    "startTime integer, updated integer);") )
 	throw std::runtime_error(query.lastError().text().toStdString());
 
-    if( !query.exec("CREATE TABLE IF NOT EXISTS Hosts(uuid text primary key, lastUpdated integer);") )
+    if( !query.exec("CREATE TABLE IF NOT EXISTS Hosts(uuid text primary key, updated integer);") )
 	throw std::runtime_error(query.lastError().text().toStdString());
 
-    if( !query.exec("CREATE TABLE IF NOT EXISTS Icons(uuid text primary key, name text, body blob);") )
+    if( !query.exec("CREATE TABLE IF NOT EXISTS Icons(uuid text primary key, name text, body blob, updated integer);") )
 	throw std::runtime_error(query.lastError().text().toStdString());
 
     query.finish();
@@ -128,8 +133,8 @@ void Saver::saveDbTask(const Task& _task)
 
 	// TODO Вынести prepare в конструктор
 	QSqlQuery query(m_Db);
-	query.prepare("REPLACE INTO Tasks(uuid, parentUuid, name, notes, created, localUpdated,"
-		      "globalUpdated, started, finished, planned, parentIndex, categories, iconName)"
+	query.prepare("REPLACE INTO Tasks(uuid, parentUuid, name, notes, created, updated,"
+		      "started, finished, planned, parentIndex, categories, iconName)"
 		      "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
 	DEBUG("SQL prepare time " << ti.update());
 	query.addBindValue(_task.getId().toString());
@@ -137,8 +142,7 @@ void Saver::saveDbTask(const Task& _task)
 	query.addBindValue(_task.getName());
 	query.addBindValue(_task.getNotes());
 	query.addBindValue(_task.getCreated().toTime_t());
-	query.addBindValue(_task.getLocalUpdated().toTime_t());
-	query.addBindValue(_task.getGlobalUpdated().toTime_t());
+	query.addBindValue(_task.getUpdated().toTime_t());
 	query.addBindValue(_task.getStarted().isNull() ? 0 : _task.getStarted().toTime_t());
 	query.addBindValue(_task.getFinished().isNull() ? 0 : _task.getFinished().toTime_t());
 	query.addBindValue(_task.getPlannedTime());
@@ -154,6 +158,8 @@ void Saver::saveDbTask(const Task& _task)
 	}
 	DEBUG("SQL exec time " << ti.update());
 	query.finish();
+
+	addChangeLog(_task.getId().toString(), "Tasks", ST_UPDATED);
 }
 
 void Saver::saveDbRecurse(TaskTree& _tree, const QModelIndex& _idx) {
@@ -248,7 +254,7 @@ Saver::TaskMap Saver::restoreDbTasks() {
     DEBUG("Restoring tasks from db...");
 
     QSqlQuery query(m_Db);
-    query.exec("SELECT uuid, parentUuid, name, notes, created, localUpdated, globalUpdated,"
+    query.exec("SELECT uuid, parentUuid, name, notes, created, updated, "
 	       "started, finished, planned, parentIndex, categories, iconName FROM Tasks;");
     while (query.next()) {
 	Task task;
@@ -258,19 +264,18 @@ Saver::TaskMap Saver::restoreDbTasks() {
 	task.setName( query.value(2).toString() );
 	task.setNotes( query.value(3).toString() );
 	task.setCreated( QDateTime::fromTime_t(query.value(4).toInt()) );
-	task.setLocalUpdated( QDateTime::fromTime_t(query.value(5).toInt()) );
-	task.setGlobalUpdated( QDateTime::fromTime_t(query.value(6).toInt()) );
-	if( (dt = query.value(7).toInt())!=0 )
+	task.setUpdated( QDateTime::fromTime_t(query.value(5).toInt()) );
+	if( (dt = query.value(6).toInt())!=0 )
 	    task.setStarted( QDateTime::fromTime_t(dt) );
-	if( (dt = query.value(8).toInt())!=0 )
+	if( (dt = query.value(7).toInt())!=0 )
 	    task.setFinished( QDateTime::fromTime_t(dt) );
-	task.setPlannedTime( query.value(9).toString() );
-	task.setParentIndex( query.value(10).toInt() );
+	task.setPlannedTime( query.value(8).toString() );
+	task.setParentIndex( query.value(9).toInt() );
 
-	QStringList lst = query.value(11).toString().split( ";" );
+	QStringList lst = query.value(10).toString().split( ";" );
 	task.setCategories( lst );
 
-	task.setIconName( query.value(12).toString() );
+	task.setIconName( query.value(11).toString() );
 
 	tasks[ task.getId() ] = task;
 //	DEBUG("Restored task " << task.getName());
@@ -320,10 +325,12 @@ void Saver::restore(TaskTree& _tree, CategoryTree& _cats)
 
 //	_tree.setChanged( false );
 }
-void Saver::saveDbActivities(const DayActivities&) {
-//    size_t sz = _tree.count();
-//    for(size_t i=0;i<sz;++i)
-//	    saveActivity(file, _tree.getActivity(i));
+void Saver::saveDbActivities(const DayActivities& _acts) {
+    size_t sz = _acts.count();
+    for(size_t i=0;i<sz;++i) {
+	const Activity &act = _acts.getActivity(i);
+	addChangeLog(QString::number(act.getStartTime().toTime_t()), "Activities", ST_UPDATED);
+    }
 }
 
 void Saver::save(const QDate& _date, const DayActivities& _tree)
@@ -528,9 +535,11 @@ void Saver::replaceTask(const Task& _task) {
     saveDbTask(_task);
 }
 
-void Saver::removeTask(const Task&) {
+void Saver::removeTask(const Task& _task) {
     TRACE;
+
     throw std::runtime_error(__PRETTY_FUNCTION__ + std::string("Not implemented"));
+    addChangeLog(_task.getId().toString(), "Tasks", ST_DELETED);
 }
 
 void Saver::saveIcon(const QString& _uuid, const QString& _name, const QIcon& _icon) {
@@ -540,14 +549,17 @@ void Saver::saveIcon(const QString& _uuid, const QString& _name, const QIcon& _i
     s << _icon;
 
     QSqlQuery query(m_Db);
-    if( !query.prepare("REPLACE INTO Icons(uuid, name, body) VALUES (?, ?, ?);") )
+    if( !query.prepare("REPLACE INTO Icons(uuid, name, body, updated) VALUES (?, ?, ?, ?);") )
 	throw std::runtime_error("prepare error " + query.lastError().text().toStdString());
     query.addBindValue(_uuid);
     query.addBindValue(_name);
     query.addBindValue(data);
+    query.addBindValue((int)time(NULL));
     if( !query.exec() )
 	throw std::runtime_error("exec error " + query.lastError().text().toStdString());
     query.finish();
+
+    addChangeLog(_uuid, "Icons", ST_UPDATED);
 }
 
 QIcon Saver::restoreIcon(const QString& _name) {
@@ -591,4 +603,21 @@ QStringMap Saver::getIconList() {
     DEBUG("Will work with " << res.size() << " icons in storage");
 
     return res;
+}
+
+/// Add record into ChangeLog table
+void Saver::addChangeLog(const QString& _uuid, const QString& _type, Status _status) {
+    QSqlQuery query(m_Db);
+    query.prepare("REPLACE INTO ChangeLog(uuid, type, status, timestamp)"
+		  "VALUES(?, ?, ?, ?);");
+    query.addBindValue(_uuid);
+    query.addBindValue(_type);
+    query.addBindValue(_status);
+    query.addBindValue((int)time(NULL));
+
+    if( !query.exec() ) {
+	DEBUG("ERROR: " << query.lastError().text());
+	throw std::runtime_error(query.lastError().text().toStdString());
+    }
+    query.finish();
 }

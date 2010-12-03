@@ -181,6 +181,7 @@ TaskTree::~TaskTree()
 
 QVariant TaskTree::data( const QModelIndex &index, int role ) const
 {
+    TRACE;
 	if (!index.isValid())
 		return QVariant();
 
@@ -265,6 +266,7 @@ QVariant TaskTree::headerData( int section, Qt::Orientation orientation, int rol
 
 QModelIndex TaskTree::index( int row, int column, const QModelIndex &parent ) const
 {
+    TRACE;
 	if (!hasIndex(row, column, parent))
 		return QModelIndex();
 
@@ -307,6 +309,7 @@ QModelIndex TaskTree::parent( const QModelIndex &index ) const
 
 int TaskTree::rowCount( const QModelIndex &parent ) const
 {
+    TRACE;
 	TaskItem *parentItem;
 
 	if (!parent.isValid())
@@ -525,6 +528,7 @@ bool TaskTree::setData( const QModelIndex& _index, const QVariant& _value, int _
 
 void TaskTree::setDataChanged( TaskItem *_item )
 {
+TRACE;
 	int row = _item->row();
 	QModelIndex index1 = createIndex( row, 0, _item );
 	QModelIndex index2 = createIndex( row, columnCount(QModelIndex()), _item );
@@ -542,6 +546,7 @@ void TaskTree::setDataChanged( TaskItem *_item )
 
 void TaskTree::setDataChanged( const QModelIndex& _index )
 {
+    TRACE;
 	TaskItem *item = getItem(_index);
 	if( item )
 		setDataChanged(item);

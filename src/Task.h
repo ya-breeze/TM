@@ -36,8 +36,7 @@ class Task
 	/// Название файла иконки
 	QString		str_IconName;
 
-	QDateTime	m_LocalUpdated;
-	QDateTime	m_GlobalUpdated;
+	QDateTime	m_Updated;
 
 	/// Список категорий
 	QStringList	m_Categories;
@@ -52,6 +51,7 @@ public:
 
 	void setPlannedTime( const QString& m_PlannedTime )
 	{
+	    m_Updated = QDateTime::currentDateTime();
 		this->m_PlannedTime = m_PlannedTime;
 	}
 
@@ -73,16 +73,19 @@ public:
 	void setCreated( const QDateTime& m_Created )
 	{
 		this->m_Created = m_Created;
+	    m_Updated = QDateTime::currentDateTime();
 	}
 
 	void setFinished( const QDateTime& m_Finished )
 	{
 		this->m_Finished = m_Finished;
+	    m_Updated = QDateTime::currentDateTime();
 	}
 
 	void setStarted( const QDateTime& m_Started )
 	{
 		this->m_Started = m_Started;
+	    m_Updated = QDateTime::currentDateTime();
 	}
 
 	QString getNotes() const
@@ -93,6 +96,7 @@ public:
 	void setNotes( QString str_Notes )
 	{
 		this->str_Notes = str_Notes;
+	    m_Updated = QDateTime::currentDateTime();
 	}
 
 	UuidVec getDepends() const
@@ -118,16 +122,19 @@ public:
 	void setId( QUuid m_Id )
 	{
 		this->m_Id = m_Id;
+	    m_Updated = QDateTime::currentDateTime();
 	}
 
 	void setParentId( QUuid m_Parent )
 	{
 		this->m_Parent = m_Parent;
+	    m_Updated = QDateTime::currentDateTime();
 	}
 
 	void setName( const QString& str_Name )
 	{
 		this->str_Name = str_Name;
+	    m_Updated = QDateTime::currentDateTime();
 	}
 
 	int getParentIndex() const {
@@ -135,21 +142,16 @@ public:
 	}
 	void setParentIndex(int _idx) {
 	    m_ParentIndex = _idx;
+	    m_Updated = QDateTime::currentDateTime();
 	}
 
-	QDateTime getLocalUpdated() const {
-		return m_LocalUpdated;
+	QDateTime getUpdated() const {
+		return m_Updated;
 	}
-	void setLocalUpdated( const QDateTime& _LocalUpdated ) {
-		m_LocalUpdated = _LocalUpdated;
+	void setUpdated( const QDateTime& _LocalUpdated ) {
+		m_Updated = _LocalUpdated;
 	}
 
-	QDateTime getGlobalUpdated() const {
-		return m_GlobalUpdated;
-	}
-	void setGlobalUpdated( const QDateTime& _GlobalUpdated ) {
-		m_GlobalUpdated = _GlobalUpdated;
-	}
     const QStringList& getCategories() const
     {
 	return m_Categories;
@@ -158,6 +160,7 @@ public:
     void setCategories(const QStringList& m_Categories)
     {
 	this->m_Categories = m_Categories;
+	m_Updated = QDateTime::currentDateTime();
     }
 
     void addCategory(const QString& _cat)
@@ -173,6 +176,7 @@ public:
     void setIconName( QString str_IconName )
     {
 	    this->str_IconName = str_IconName;
+	m_Updated = QDateTime::currentDateTime();
     }
 };
 

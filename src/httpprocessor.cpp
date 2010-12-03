@@ -101,8 +101,7 @@ void HttpProcessor::processSendUpdates(const QStringMap&, const QBuffer& _body, 
 		    task.setName(data["title"].toString());
 		    task.setNotes(data["notes"].toString());
 		    task.setCreated( QDateTime::fromTime_t(data["created"].toInt()) );
-		    task.setLocalUpdated( QDateTime::fromTime_t(data["localUpdated"].toInt()) );
-		    task.setGlobalUpdated( QDateTime::fromTime_t(data["globalUpdated"].toInt()) );
+		    task.setUpdated( QDateTime::fromTime_t(data["updated"].toInt()) );
 		    m_Saver.replaceTask(task);
 		} else {
 		    DEBUG("Unknown status: " << status << " for " << type);
@@ -175,8 +174,7 @@ QString HttpProcessor::getTasks() const {
 	    parentId = parentId.mid(1, parentId.length()-2);
 	    data["uuid"] = id;
 	    data["parentUuid"] = parentId;
-	    data["localUpdated"] = (int)task.getLocalUpdated().toTime_t();
-	    data["globalUpdated"] = (int)task.getGlobalUpdated().toTime_t();
+	    data["localUpdated"] = (int)task.getUpdated().toTime_t();
 	    data["title"] = task.getName();
 	    data["notes"] = task.getNotes().isEmpty() ? QString(" ") : task.getNotes();
 	    data["created"] = (int)task.getCreated().toTime_t();

@@ -235,6 +235,7 @@ void TM::slot_FocusChanged(QWidget *_old, QWidget */*_now*/)
 
 void TM::updateTaskProperties( const Task& _task )
 {
+    TRACE;
 	ui.Notes->setText( _task.getNotes() );
 	ui.lblCreateTime->setText( _task.getCreated().toString("yyyy.MM.dd H:mm") );
 	ui.cbStartedTime->setChecked( !_task.getStarted().isNull() );
@@ -270,6 +271,7 @@ void TM::updateTaskProperties( const Task& _task )
 
 	if( needHightLight )
 		ui.lblRealTimeBrutto->setForegroundRole(QPalette::Highlight);
+	TRACE;
 }
 
 void TM::slot_TaskChanged(const QModelIndex& _new, const QModelIndex& _old)
@@ -890,6 +892,7 @@ void TM::slot_EditTaskIcon() {
 	    // Задача обновилась - нужно обновить отображение
 	    m_Tasks.setDataChanged(item);
 	    updateTaskProperties(*item);
+	    TRACE;
 	}
     }
     catch(std::exception& _ex)
