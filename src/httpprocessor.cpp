@@ -87,21 +87,36 @@ void HttpProcessor::processSendUpdates(const QStringMap&, const QBuffer& _body, 
 	    QVariantMap obj = object.toMap();
 	    obj = obj.begin().value().toMap();
 	    QString type = obj["type"].toString().toLower();
+	    QString id = obj["id"].toString().toLower();
 	    QString status = obj["status"].toString().toLower();
 	    DEBUG("Object - " << type << ":" << status);
 
 	    if( type=="task" ) {
 		QVariantMap data = obj["data"].toMap();
 		Task task;
-		task.setId( QUuid(data["uuid"].toString()) );
+		task.setId( id );
 		if( status=="deleted") {
-		    m_Saver.removeTask(task);
+		    // TODO Check remote timestamp is smaller than saver.updated
+//		    m_Saver.removeTask(task);
 		} else if( status=="updated" ) {
 		    task.setParentId( QUuid(data["parentUuid"].toString()) );
 		    task.setName(data["title"].toString());
 		    task.setNotes(data["notes"].toString());
 		    task.setCreated( QDateTime::fromTime_t(data["created"].toInt()) );
+		    int dt = data["started"].toInt();
+		    if( dt )
+			task.setStarted( QDateTime::fromTime_t(dt) );
+		    dt = data["finished"].toInt();
+		    if( dt )
+			task.setFinished( QDateTime::fromTime_t(dt) );
+		    task.setPlannedTime(data["planned"].toString());
+		    task.setParentIndex(data["parentIndex"].toInt());
+		    task.setCategories(data["categories"].toString().split(";"));
+		    task.setIconName(data["iconName"].toString());
+
+		    // should change updated last
 		    task.setUpdated( QDateTime::fromTime_t(data["updated"].toInt()) );
+
 		    m_Saver.replaceTask(task);
 		} else {
 		    DEBUG("Unknown status: " << status << " for " << type);
@@ -131,19 +146,19 @@ void HttpProcessor::processGetUpdates(const QStringMap& _headers, const QBuffer&
     QString body;
     {
 	QTextStream out(&body);
-	out << "{\"tasks\":" << getTasks() << ","
-	    << "\"activities\":[" << getActivities() << "]"
+	out << "{\"tasks\":" << getTasks(fromTime) << ","
+	    << "\"activities\":[" << getActivities(fromTime) << "]"
 	    << "} ";
     }
     QString data;
     QTextStream out(&data);
     out << "HTTP/1.1 200 OK\r\n"
 	<< "content-type: text/plain; charset=UTF8\r\n"
-	<< "Content-Length:" << body.length() << "\r\n\r\n"
+	<< "Content-Length:" << body.toUtf8().length() << "\r\n\r\n"
 	<< body;
 
-    DEBUG("Will transfer entities from time " << fromTime << ", body size " << body.length());
-    DEBUG(body);
+    DEBUG("Will transfer entities from time " << fromTime << ", body size " << body.toUtf8().length() << " not " << body.length());
+//    DEBUG(body);
     _clientConnection->write(data.toUtf8());
 }
 
@@ -161,25 +176,54 @@ time_t HttpProcessor::getRemoteLastUpdated(const QStringMap& _headers) {
     return tm;
 }
 
-QString HttpProcessor::getTasks() const {
+QString HttpProcessor::getTasks(time_t _from) const {
     QVariantList list;
-    Saver::TaskMap tasks = m_Saver.restoreDbTasks();
-    if( !tasks.empty()) {
-	foreach(Task task, tasks.values()) {
+
+    // List of updates
+    Saver::ChangeLogList updates = m_Saver.getUpdatesList(_from);
+
+    // Iterate through updates
+    QListIterator<Saver::ChangeLogItem> it(updates);
+    while( it.hasNext() ) {
+	Saver::ChangeLogItem item = it.next();
+	if( item.type=="task" ) {
+	    QVariantMap object;
+	    QString id = item.id;
+	    id = id.mid(1, id.length()-2);
+	    object["id"] = id;
+	    object["type"] = item.type;
+	    object["status"] = item.status==Saver::ST_DELETED ? "deleted" : "updated";
+	    object["timestamp"] = (int)item.timestamp;
 	    QVariantMap data;
 
-	    QString id = task.getId().toString();
-	    QString parentId = task.getParentId().toString();
-	    id = id.mid(1, id.length()-2);
-	    parentId = parentId.mid(1, parentId.length()-2);
-	    data["uuid"] = id;
-	    data["parentUuid"] = parentId;
-	    data["localUpdated"] = (int)task.getUpdated().toTime_t();
-	    data["title"] = task.getName();
-	    data["notes"] = task.getNotes().isEmpty() ? QString(" ") : task.getNotes();
-	    data["created"] = (int)task.getCreated().toTime_t();
+	    // This is task, and it was updated
+	    if( item.status==Saver::ST_UPDATED ){
+		Task task = m_Saver.restoreDbTask(item.id);
+		if( task.getId().isNull() ) {
+		    DEBUG("ERROR: Task " << task.getId().toString() << " present in ChangeLog but absent in Tasks table");
+		    continue;
+		}
 
-	    list << data;
+		QString parentId = task.getParentId().toString();
+		parentId = parentId.mid(1, parentId.length()-2);
+		data["parentUuid"] = parentId;
+		data["updated"] = (int)task.getUpdated().toTime_t();
+		data["title"] = task.getName();
+		data["notes"] = task.getNotes().isEmpty() ? QString(" ") : task.getNotes();
+		data["created"] = (int)task.getCreated().toTime_t();
+		data["started"] = task.getStarted().isNull() ? 0 : (int)task.getStarted().toTime_t();
+		data["finished"] = task.getFinished().isNull() ? 0 : (int)task.getFinished().toTime_t();
+		data["planned"] = task.getPlannedTime();
+		data["parentIndex"] = task.getParentIndex();
+		data["categories"] = task.getCategories().join(";");
+		data["iconName"] = task.getIconName();
+	    }
+
+	    //
+	    object["data"] = data;
+	    QVariantMap objects;
+	    objects["object"] = object;
+	    list << objects;
 	}
     }
 
@@ -188,7 +232,7 @@ QString HttpProcessor::getTasks() const {
 
     return res;
 }
-QString HttpProcessor::getActivities() const {
+QString HttpProcessor::getActivities(time_t _from) const {
     QString result;
     return result;
 }

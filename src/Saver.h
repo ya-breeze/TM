@@ -47,14 +47,23 @@ class TaskTree;
 /// saving data.
 class Saver
 {
+public:
     enum Status {
 	ST_UPDATED = 0,
 	ST_DELETED = 1
     };
 
-public:
-	typedef std::set<QDate> DateSet;
-	typedef QMap<QUuid, Task> TaskMap;
+    /// Represents one item in ChangeLog table
+    struct ChangeLogItem {
+	QString	id;
+	QString	type;
+	Status	status;
+	time_t	timestamp;
+    };
+    typedef QList<ChangeLogItem> ChangeLogList;
+
+    typedef std::set<QDate> DateSet;
+    typedef QMap<QUuid, Task> TaskMap;
 
 	Saver();
 	~Saver();
@@ -93,6 +102,11 @@ public:
 	size_t getLastUpdated(const QString& /*_uuid*/ ) { return 0; };
 
 	TaskMap		restoreDbTasks();
+
+	/// What items were changed since _timestamp
+	ChangeLogList	getUpdatesList(time_t _timestamp);
+	/// Restore given task
+	Task		restoreDbTask(const QString& _uuid);
 
 protected:
 	void		saveDb(TaskTree& _tree);

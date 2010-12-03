@@ -38,7 +38,7 @@ void HideDone::setCategories(const QStringList& m_Categories)
 
 bool HideDone::filterAcceptsRow( int sourceRow, const QModelIndex &sourceParent ) const
 {
-    TRACE;
+//    TRACE;
 	TaskTree *tree = dynamic_cast<TaskTree*>(sourceModel());
 	Q_ASSERT(tree);
 
@@ -62,7 +62,7 @@ bool HideDone::filterAcceptsRow( int sourceRow, const QModelIndex &sourceParent 
 /// Возвращает true, если переданая задача (без потомков) соответствует заданным условиям
 HideDone::MatchFilter HideDone::filterTask( TaskItem *_item ) const
 {
-    TRACE;
+//    TRACE;
 	Q_ASSERT(_item);
 
 	// Что с признаком выполненности?

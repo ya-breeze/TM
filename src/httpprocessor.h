@@ -28,8 +28,8 @@ protected:
     /// Returns start of update interval for remote host
     time_t getRemoteLastUpdated(const QStringMap& _headers);
 
-    QString getTasks() const;
-    QString getActivities() const;
+    QString getTasks(time_t _from) const;
+    QString getActivities(time_t _from) const;
 
 };
 
