@@ -70,13 +70,6 @@ public:
 
 	void init();
 
-	// Заглушка, пока задачи хранятся в TaskTree, а не в Saver
-//	TaskTree *tree;
-//	void	setTaskTree(TaskTree& _tree) { tree = &_tree; }
-//	typedef std::list<const Task*> TaskList;
-//	TaskList getTasks(const QModelIndex& _idx = QModelIndex());
-
-
 	void	save(TaskTree& _tree);
 	void	restore(TaskTree& _tree, CategoryTree& _cats);
 

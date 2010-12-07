@@ -190,21 +190,6 @@ void Saver::recurseSave(const TaskTree& _tree, const QModelIndex& _idx)
 	}
 }
 
-//Saver::TaskList Saver::getTasks(const QModelIndex& _idx) {
-//    TaskList result;
-
-//    size_t sz = tree->rowCount(_idx);
-//    for(size_t i=0;i<sz;++i)
-//    {
-//	    QModelIndex idx = tree->index(i, 0, _idx);
-//	    const TaskItem *item = tree->getItem(idx);
-//	    Q_ASSERT(item);
-//	    result.push_back(item);
-//    }
-
-//    return result;
-//}
-
 void Saver::saveDb(TaskTree& _tree) {
     TimeItem ti;
     ti.start();
