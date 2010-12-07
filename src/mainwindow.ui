@@ -32,7 +32,7 @@
          <item>
           <widget class="QTreeView" name="treeView">
            <property name="dragEnabled">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="dragDropMode">
             <enum>QAbstractItemView::DragDrop</enum>
@@ -195,8 +195,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>351</width>
-          <height>457</height>
+          <width>337</width>
+          <height>346</height>
          </rect>
         </property>
         <attribute name="label">
@@ -340,8 +340,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>351</width>
-          <height>457</height>
+          <width>333</width>
+          <height>455</height>
          </rect>
         </property>
         <attribute name="label">
@@ -466,7 +466,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>29</height>
+     <height>31</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
