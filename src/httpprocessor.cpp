@@ -143,13 +143,10 @@ void HttpProcessor::processGetUpdates(const QStringMap& _headers, const QBuffer&
     TRACE;
     time_t fromTime = getRemoteLastUpdated(_headers);
 
-    QString body;
-    {
-	QTextStream out(&body);
-	out << "{\"tasks\":" << getTasks(fromTime) << ","
-	    << "\"activities\":[" << getActivities(fromTime) << "]"
-	    << "} ";
-    }
+    QVariantList list;
+    getTasks(fromTime, list);
+    getActivities(fromTime, list);
+    QString body = QxtJSON::stringify(list);
     QString data;
     QTextStream out(&data);
     out << "HTTP/1.1 200 OK\r\n"
@@ -158,7 +155,7 @@ void HttpProcessor::processGetUpdates(const QStringMap& _headers, const QBuffer&
 	<< body;
 
     DEBUG("Will transfer entities from time " << fromTime << ", body size " << body.toUtf8().length() << " not " << body.length());
-//    DEBUG(body);
+    DEBUG(body);
     _clientConnection->write(data.toUtf8());
 }
 
@@ -176,9 +173,7 @@ time_t HttpProcessor::getRemoteLastUpdated(const QStringMap& _headers) {
     return tm;
 }
 
-QString HttpProcessor::getTasks(time_t _from) const {
-    QVariantList list;
-
+void HttpProcessor::getTasks(time_t _from, QVariantList& _list) const {
     // List of updates
     Saver::ChangeLogList updates = m_Saver.getUpdatesList(_from);
 
@@ -221,18 +216,12 @@ QString HttpProcessor::getTasks(time_t _from) const {
 
 	    //
 	    object["data"] = data;
-	    QVariantMap objects;
-	    objects["object"] = object;
-	    list << objects;
+//	    QVariantMap objects;
+//	    objects["object"] = object;
+	    _list << object;
 	}
     }
-
-    QString res = QxtJSON::stringify(list);
-//    DEBUG("Local tasks - " << res);
-
-    return res;
 }
-QString HttpProcessor::getActivities(time_t _from) const {
-    QString result;
-    return result;
+
+void HttpProcessor::getActivities(time_t _from, QVariantList& _list) const {
 }
