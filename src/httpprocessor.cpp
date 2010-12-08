@@ -209,7 +209,7 @@ QString HttpProcessor::getTasks(time_t _from) const {
 		data["parentUuid"] = parentId;
 		data["updated"] = (int)task.getUpdated().toTime_t();
 		data["title"] = task.getName();
-		data["notes"] = task.getNotes().isEmpty() ? QString(" ") : task.getNotes();
+		data["notes"] = task.getNotes().replace("\n", "\\n");
 		data["created"] = (int)task.getCreated().toTime_t();
 		data["started"] = task.getStarted().isNull() ? 0 : (int)task.getStarted().toTime_t();
 		data["finished"] = task.getFinished().isNull() ? 0 : (int)task.getFinished().toTime_t();
