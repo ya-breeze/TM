@@ -120,6 +120,7 @@ protected:
 
 	/// Add record into ChangeLog table
 	void	addChangeLog(const QString& _uuid, const QString& _type, Status _status);
+	void		fillTask(Task& _task, QSqlQuery& _query);
 
 	bool		inTransaction;
 

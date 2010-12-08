@@ -28,10 +28,10 @@ TaskItem::TaskItem( const Task& _task, TaskItem *parent )
 
 TaskItem::~TaskItem()
 {
-	for(int i=0;i<(int)childItems.size();++i)
-		childItems[i]->setItemParent(parentItem);
-	if( parentItem )
-		parentItem->removeChild(this);
+//	for(int i=0;i<(int)childItems.size();++i)
+//		childItems[i]->setItemParent(parentItem);
+//	if( parentItem )
+//		parentItem->removeChild(this);
 }
 
 void TaskItem::appendChild(TaskItem *item)
@@ -334,6 +334,8 @@ int TaskTree::columnCount( const QModelIndex& ) const
 void TaskTree::clear()
 {
 	m_Tasks.clear();
+	rootItem = PtrTaskItem( new TaskItem(NULL) );
+	rootItem->setId("{00000000-0000-0000-0000-000000000000}");
 
 //	setChanged();
 	reset();
@@ -491,8 +493,9 @@ Qt::ItemFlags TaskTree::flags( const QModelIndex &index ) const
 	if (!index.isValid())
 		return 0;
 
-	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable
-		| Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+	// FIXME Drag&Drop is buggy
+//		| Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 }
 
 bool TaskTree::setData( const QModelIndex& _index, const QVariant& _value, int _role )

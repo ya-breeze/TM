@@ -16,6 +16,7 @@
 
 #include "Category.h"
 
+#include "utils.h"
 class Task
 {
 	typedef std::vector<QUuid> UuidVec;
@@ -51,7 +52,7 @@ public:
 
 	void setPlannedTime( const QString& m_PlannedTime )
 	{
-	    m_Updated = QDateTime::currentDateTime();
+	    setUpdated(QDateTime::currentDateTime());
 		this->m_PlannedTime = m_PlannedTime;
 	}
 
@@ -73,19 +74,18 @@ public:
 	void setCreated( const QDateTime& m_Created )
 	{
 		this->m_Created = m_Created;
-	    m_Updated = QDateTime::currentDateTime();
+	    setUpdated(QDateTime::currentDateTime());
 	}
 
 	void setFinished( const QDateTime& m_Finished )
 	{
 		this->m_Finished = m_Finished;
-	    m_Updated = QDateTime::currentDateTime();
+	    setUpdated(QDateTime::currentDateTime());
 	}
 
 	void setStarted( const QDateTime& m_Started )
 	{
 		this->m_Started = m_Started;
-	    m_Updated = QDateTime::currentDateTime();
 	}
 
 	QString getNotes() const
@@ -96,7 +96,7 @@ public:
 	void setNotes( QString str_Notes )
 	{
 		this->str_Notes = str_Notes;
-	    m_Updated = QDateTime::currentDateTime();
+	    setUpdated(QDateTime::currentDateTime());
 	}
 
 	UuidVec getDepends() const
@@ -122,19 +122,19 @@ public:
 	void setId( QUuid m_Id )
 	{
 		this->m_Id = m_Id;
-	    m_Updated = QDateTime::currentDateTime();
+	    setUpdated(QDateTime::currentDateTime());
 	}
 
 	void setParentId( QUuid m_Parent )
 	{
 		this->m_Parent = m_Parent;
-	    m_Updated = QDateTime::currentDateTime();
+	    setUpdated(QDateTime::currentDateTime());
 	}
 
 	void setName( const QString& str_Name )
 	{
 		this->str_Name = str_Name;
-	    m_Updated = QDateTime::currentDateTime();
+	    setUpdated(QDateTime::currentDateTime());
 	}
 
 	int getParentIndex() const {
@@ -142,13 +142,14 @@ public:
 	}
 	void setParentIndex(int _idx) {
 	    m_ParentIndex = _idx;
-	    m_Updated = QDateTime::currentDateTime();
+	    setUpdated(QDateTime::currentDateTime());
 	}
 
 	QDateTime getUpdated() const {
 		return m_Updated;
 	}
 	void setUpdated( const QDateTime& _LocalUpdated ) {
+//	    TRACE;
 		m_Updated = _LocalUpdated;
 	}
 
@@ -160,7 +161,7 @@ public:
     void setCategories(const QStringList& m_Categories)
     {
 	this->m_Categories = m_Categories;
-	m_Updated = QDateTime::currentDateTime();
+	setUpdated(QDateTime::currentDateTime());
     }
 
     void addCategory(const QString& _cat)
@@ -176,7 +177,7 @@ public:
     void setIconName( QString str_IconName )
     {
 	    this->str_IconName = str_IconName;
-	m_Updated = QDateTime::currentDateTime();
+	setUpdated(QDateTime::currentDateTime());
     }
 };
 

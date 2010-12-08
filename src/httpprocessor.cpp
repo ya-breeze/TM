@@ -155,7 +155,7 @@ void HttpProcessor::processGetUpdates(const QStringMap& _headers, const QBuffer&
 	<< body;
 
     DEBUG("Will transfer entities from time " << fromTime << ", body size " << body.toUtf8().length() << " not " << body.length());
-    DEBUG(body);
+//    DEBUG(body);
     _clientConnection->write(data.toUtf8());
 }
 
@@ -216,8 +216,6 @@ void HttpProcessor::getTasks(time_t _from, QVariantList& _list) const {
 
 	    //
 	    object["data"] = data;
-//	    QVariantMap objects;
-//	    objects["object"] = object;
 	    _list << object;
 	}
     }

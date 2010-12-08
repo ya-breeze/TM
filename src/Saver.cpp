@@ -196,11 +196,11 @@ void Saver::saveDb(TaskTree& _tree) {
     DEBUG("Saving tasks in db...");
     Transaction<Saver> t(*this);
 
-    DEBUG("Deleting...");
-    QSqlQuery query(m_Db);
-    if( !query.exec("DELETE FROM Tasks;") )
-	throw std::runtime_error(query.lastError().text().toStdString());
-    query.finish();
+//    DEBUG("Deleting...");
+//    QSqlQuery query(m_Db);
+//    if( !query.exec("DELETE FROM Tasks;") )
+//	throw std::runtime_error(query.lastError().text().toStdString());
+//    query.finish();
 
     DEBUG("Saving...");
     saveDbRecurse(_tree, QModelIndex());
@@ -242,27 +242,9 @@ Saver::TaskMap Saver::restoreDbTasks() {
 	       "started, finished, planned, parentIndex, categories, iconName FROM Tasks;");
     while (query.next()) {
 	Task task;
-	int dt;
-	task.setId( QUuid(query.value(0).toString()) );
-	task.setParentId( QUuid(query.value(1).toString()) );
-	task.setName( query.value(2).toString() );
-	task.setNotes( query.value(3).toString() );
-	task.setCreated( QDateTime::fromTime_t(query.value(4).toInt()) );
-	task.setUpdated( QDateTime::fromTime_t(query.value(5).toInt()) );
-	if( (dt = query.value(6).toInt())!=0 )
-	    task.setStarted( QDateTime::fromTime_t(dt) );
-	if( (dt = query.value(7).toInt())!=0 )
-	    task.setFinished( QDateTime::fromTime_t(dt) );
-	task.setPlannedTime( query.value(8).toString() );
-	task.setParentIndex( query.value(9).toInt() );
-
-	QStringList lst = query.value(10).toString().split( ";" );
-	task.setCategories( lst );
-
-	task.setIconName( query.value(11).toString() );
+	fillTask(task, query);
 
 	tasks[ task.getId() ] = task;
-//	DEBUG("Restored task " << task.getName());
     }
     query.finish();
 
@@ -646,27 +628,32 @@ Task Saver::restoreDbTask(const QString& _uuid) {
 	throw std::runtime_error(query.lastError().text().toStdString());
 
     if(query.next()) {
-	int dt;
-	task.setId( QUuid(query.value(0).toString()) );
-	task.setParentId( QUuid(query.value(1).toString()) );
-	task.setName( query.value(2).toString() );
-	task.setNotes( query.value(3).toString() );
-	task.setCreated( QDateTime::fromTime_t(query.value(4).toInt()) );
-	task.setUpdated( QDateTime::fromTime_t(query.value(5).toInt()) );
-	if( (dt = query.value(6).toInt())!=0 )
-	    task.setStarted( QDateTime::fromTime_t(dt) );
-	if( (dt = query.value(7).toInt())!=0 )
-	    task.setFinished( QDateTime::fromTime_t(dt) );
-	task.setPlannedTime( query.value(8).toString() );
-	task.setParentIndex( query.value(9).toInt() );
-
-	QStringList lst = query.value(10).toString().split( ";" );
-	task.setCategories( lst );
-
-	task.setIconName( query.value(11).toString() );
-//	DEBUG("Restored task " << task.getName());
+	fillTask(task, query);
     }
     query.finish();
 
     return task;
+}
+
+void Saver::fillTask(Task& task, QSqlQuery& query) {
+    int dt;
+    task.setId( QUuid(query.value(0).toString()) );
+    task.setParentId( QUuid(query.value(1).toString()) );
+    task.setName( query.value(2).toString() );
+    task.setNotes( query.value(3).toString() );
+    task.setCreated( QDateTime::fromTime_t(query.value(4).toInt()) );
+    if( (dt = query.value(6).toInt())!=0 )
+	task.setStarted( QDateTime::fromTime_t(dt) );
+    if( (dt = query.value(7).toInt())!=0 )
+	task.setFinished( QDateTime::fromTime_t(dt) );
+    task.setPlannedTime( query.value(8).toString() );
+    task.setParentIndex( query.value(9).toInt() );
+
+    QStringList lst = query.value(10).toString().split( ";" );
+    task.setCategories( lst );
+
+    task.setIconName( query.value(11).toString() );
+//	DEBUG("Restored task " << task.getName());
+    // Should be last in order to don't change updated
+    task.setUpdated( QDateTime::fromTime_t(query.value(5).toInt()) );
 }
