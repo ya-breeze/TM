@@ -66,6 +66,8 @@ TM::TM(QWidget *parent)
 
 	new QShortcut(QKeySequence("Ctrl+F"), this, SLOT(slot_SetFFFocus()));
 	new QShortcut(QKeySequence("Esc"), ui.leFastFilter, SLOT(clear()));
+	// start/stop 'unknown' activity
+	new QShortcut(QKeySequence("F11"), this, SLOT(slot_ToggleUnknownActivity()));
 
 
 	p_ShcAddChildTask	= new QShortcut(QKeySequence("Ins"), this, SLOT(slot_AddItem()));
@@ -93,12 +95,6 @@ TM::TM(QWidget *parent)
 	    QxtGlobalShortcut* shortcut = new QxtGlobalShortcut(this);
 	    connect(shortcut, SIGNAL(activated()), this, SLOT(toggleVisibility()));
 	    shortcut->setShortcut(QKeySequence("F12"));
-	}
-	// start/stop 'unknown' activity
-	{
-	    QxtGlobalShortcut* shortcut = new QxtGlobalShortcut(this);
-	    connect(shortcut, SIGNAL(activated()), this, SLOT(slot_ToggleUnknownActivity()));
-	    shortcut->setShortcut(QKeySequence("F11"));
 	}
 
 	// tray

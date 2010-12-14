@@ -85,13 +85,14 @@ void HttpProcessor::processSendUpdates(const QStringMap&, const QBuffer& _body, 
 	// Обрабаываем
 	foreach (QVariant object, json) {
 	    QVariantMap obj = object.toMap();
-	    obj = obj.begin().value().toMap();
+//	    obj = obj.begin().value().toMap();
 	    QString type = obj["type"].toString().toLower();
 	    QString id = obj["id"].toString().toLower();
 	    QString status = obj["status"].toString().toLower();
 	    DEBUG("Object - " << type << ":" << status);
 
 	    if( type=="task" ) {
+		DEBUG("Task");
 		QVariantMap data = obj["data"].toMap();
 		Task task;
 		task.setId( id );
@@ -117,12 +118,13 @@ void HttpProcessor::processSendUpdates(const QStringMap&, const QBuffer& _body, 
 		    // should change updated last
 		    task.setUpdated( QDateTime::fromTime_t(data["updated"].toInt()) );
 
-		    m_Saver.replaceTask(task);
+//		    m_Saver.replaceTask(task);
 		} else {
 		    DEBUG("Unknown status: " << status << " for " << type);
 		}
 
 	    } else if( type=="activity" ) {
+		DEBUG("Activity");
 
 	    } else {
 		DEBUG("Unknown object type: " << type);
@@ -155,7 +157,7 @@ void HttpProcessor::processGetUpdates(const QStringMap& _headers, const QBuffer&
 	<< body;
 
     DEBUG("Will transfer entities from time " << fromTime << ", body size " << body.toUtf8().length() << " not " << body.length());
-//    DEBUG(body);
+    DEBUG(body);
     _clientConnection->write(data.toUtf8());
 }
 
@@ -203,15 +205,19 @@ void HttpProcessor::getTasks(time_t _from, QVariantList& _list) const {
 		parentId = parentId.mid(1, parentId.length()-2);
 		data["parentUuid"] = parentId;
 		data["updated"] = (int)task.getUpdated().toTime_t();
-		data["title"] = task.getName();
-		data["notes"] = task.getNotes().replace("\n", "\\n");
+		if( !task.getName().isEmpty() )
+		    data["title"] = escapeJson(task.getName());
+		if( !task.getNotes().isEmpty() )
+		    data["notes"] = escapeJson(task.getNotes());
 		data["created"] = (int)task.getCreated().toTime_t();
 		data["started"] = task.getStarted().isNull() ? 0 : (int)task.getStarted().toTime_t();
 		data["finished"] = task.getFinished().isNull() ? 0 : (int)task.getFinished().toTime_t();
-		data["planned"] = task.getPlannedTime();
+		data["planned"] = escapeJson(task.getPlannedTime());
 		data["parentIndex"] = task.getParentIndex();
-		data["categories"] = task.getCategories().join(";");
-		data["iconName"] = task.getIconName();
+		if( !task.getCategories().isEmpty() )
+		    data["categories"] = escapeJson(task.getCategories().join(";"));
+		if( !task.getIconName().isEmpty() )
+		    data["iconName"] = escapeJson(task.getIconName());
 	    }
 
 	    //

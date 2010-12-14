@@ -91,5 +91,7 @@ public:
 
 /// Переводит секунды в вид часы:минуты
 QString sec2str(int _secs);
+QString escapeJson(const QString& _value);
+QString unescapeJson(const QString& _value);
 
 #endif /* UTILS_H_ */

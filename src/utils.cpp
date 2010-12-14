@@ -80,3 +80,59 @@ QString sec2str(int _secs) {
 
     return res;
 }
+
+QString escapeJson(const QString& _value) {
+    QString res;
+
+    int sz = _value.size();
+    for(int i=0; i<sz; ++i) {
+	if( _value[i]=='"' )
+	    res += "\\\"";
+	else if( _value[i]=='\\' )
+	    res += "\\\\";
+	else if( _value[i]=='/' )
+	    res += "/";
+	else if( _value[i]=='\b' )
+	    res += "\\b";
+	else if( _value[i]=='\f' )
+	    res += "\\f";
+	else if( _value[i]=='\n' )
+	    res += "\\n";
+	else if( _value[i]=='\r' )
+	    res += "\\r";
+	else if( _value[i]=='\t' )
+	    res += "\\t";
+	else
+	    res += _value[i];
+    }
+
+    return res;
+}
+QString unescapeJson(const QString& _value) {
+    QString res;
+    int sz = _value.size();
+    for(int i=0; i<sz; ++i) {
+	if( _value[i]=='\\' ) {
+	    ++i;
+	    if( _value[i]=='"' )
+		res += "\"";
+	    else if( _value[i]=='\\' )
+		res += "\\";
+	    else if( _value[i]=='/' )
+		res += "/";
+	    else if( _value[i]=='b' )
+		res += "\b";
+	    else if( _value[i]=='f' )
+		res += "\f";
+	    else if( _value[i]=='n' )
+		res += "\n";
+	    else if( _value[i]=='r' )
+		res += "\r";
+	    else if( _value[i]=='t' )
+		res += "\t";
+	} else
+	    res += _value[i];
+    }
+
+    return res;
+}
