@@ -9,11 +9,10 @@
 
 #include "utils.h"
 
-Activities::Activities( const QDate& _date )
-	: m_Today(_date), has_CurActivity(false)
+Activities::Activities( Saver& _saver, const QDate& _date )
+	: m_Today(_date), has_CurActivity(false), m_Saver(_saver)
 {
-	Saver saver;
-	m_Days = saver.getActiveDays();
+	m_Days = m_Saver.getActiveDays();
 }
 
 bool Activities::hasCurActivity() const
@@ -79,10 +78,9 @@ DayActivities& Activities::getDay(const QDate& _date)
 	if( it!=m_Activities.end() )
 		return it->second;
 
-	Saver saver;
 	DayActivities &act = m_Activities[_date];
-	if( saver.canRestore(_date) )
-		saver.restore(_date, act);
+	if( m_Saver.canRestore(_date) )
+		m_Saver.restore(_date, act);
 
 	return act;
 }
@@ -98,12 +96,11 @@ bool Activities::hasChanged() const
 
 void Activities::save()
 {
-	Saver saver;
 	for(ActivitySet::iterator it=m_Activities.begin();it!=m_Activities.end(); ++it)
 	{
 		if( it->second.hasChanged() )
 		{
-			saver.save(it->first, it->second);
+			m_Saver.save(it->first, it->second);
 			it->second.setChanged(false);
 		}
 	}

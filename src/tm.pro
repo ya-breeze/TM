@@ -35,7 +35,14 @@ HEADERS += CalendarShower.h \
     httpprocessor.h \
     iconcache.h TabletDlgTask.h \
     dlgiconchoose.h \
-    constants.h
+    constants.h \
+    diagramm/ConvertorFromSeconds.h \
+    diagramm/Convertor.h              \
+    diagramm/diagramm.h \
+    diagramm/diagrammitem.h \
+    diagramm/diagrammiteminternal.h \
+    diagramm/ListBuilder.h \
+    diagrammdialog.h
 SOURCES += CalendarShower.cpp TabletDlgTask.cpp\
     dlgcalendar.cpp \
     PlannedTasks.cpp \
@@ -64,12 +71,18 @@ SOURCES += CalendarShower.cpp TabletDlgTask.cpp\
     CategoryEdit.cpp \
     httpprocessor.cpp \
     iconcache.cpp \
-    dlgiconchoose.cpp
+    dlgiconchoose.cpp \
+    diagramm/diagramm.cpp \
+    diagramm/diagrammitem.cpp \
+    diagramm/diagrammiteminternal.cpp \
+    diagramm/ListBuilder.cpp \
+    diagrammdialog.cpp
 FORMS += dlgcalendar.ui \
     PlannedTasks.ui \
     mainwindow.ui \
     CatEdit.ui TabletDlgTask.ui \
-    dlgiconchoose.ui
+    dlgiconchoose.ui \
+    diagrammdialog.ui
 RESOURCES += tm.qrc
 TRANSLATIONS = tm_ru.ts
 QMAKE_CXXFLAGS += -g3

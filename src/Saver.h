@@ -23,20 +23,20 @@ class Transaction {
     bool in_Transaction;
     T&	 m_Saver;
 public:
-    Transaction(T &_saver)
+	Transaction(T &_saver)
 	: m_Saver(_saver) {
 	m_Saver.startTransaction();
 	in_Transaction = true;
-    }
-    ~Transaction() {
+	}
+	~Transaction() {
 	if( in_Transaction )
-	    m_Saver.rollback();
-    }
-    void commit() {
+		m_Saver.rollback();
+	}
+	void commit() {
 	if( in_Transaction )
-	    m_Saver.commit();
+		m_Saver.commit();
 	in_Transaction = false;
-    }
+	}
 };
 
 class TaskTree;
@@ -48,17 +48,17 @@ class TaskTree;
 class Saver
 {
 public:
-    enum Status {
+	enum Status {
 	ST_UPDATED = 0,
 	ST_DELETED = 1
-    };
+	};
 
     /// Represents one item in ChangeLog table
     struct ChangeLogItem {
-	QString	id;
-	QString	type;
-	Status	status;
-	time_t	timestamp;
+    QString	id;
+    QString	type;
+    Status	status;
+    time_t	timestamp;
     };
     typedef QList<ChangeLogItem> ChangeLogList;
 
@@ -67,8 +67,6 @@ public:
 
 	Saver();
 	~Saver();
-
-	void init();
 
 	void	save(TaskTree& _tree);
 	void	restore(TaskTree& _tree, CategoryTree& _cats);
@@ -102,6 +100,7 @@ public:
 	Task		restoreDbTask(const QString& _uuid);
 
 protected:
+	void		init();
 	void		saveDb(TaskTree& _tree);
 	QStringList	restoreDbCategories();
 	void		saveDbActivities(const DayActivities& _tree);

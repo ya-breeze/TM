@@ -115,7 +115,9 @@ private:
 	CategoryTree m_Cats;
 //	PlannedTaskList	*p_PlannedTasks;
 
+	Saver		m_Saver;
 	Activities	m_Activities;
+	TaskTree	m_Tasks;
 	LastActs	*p_LastActs;
 
 	QShortcut	*p_ShcAddSiblingTask;
@@ -134,12 +136,10 @@ private:
 	QShortcut	*p_ShcMoveRight;
 
 	HideDone	*p_ProxyHideDone;
-	Saver		m_Saver;
 	Server		*p_Server;
 
 	QSystemTrayIcon *p_Tray;
 	IconCache	m_IconCache;
-	TaskTree	m_Tasks;
 
 	/// Выполняется ли в текущий момент активность "прочее"
 	bool		is_UnknownActivity;

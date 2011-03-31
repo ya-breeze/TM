@@ -11,15 +11,16 @@
 #include "dlgcalendar.h"
 #include "dlgiconchoose.h"
 #include "constants.h"
+#include "diagrammdialog.h"
 
 #include "CategoryEdit.h"
 
 TM::TM(QWidget *parent)
-    : QMainWindow(parent), p_LastActs(new LastActs(&m_Tasks, &m_Activities, this)), m_Saver(), p_Server(new Server(m_Saver, this)),
-      m_IconCache(m_Saver), m_Tasks(m_IconCache), is_UnknownActivity(false)
+    : QMainWindow(parent), m_Saver(), m_Activities(m_Saver), m_Tasks(m_IconCache),
+      p_LastActs(new LastActs(m_Tasks, m_Activities, this)), p_Server(new Server(m_Saver, this)),
+      m_IconCache(m_Saver), is_UnknownActivity(false)
 {
-    m_Saver.init();
-	ui.setupUi(this);
+    ui.setupUi(this);
 
 	// Задачи
 	p_ProxyHideDone = new HideDone(this);
@@ -92,9 +93,9 @@ TM::TM(QWidget *parent)
 
 	// popup on global shortcut
 	{
-	    QxtGlobalShortcut* shortcut = new QxtGlobalShortcut(this);
-	    connect(shortcut, SIGNAL(activated()), this, SLOT(toggleVisibility()));
-	    shortcut->setShortcut(QKeySequence("F12"));
+		QxtGlobalShortcut* shortcut = new QxtGlobalShortcut(this);
+		connect(shortcut, SIGNAL(activated()), this, SLOT(toggleVisibility()));
+		shortcut->setShortcut(QKeySequence("Ctrl+F12"));
 	}
 
 	// tray
@@ -106,6 +107,7 @@ TM::TM(QWidget *parent)
 
 TM::~TM()
 {
+//	m_Saver
 }
 
 void TM::slot_SetFinished()
@@ -231,7 +233,7 @@ void TM::slot_FocusChanged(QWidget *_old, QWidget */*_now*/)
 
 void TM::updateTaskProperties( const Task& _task )
 {
-    TRACE;
+	TRACE;
 	ui.Notes->setText( _task.getNotes() );
 	ui.lblCreateTime->setText( _task.getCreated().toString("yyyy.MM.dd H:mm") );
 	ui.cbStartedTime->setChecked( !_task.getStarted().isNull() );
@@ -344,12 +346,12 @@ void TM::slot_Restore()
 
 		// Нужно добавить задачу для "прочих" активностей
 		if( !m_Tasks.getItem(QString(ACTIVITY_EMPTY)) ) {
-		    Task task;
-		    task.setId(QString(ACTIVITY_EMPTY));
-		    task.setParentId(QString(EMPTY_UUID));
-		    task.setName( tr("Unknown activity") );
+			Task task;
+			task.setId(QString(ACTIVITY_EMPTY));
+			task.setParentId(QString(EMPTY_UUID));
+			task.setName( tr("Unknown activity") );
 
-		    m_Tasks.addChild(QString(EMPTY_UUID), task);
+			m_Tasks.addChild(QString(EMPTY_UUID), task);
 		}
 
 
@@ -737,7 +739,7 @@ void TM::slot_FastFilter(const QString& _value)
 void TM::slot_StartSynchronization()
 {
 //    QMessageBox::critical(this, tr("Syncronization"), tr("Syncronization is starting! Please wait."));
-    slot_Save();
+	slot_Save();
 }
 
 /// Вызывается после окончания синхронизации
@@ -751,11 +753,11 @@ QString TM::deep2Spaces(Task *task) {
 	QString result;
 
 	while( task ) {
-	    if( !task->getParentId().isNull() ) {
+		if( !task->getParentId().isNull() ) {
 		task = m_Tasks.getItem( task->getParentId() );
 		result += "\t";
-	    }
-	    else
+		}
+		else
 		task = NULL;
 	}
 
@@ -767,15 +769,15 @@ QString TM::fullName(Task *task) {
 
 	QString fullTaskName;
 	while( task ) {
-	    if( !fullTaskName.isEmpty() )
+		if( !fullTaskName.isEmpty() )
 		fullTaskName = ":" + fullTaskName;
-	    fullTaskName = task->getName() + fullTaskName;
+		fullTaskName = task->getName() + fullTaskName;
 
-	    if( !task->getParentId().isNull() ) {
+		if( !task->getParentId().isNull() ) {
 		task = m_Tasks.getItem( task->getParentId() );
 		//result += "\t";
-	    }
-	    else
+		}
+		else
 		task = NULL;
 	}
 
@@ -784,14 +786,18 @@ QString TM::fullName(Task *task) {
 
 /// Вызывается для отображения активностей одного дня
 void TM::slot_DumpActivitiesForDate() {
+    DiagrammDialog dlg(m_Activities, m_Tasks);
+    dlg.exec();
+    return;
+
     DlgCalendar cld;
     if( cld.exec(QDateTime::currentDateTime())!=QDialog::Accepted )
-	return;
+    return;
 
     DayActivities acts = m_Activities.getDay( cld.dateTime().date() );
     if( !acts.count() ) {
-	DEBUG("There are no any activities");
-	return;
+    DEBUG("There are no any activities");
+    return;
     }
 
 
@@ -800,62 +806,64 @@ void TM::slot_DumpActivitiesForDate() {
     QMap< QPair<QString, QString/*deep*/>, int/*condur*/ > times;
     std::cout << "---------------- " << cld.dateTime().date().toString("yyyy.MM.dd") << " ------------------" << std::endl;
     for(size_t i=0; i<acts.count(); ++i) {
-	// Посчитаем длительность. Для последней активности длительность неопределена
-	Activity act = acts.getActivity(i);
-	int condur = -1;
-	if( i!=acts.count()-1 ) {
-	    Activity next = acts.getActivity(i+1);
-	    condur = act.getStartTime().secsTo( next.getStartTime() );
-	}
+    // Посчитаем длительность. Для последней активности длительность неопределена
+    Activity act = acts.getActivity(i);
+    int condur = -1;
+    if( i!=acts.count()-1 ) {
+        Activity next = acts.getActivity(i+1);
+        condur = act.getStartTime().secsTo( next.getStartTime() );
+    }
 
 	// Получим полное название задачи - включая родителей
 	Task *task = m_Tasks.getItem(act.getAssignedTask());
 	QString fullTaskName;
 	while( task ) {
-	    if( !fullTaskName.isEmpty() )
+		if( !fullTaskName.isEmpty() )
 		fullTaskName = ":" + fullTaskName;
-	    fullTaskName = task->getName() + fullTaskName;
+		fullTaskName = task->getName() + fullTaskName;
 
-    	    // Длительность родительских задач
-    	    QPair<QString, QString> key = qMakePair(fullName(task), deep2Spaces(task));
-    	    //QString name = deep2Spaces(task) + task->getName();
-    	    //QString name = deep2Spaces(task);// + fullTaskName;
-    	    if( !times.contains(key) )
-		times[ key ] = 0;
-    	    if( condur!=-1 )
-		times[key] += condur;
+            // Длительность родительских задач
+            QPair<QString, QString> key = qMakePair(fullName(task), deep2Spaces(task));
+            //QString name = deep2Spaces(task) + task->getName();
+            //QString name = deep2Spaces(task);// + fullTaskName;
+            if( !times.contains(key) )
+        times[ key ] = 0;
+            if( condur!=-1 )
+        times[key] += condur;
 
-	    if( !task->getParentId().isNull() )
+		if( !task->getParentId().isNull() )
 		task = m_Tasks.getItem( task->getParentId() );
-	    else
+		else
 		task = NULL;
 	}
 
 	//std::cout << fullTaskName << " - " <<(condur==-1 ? TM::tr("Unknown") : QString::number(condur/60)+" "+TM::tr("min") ) << std::endl;
 	total += condur;
-    }
-    std::cout << "Total: " << sec2str(total) << " min" << std::endl;
-    QMapIterator< QPair<QString, QString>, int> i(times);
-    while (i.hasNext()) {
+	}
+	std::cout << "Total: " << sec2str(total) << " min" << std::endl;
+	QMapIterator< QPair<QString, QString>, int> i(times);
+	while (i.hasNext()) {
 	i.next();
 	std::cout << "\t" << i.key().second << i.key().first << ": " << sec2str(i.value()) << std::endl;
-    }
-    std::cout << "----------------------------------" << std::endl;
+	}
+	std::cout << "----------------------------------" << std::endl;
 }
 
 void TM::toggleVisibility() {
     setVisible( ! isVisible() );
+    if( isVisible() )
+    setFocus();
 }
 
 void TM::slotTray(QSystemTrayIcon::ActivationReason _reason)
 {
     if( _reason==QSystemTrayIcon::Trigger )
     {
-	toggleVisibility();
+    toggleVisibility();
     }
     else if( _reason==QSystemTrayIcon::Context )
     {
-	DEBUG("Context menu");
+    DEBUG("Context menu");
 //        QMenu menu(this);
 //        menu.addAction(p_mw->actionStart);
 //        menu.addAction(p_mw->actionStop);
@@ -874,8 +882,8 @@ void TM::slot_EditTask() {
 void TM::slot_EditTaskIcon() {
     try
     {
-	QModelIndex proxyidx = ui.treeView->selectionModel()->currentIndex();
-	QModelIndex idx = p_ProxyHideDone->mapToSource(proxyidx);
+    QModelIndex proxyidx = ui.treeView->selectionModel()->currentIndex();
+    QModelIndex idx = p_ProxyHideDone->mapToSource(proxyidx);
 
 	TaskItem *item = m_Tasks.getItem(idx);
 	if( !item )
@@ -884,17 +892,17 @@ void TM::slot_EditTaskIcon() {
 	DlgIconChoose dlg(m_IconCache);
 	QPair<bool, QString> name = dlg.choose(item->getIconName());
 	if( name.first ) {
-	    item->setIconName(name.second);
-	    // Задача обновилась - нужно обновить отображение
-	    m_Tasks.setDataChanged(item);
-	    updateTaskProperties(*item);
-	    TRACE;
+		item->setIconName(name.second);
+		// Задача обновилась - нужно обновить отображение
+		m_Tasks.setDataChanged(item);
+		updateTaskProperties(*item);
+		TRACE;
 	}
-    }
-    catch(std::exception& _ex)
-    {
-	    QMessageBox::critical(this, tr("Can't change icon"), _ex.what());
-    }
+	}
+	catch(std::exception& _ex)
+	{
+		QMessageBox::critical(this, tr("Can't change icon"), _ex.what());
+	}
 }
 
 /// Включает/выключает активность "прочее"
@@ -903,45 +911,45 @@ void TM::slot_ToggleUnknownActivity() {
 
     try
     {
-	is_UnknownActivity = !is_UnknownActivity;
+    is_UnknownActivity = !is_UnknownActivity;
 
 	Activity act;
 	if( is_UnknownActivity ) {
-	    // Нужно начать активность "прочее"
+		// Нужно начать активность "прочее"
 
-	    // Проверим, что мы ещё не начали эту активность
-	    DayActivities &acts = m_Activities.getTodayActs();
-	    if( acts.count() ) {
+		// Проверим, что мы ещё не начали эту активность
+		DayActivities &acts = m_Activities.getTodayActs();
+		if( acts.count() ) {
 		const Activity &lastact = acts.getActivity(acts.count()-1);
 		if( lastact.getAssignedTask()==QString(ACTIVITY_EMPTY) ) {
-		    DEBUG("'Unknown' activity is already started");
-		    return;
+			DEBUG("'Unknown' activity is already started");
+			return;
 		}
-	    }
+		}
 
 
-	    TaskItem *item = m_Tasks.getItem( QString(ACTIVITY_EMPTY) );
-	    if( !item )
-		    ERROR("There are no 'unknown activity' task");
-	    act.setAssignedTask(item->getId());
-	    act.setName( item->getName() );
+		TaskItem *item = m_Tasks.getItem( QString(ACTIVITY_EMPTY) );
+		if( !item )
+			ERROR("There are no 'unknown activity' task");
+		act.setAssignedTask(item->getId());
+		act.setName( item->getName() );
 	} else {
-	    // Нужно завершить активность "прочее"
-	    DayActivities &acts = m_Activities.getTodayActs();
-	    if( acts.count()>1 ) {
+		// Нужно завершить активность "прочее"
+		DayActivities &acts = m_Activities.getTodayActs();
+		if( acts.count()>1 ) {
 		const Activity &lastact = acts.getActivity(acts.count()-2);
 		act.setAssignedTask(lastact.getAssignedTask());
 		act.setName(lastact.getName());
-	    } else
+		} else
 		return;
 	}
 
 	m_Activities.addActivity(act, true);
 	ui.tabMain->setCurrentIndex(1);
 	slot_CurrentActivity();
-    }
-    catch(std::exception& _ex)
-    {
-	    QMessageBox::critical(this, tr("Can't add activity"), _ex.what());
-    }
+	}
+	catch(std::exception& _ex)
+	{
+		QMessageBox::critical(this, tr("Can't add activity"), _ex.what());
+	}
 }

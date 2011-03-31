@@ -25,9 +25,10 @@ class Activities : public QObject
 	QDate		m_Today;
 	Activity	m_CurActivity;
 	bool		has_CurActivity;
+	Saver		&m_Saver;
 
 public:
-	Activities( const QDate& _date = QDate::currentDate() );
+	Activities( Saver& _saver, const QDate& _date = QDate::currentDate() );
 
 	void		addActivity(const Activity& _act, bool _setCurrent = true);
 
