@@ -75,7 +75,7 @@ QVariant LastActs::data( const QModelIndex &_index, int _role ) const
 void LastActs::actAdded(const Activity& _act, bool _setCurrent)
 {
 	if( _act.getStartTime().date()==p_Activities.getToday() || _setCurrent )
-		reset();
+		todayChanged(p_Activities.getToday());
 }
 
 void LastActs::todayChanged(const QDate& _date)

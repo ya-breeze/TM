@@ -2,11 +2,9 @@
 
 #include <QPen>
 #include <QPainter>
-#include <QDebug>
+//#include <QDebug>
 
 #include <math.h>
-
-#include "utils.h"
 
 Diagramm::Diagramm(QWidget *parent) :
     QWidget(parent), m_MouseX(0), m_MouseY(0), m_Radius(0), m_Convertor(NULL) {
@@ -32,10 +30,6 @@ void Diagramm::paintEvent(QPaintEvent *) {
     painter.drawRect(5, 5, width() - 10, height() - 10);
 
     for (int i = m_Items.size(); i > 0; --i) {
-        qDebug() << "level " << i;
-        //        pen.setColor(QColor(255*i/m_Items.size(), 0, 0, 255));
-
-        double currentAngle = 0;
         const DiagrammItemInternalList &list = m_Items.at(i - 1);
         for (int j = 0; j < list.size(); ++j) {
             const DiagrammItemInternal &item = list.at(j);
@@ -43,14 +37,13 @@ void Diagramm::paintEvent(QPaintEvent *) {
                 painter.setBrush(QBrush(QColor(255, 100, 100)));
             }
             else {
-                painter.setBrush(QBrush(QColor(255 * (1 - currentAngle / 360), 200, 255 * (currentAngle / 360))));
+                painter.setBrush(QBrush(QColor(255 * (1 - item.getStartDegree() / 360), 200, 255 * (item.getStartDegree() / 360))));
             }
             painter.drawPie(m_Rects.at(i - 1), item.getStartDegree() * 16, item.getAngle() * 16 - 1);
-            currentAngle += item.getAngle();
-            qDebug() << "currentAngle - " << currentAngle << " in " << item.getName();
         }
     }
 
+    // mouse on item
     if (m_MouseX && m_MouseY && m_Convertor) {
         QPoint item = findItem();
         if( item.x()>=0 ) {
@@ -116,13 +109,8 @@ QPoint Diagramm::findItem() {
             double y2 = ::sin((item.getStartDegree() + item.getAngle()) * M_PI / 180);
             double sign2 = realY * x2 - realX * y2;
 
-            if( sign>0 && sign2<0 ) {
-                //QPainter painter(this);
-                //painter.drawLine(width() / 2.0- 200 * x, height() / 2.0+ 200 * y, width() / 2.0 + 200 * x, height()
-                //        / 2.0 - 200 * y);
-                //painter.drawLine(width() / 2.0- 200 * x2, height() / 2.0+ 200 * y2, width() / 2.0 + 200 * x2, height()
-                //        / 2.0 - 200 * y2);
 
+            if( (item.getAngle()<180 && sign>0 && sign2<0) || (item.getAngle()>180 && (sign>0 || sign2<0) ) ) {
                 // inside the angle - should check radius
                 double radius = m_Radius * (i + 1) / m_Items.size();
                 radius *= radius;
@@ -138,4 +126,8 @@ QPoint Diagramm::findItem() {
 void Diagramm::setSelectedItem(const QUuid& _id) {
     m_SelectedItem = _id;
     repaint();
+}
+
+void Diagramm::clear() {
+    setItems(DiagrammItemList());
 }

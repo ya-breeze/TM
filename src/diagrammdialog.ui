@@ -19,7 +19,11 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QCalendarWidget" name="calendar"/>
+        <widget class="QCalendarWidget" name="calendar">
+         <property name="firstDayOfWeek">
+          <enum>Qt::Monday</enum>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QListView" name="listView"/>

@@ -15,9 +15,8 @@ struct ConvertorFromSeconds : public Convertor {
     QString convert(int _value) {
         int hours = _value/3600;
         int minutes = (_value-hours*3600)/60;
-        qDebug() << hours << minutes;
 
-        return QString::number(hours) + ":" + QString::number(minutes);
+        return QString("%1:%2").arg(hours).arg((int)minutes, (int)2, (int)10, QChar('0'));
     }
 };
 

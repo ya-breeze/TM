@@ -19,6 +19,7 @@ public:
 protected:
 public slots:
     void setItems(const DiagrammItemList & _items);
+    void clear();
     Convertor* getConvertor() const;
     void setConvertor(Convertor *_convertor);
     void setSelectedItem(const QUuid& _id);

@@ -34,9 +34,12 @@ void DiagrammDialog::onDateSelected() {
     QDate day = ui->calendar->selectedDate();
     DEBUG("Date selected: " + day.toString());
 
+    p_LastActs->todayChanged(day);
+
     DayActivities acts = m_Acts.getDay( day );
     if( !acts.count() ) {
         DEBUG("There are no any activities");
+        p_Diagramm->clear();
         return;
     }
 
@@ -84,42 +87,4 @@ void DiagrammDialog::onDateSelected() {
         list.append(item);
 
     p_Diagramm->setItems(list);
-
-    p_LastActs->todayChanged(day);
-
-
-//    int total = 0;
-//    QMap< QPair<QString, QString/*deep*/>, int/*condur*/ > times;
-//    std::cout << "---------------- " << cld.dateTime().date().toString("yyyy.MM.dd") << " ------------------" << std::endl;
-//    for(size_t i=0; i<acts.count(); ++i) {
-//    // Посчитаем длительность. Для последней активности длительность неопределена
-//    Activity act = acts.getActivity(i);
-//    int condur = -1;
-//    if( i!=acts.count()-1 ) {
-//        Activity next = acts.getActivity(i+1);
-//        condur = act.getStartTime().secsTo( next.getStartTime() );
-//    }
-
-//	// Получим полное название задачи - включая родителей
-//	Task *task = m_Tasks.getItem(act.getAssignedTask());
-//	QString fullTaskName;
-//	while( task ) {
-//		if( !fullTaskName.isEmpty() )
-//		fullTaskName = ":" + fullTaskName;
-//		fullTaskName = task->getName() + fullTaskName;
-
-//            // Длительность родительских задач
-//            QPair<QString, QString> key = qMakePair(fullName(task), deep2Spaces(task));
-//            //QString name = deep2Spaces(task) + task->getName();
-//            //QString name = deep2Spaces(task);// + fullTaskName;
-//            if( !times.contains(key) )
-//        times[ key ] = 0;
-//            if( condur!=-1 )
-//        times[key] += condur;
-
-//		if( !task->getParentId().isNull() )
-//		task = m_Tasks.getItem( task->getParentId() );
-//		else
-//		task = NULL;
-//	}
 }
