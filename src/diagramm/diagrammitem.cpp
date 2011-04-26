@@ -43,3 +43,7 @@ uint DiagrammItem::getValue() const
 {
     return m_value;
 }
+
+bool DiagrammItem::operator==(const DiagrammItem& _rh) const {
+    return m_id==_rh.m_id;
+}

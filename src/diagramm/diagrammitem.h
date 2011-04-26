@@ -22,6 +22,8 @@ class DiagrammItem {
         QString getName() const;
         QUuid getParent() const;
         uint getValue() const;
+
+        bool operator==(const DiagrammItem& _rh) const;
 };
 
 typedef QList<DiagrammItem> DiagrammItemList;

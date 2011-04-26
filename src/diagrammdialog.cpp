@@ -56,7 +56,7 @@ void DiagrammDialog::onDateSelected() {
             Activity next = acts.getActivity(i+1);
             condur = act.getStartTime().secsTo( next.getStartTime() );
         }
-        DEBUG(i << " - " << act.getName() << ":" << condur);
+        //DEBUG(i << " - " << act.getName() << ":" << condur);
 
         if( condur>0 ) {
             Task *task = m_Tasks.getItem(act.getAssignedTask());

@@ -2,7 +2,6 @@
 
 #include <QPen>
 #include <QPainter>
-//#include <QDebug>
 
 #include <math.h>
 
