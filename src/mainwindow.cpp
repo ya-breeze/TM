@@ -4,7 +4,7 @@
 #include <QMessageBox>
 #include <QProcess>
 #include <QPair>
-#include <QxtGlobalShortcut>
+#include <QxtGui/QxtGlobalShortcut>
 
 #include "utils.h"
 #include "Saver.h"
@@ -16,8 +16,8 @@
 #include "CategoryEdit.h"
 
 TM::TM(QWidget *parent)
-    : QMainWindow(parent), m_Saver(), m_Activities(m_Saver), m_Tasks(m_IconCache),
-      p_LastActs(new LastActs(m_Tasks, m_Activities, this)), p_Server(new Server(m_Saver, this)),
+    : QMainWindow(parent), m_Saver(), m_Activities(m_Saver), m_Tasks(m_IconCache, m_Saver),
+      p_LastActs(new LastActs(m_Tasks, m_Activities, this)),
       m_IconCache(m_Saver), is_UnknownActivity(false)
 {
     ui.setupUi(this);
@@ -54,10 +54,6 @@ TM::TM(QWidget *parent)
 			this, SLOT(slot_SelectedLastAct(const QModelIndex&)) );
 	connect( ui.cbHideDone, SIGNAL(stateChanged(int)), this, SLOT(slot_HideDone()) );
 	connect( ui.btn_Icon, SIGNAL(clicked()), this, SLOT(slot_EditTaskIcon()) );
-
-	// Net syncs
-	// TODO Нужен сигнал о начале синхронизации, чтобы сохранить текущие правки
-	connect( p_Server, SIGNAL(updated()), this, SLOT(slot_Restore()));
 
 	// Shortcuts
 	p_ShcFocusTasks		= new QShortcut(QKeySequence("Ctrl+T"), this, SLOT(slot_SetFocusTasks()));

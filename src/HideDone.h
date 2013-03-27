@@ -36,19 +36,19 @@ public:
 
 	bool getHideDone() const;
 	void setHideDone( bool _hideDone );
-    const QStringList& getCategories() const;
-    void setCategories(const QStringList& m_Categories);
+	const QStringList& getCategories() const;
+	void setCategories(const QStringList& m_Categories);
 	bool filterAcceptsRow( int sourceRow, const QModelIndex &sourceParent ) const;
 
 	/// Изменяет используемый быстрый фильтр
 	void setFastFilter( const QString& _value );
 protected:
 	/// Возвращает true, если переданая задача (без потомков) соответствует заданным условиям
-	MatchFilter filterTask( TaskItem *_item ) const;
+	MatchFilter filterTask( const TaskItem *_item ) const;
 	/// Возвращает true, если переданная задача или её потомки соответствует заданным условиям
-	bool filterTaskRecursed( TaskItem *_item ) const;
+	bool filterTaskRecursed( const TaskItem *_item ) const;
 	/// Проверяет категории на основе даты начала задачи - TM-REQ-047
-	bool checkStartDate( TaskItem *_item ) const;
+	bool checkStartDate( const TaskItem *_item ) const;
 };
 
 

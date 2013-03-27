@@ -43,7 +43,7 @@ bool HideDone::filterAcceptsRow( int sourceRow, const QModelIndex &sourceParent 
 	Q_ASSERT(tree);
 
 	QModelIndex index = tree->index( sourceRow, 0, sourceParent );
-	TaskItem *task = tree->getItem(index);
+	const TaskItem *task = tree->getItem(index);
 	Q_ASSERT(task);
 
 	// Что с признаком выполненности?
@@ -60,7 +60,7 @@ bool HideDone::filterAcceptsRow( int sourceRow, const QModelIndex &sourceParent 
 }
 
 /// Возвращает true, если переданая задача (без потомков) соответствует заданным условиям
-HideDone::MatchFilter HideDone::filterTask( TaskItem *_item ) const
+HideDone::MatchFilter HideDone::filterTask( const TaskItem *_item ) const
 {
 //    TRACE;
 	Q_ASSERT(_item);
@@ -90,7 +90,7 @@ HideDone::MatchFilter HideDone::filterTask( TaskItem *_item ) const
 }
 
 /// Возвращает true, если переданная задача или её потомки соответствует заданным условиям
-bool HideDone::filterTaskRecursed( TaskItem *_item ) const
+bool HideDone::filterTaskRecursed( const TaskItem *_item ) const
 {
 	Q_ASSERT(_item);
 //	DEBUG(__LINE__ << " " << _item->getName());
@@ -111,7 +111,7 @@ bool HideDone::filterTaskRecursed( TaskItem *_item ) const
 	// Содержат ли потомки?
 	for(int i=0; i<_item->childCount(); ++i)
 	{
-		TaskItem *item = _item->child(i);
+		const TaskItem *item = _item->child(i);
 		if( filterTaskRecursed(item) )
 		{
 //			DEBUG(item->getName() << " child  true");
@@ -130,7 +130,7 @@ void HideDone::setFastFilter( const QString& _value )
 }
 
 /// Проверяет категории на основе даты начала задачи - TM-REQ-047
-bool HideDone::checkStartDate( TaskItem *_item ) const
+bool HideDone::checkStartDate( const TaskItem *_item ) const
 {
 	if( !_item->getStarted().isValid() )
 		return false;

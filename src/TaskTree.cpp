@@ -15,7 +15,7 @@
 #include "utils.h"
 
 TaskItem::TaskItem( TaskItem *parent )
-    : m_MaxChildIndex(0)
+	: m_MaxChildIndex(0)
 {
 	setItemParent(parent);
 }
@@ -41,11 +41,11 @@ void TaskItem::appendChild(TaskItem *item)
 	item->setParentId(this->getId());
 
 	if( item->getParentIndex() ) {
-	    if( item->getParentIndex()>m_MaxChildIndex )
+		if( item->getParentIndex()>m_MaxChildIndex )
 		m_MaxChildIndex = item->getParentIndex();
 	} else {
-	    ++m_MaxChildIndex;
-	    item->setParentIndex(m_MaxChildIndex);
+		++m_MaxChildIndex;
+		item->setParentIndex(m_MaxChildIndex);
 	}
 
 }
@@ -57,7 +57,7 @@ void TaskItem::insertChild(int _index, TaskItem *_child)
 	_child->setParentId(this->getId());
 
 	if( _child->getParentIndex() )
-	    if( _child->getParentIndex()>m_MaxChildIndex )
+		if( _child->getParentIndex()>m_MaxChildIndex )
 		m_MaxChildIndex = _child->getParentIndex();
 
 	if( _index>=childCount() )
@@ -105,7 +105,7 @@ void TaskItem::removeChild(int _index)
 	}
 }
 
-TaskItem* TaskItem::child(int row)
+TaskItem* TaskItem::child(int row) const
 {
 	if( row<0 || row>=(int)childItems.size() )
 		return NULL;
@@ -168,8 +168,8 @@ TaskItem *TaskItem::parent()
 
 
 
-TaskTree::TaskTree( IconCache &_ic, QObject *parent )
-	: QAbstractItemModel(parent), m_IconCache(_ic)//, ChangableObject()
+TaskTree::TaskTree( IconCache &_ic, Saver& _saver, QObject *parent )
+	: QAbstractItemModel(parent), m_Saver(_saver), m_IconCache(_ic)//, ChangableObject()
 {
 	rootItem = PtrTaskItem( new TaskItem(NULL) );
 	rootItem->setId("{00000000-0000-0000-0000-000000000000}");
@@ -181,7 +181,7 @@ TaskTree::~TaskTree()
 
 QVariant TaskTree::data( const QModelIndex &index, int role ) const
 {
-    //TRACE;
+	//TRACE;
 	if (!index.isValid())
 		return QVariant();
 
@@ -220,35 +220,35 @@ QVariant TaskTree::data( const QModelIndex &index, int role ) const
 		}
 	}
 	if( role==Qt::DecorationRole ) {
-	    switch( index.column() )
-	    {
-		    case 0 :
-		    {
-			    if( !item->getIconName().isEmpty() ) {
+		switch( index.column() )
+		{
+			case 0 :
+			{
+				if( !item->getIconName().isEmpty() ) {
 				QIcon res = m_IconCache.restoreIcon(item->getIconName());
 				return res;
-			    }
-		    }
-		    break;
-		    case 1 :
-		    {
+				}
+			}
+			break;
+			case 1 :
+			{
 //			QIcon res = QIcon(":/images/MainIcon");
 //			return res;
-		    }
-		    break;
-	    }
+			}
+			break;
+		}
 	}
 
 	if( role==Qt::FontRole ) {
-	    switch( index.column() ) {
-		    case 0 :  {
-			    if( !item->getFinished().isNull() ) {
+		switch( index.column() ) {
+			case 0 :  {
+				if( !item->getFinished().isNull() ) {
 				QFont font;
 				font.setStrikeOut(true);
 				return font;
-			    }
-		    } break;
-	    }
+				}
+			} break;
+		}
 	}
 
 	return QVariant();
@@ -507,7 +507,10 @@ bool TaskTree::setData( const QModelIndex& _index, const QVariant& _value, int _
 
 	switch( _index.column() )
 	{
-		case 0 : item->setName( _value.toString() );
+		case 0 :
+			item->setName( _value.toString() );
+			m_Saver.saveDbTask(*item);
+		break;
 	}
 
 
@@ -529,12 +532,12 @@ bool TaskTree::setData( const QModelIndex& _index, const QVariant& _value, int _
 //	setChanged();
 //}
 
-void TaskTree::setDataChanged( TaskItem *_item )
+void TaskTree::setDataChanged( const TaskItem *_item )
 {
 //TRACE;
 	int row = _item->row();
-	QModelIndex index1 = createIndex( row, 0, _item );
-	QModelIndex index2 = createIndex( row, columnCount(QModelIndex()), _item );
+	QModelIndex index1 = createIndex( row, 0, const_cast<TaskItem*>(_item) );
+	QModelIndex index2 = createIndex( row, columnCount(QModelIndex()), const_cast<TaskItem*>(_item) );
 
 	emit dataChanged(index1, index2);
 
@@ -550,7 +553,7 @@ void TaskTree::setDataChanged( TaskItem *_item )
 void TaskTree::setDataChanged( const QModelIndex& _index )
 {
 //    TRACE;
-	TaskItem *item = getItem(_index);
+	const TaskItem *item = getItem(_index);
 	if( item )
 		setDataChanged(item);
 }

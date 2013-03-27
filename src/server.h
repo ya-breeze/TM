@@ -46,7 +46,7 @@
 
 #include "Saver.h"
 #include "utils.h"
-#include "httpprocessor.h"
+//#include "httpprocessor.h"
 
 #define MAX_MESSAGE 1000000
 

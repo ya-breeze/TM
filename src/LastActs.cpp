@@ -57,7 +57,7 @@ QVariant LastActs::data( const QModelIndex &_index, int _role ) const
 				res += act.getName();
 			else
 			{
-				TaskItem *item = p_Tasks.getItem(act.getAssignedTask());
+				const TaskItem *item = p_Tasks.getItem(act.getAssignedTask());
 				if( !item )
 					res += "<Wrong task in activity>";
 				else

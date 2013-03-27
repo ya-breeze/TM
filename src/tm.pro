@@ -4,16 +4,14 @@ QT += core \
     gui \
     network sql
 CONFIG += qxt link_pkgconfig
+LIBS += -lQxtGui
 QXT += core gui
-INCLUDEPATH += qtsingleapp
+INCLUDEPATH += qtsingleapp /usr/include/qxt /usr/include/qxt/QxtCore
 HEADERS += CalendarShower.h \
     dlgcalendar.h \
-    PlannedTasks.h \
-    PlannedTaskList.h \
     Filter.h \
     Category.h \
     PlannedTime.h \
-    TimeScale.h \
     HideDone.h \
     qtsingleapp/qtlocalpeer.h \
     qtsingleapp/qtlockedfile.h \
@@ -30,9 +28,7 @@ HEADERS += CalendarShower.h \
     TaskTree.h \
     mainwindow.h \
     CategoryTree.h \
-    server.h \
     CategoryEdit.h \
-    httpprocessor.h \
     iconcache.h TabletDlgTask.h \
     dlgiconchoose.h \
     constants.h \
@@ -45,14 +41,10 @@ HEADERS += CalendarShower.h \
     diagrammdialog.h
 SOURCES += CalendarShower.cpp TabletDlgTask.cpp\
     dlgcalendar.cpp \
-    PlannedTasks.cpp \
-    PlannedTaskList.cpp \
     Filter.cpp \
     HideDone.cpp \
     Category.cpp \
     PlannedTime.cpp \
-    TimeScale.cpp \
-    server.cpp \
     qtsingleapp/qtlocalpeer.cpp \
     qtsingleapp/qtlockedfile.cpp \
     qtsingleapp/qtlockedfile_unix.cpp \
@@ -69,7 +61,6 @@ SOURCES += CalendarShower.cpp TabletDlgTask.cpp\
     mainwindow.cpp \
     CategoryTree.cpp \
     CategoryEdit.cpp \
-    httpprocessor.cpp \
     iconcache.cpp \
     dlgiconchoose.cpp \
     diagramm/diagramm.cpp \
@@ -86,14 +77,14 @@ FORMS += dlgcalendar.ui \
 RESOURCES += tm.qrc
 TRANSLATIONS = tm_ru.ts
 QMAKE_CXXFLAGS += -g3
-unix { 
+unix {
     # VARIABLES
     isEmpty(PREFIX):PREFIX = /usr/
     BINDIR = $$PREFIX/bin
     DATADIR = $$PREFIX/share
     DEFINES += DATADIR=\\\"$$DATADIR\\\" \
         PKGDATADIR=\\\"$$PKGDATADIR\\\"
-    
+
     # MAKE INSTALL
     INSTALLS += target \
         desktop \

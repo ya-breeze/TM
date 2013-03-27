@@ -16,8 +16,6 @@
 #include "CategoryTree.h"
 #include "PlannedTaskList.h"
 
-#include "server.h"
-
 class TM : public QMainWindow
 {
 	Q_OBJECT
@@ -136,7 +134,6 @@ private:
 	QShortcut	*p_ShcMoveRight;
 
 	HideDone	*p_ProxyHideDone;
-	Server		*p_Server;
 
 	QSystemTrayIcon *p_Tray;
 	IconCache	m_IconCache;

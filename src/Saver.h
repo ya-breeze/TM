@@ -55,10 +55,10 @@ public:
 
     /// Represents one item in ChangeLog table
     struct ChangeLogItem {
-    QString	id;
-    QString	type;
-    Status	status;
-    time_t	timestamp;
+        QString	id;
+        QString	type;
+        Status	status;
+        time_t	timestamp;
     };
     typedef QList<ChangeLogItem> ChangeLogList;
 
@@ -70,6 +70,8 @@ public:
 
 	void	save(TaskTree& _tree);
 	void	restore(TaskTree& _tree, CategoryTree& _cats);
+
+	void		saveDbTask(const Task& _task);
 
 	QStringMap getIconList();
 	void	saveIcon(const QString& _uuid, const QString& _name, const QIcon& _icon);
@@ -105,7 +107,6 @@ protected:
 	QStringList	restoreDbCategories();
 	void		saveDbActivities(const DayActivities& _tree);
 	void		saveDbRecurse(TaskTree& _tree, const QModelIndex& _idx);
-	void		saveDbTask(const Task& _task);
 	void		recurseSave(const TaskTree& _tree, const QModelIndex& _idx);
 	void		saveTask(const Task& _task);
 	void		saveActivity(std::ofstream& _file, const Activity& _act);

@@ -3,8 +3,8 @@
 #include <stdexcept>
 
 #include <QxtJSON>
-#include <qjson/parser.h>
-#include <qjson/serializer.h>
+//#include <qjson/parser.h>
+//#include <qjson/serializer.h>
 
 HttpProcessor::HttpProcessor(Saver &_saver)
     : m_Saver(_saver)

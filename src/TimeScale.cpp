@@ -10,14 +10,14 @@
 #include "PlannedTime.h"
 
 TimeScale::TimeScale( TaskTree *_tasks,  QObject *_parent  )
-	: QObject(_parent), p_Tasks(_tasks)
+    : QObject(_parent), p_Tasks(_tasks)
 {
 }
 
 /// Выводит на консольку список задач, которые можно выводить на шкалу времени
 void TimeScale::dump(QModelIndex _idx)
 {
-	TaskItem *item = p_Tasks->getItem(_idx);
+	const TaskItem *item = p_Tasks->getItem(_idx);
 	QDateTime started = item->getStarted();
 	QDateTime finished = item->getFinished();
 	PlannedTime planned( item->getPlannedTime() );

@@ -39,7 +39,7 @@ public:
 	void removeChild(int);
 	void swapChilds(int _one, int _second);
 
-	TaskItem*	child(int row);
+	TaskItem*	child(int row) const;
 	int		childCount() const;
 	int		childIndex( TaskItem* );
 
@@ -68,7 +68,7 @@ class TaskTree : public QAbstractItemModel
 
 	typedef std::map<QUuid, PtrTaskItem> TaskMap;
 public:
-	TaskTree( IconCache &_ic, QObject *parent = NULL );
+	TaskTree( IconCache &_ic, Saver& _saver, QObject *parent = NULL );
 	virtual ~TaskTree();
 
 	QVariant data( const QModelIndex &index, int role ) const;
@@ -103,7 +103,7 @@ public:
 
 	/// Посылает сигнал о изменении данных в указанном индексе
 	void	setDataChanged( const QModelIndex& _index );
-	void	setDataChanged( TaskItem *_item );
+	void	setDataChanged( const TaskItem *_item );
 
 //	void	setDataRecurseChanged( const QModelIndex& _index );
 
@@ -117,6 +117,7 @@ public:
 	QModelIndex	moveTask( const QModelIndex& _task, const QModelIndex& _parent, int _row);
 public slots:
 protected:
+	Saver       &m_Saver;
 	TaskMap		m_Tasks;
 	PtrTaskItem	rootItem;
 	IconCache	&m_IconCache;
